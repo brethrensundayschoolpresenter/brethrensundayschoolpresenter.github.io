@@ -31,6 +31,8 @@ p{font-size:17px;line-height:1.7;margin:6px 0}
 .feats{display:flex;flex-wrap:wrap;gap:10px;justify-content:center;margin:22px 0 4px}
 .feat{background:#152231;border:2px dashed #34495f;border-radius:14px;padding:10px 14px;font-weight:700;font-size:16px;max-width:300px}
 .feat b{display:block;font-size:24px}
+.feats.top{margin:14px 0 6px;gap:8px}
+.feats.top .feat{font-size:15px;padding:7px 14px;border-style:solid;border-color:#2c4258;border-radius:999px;max-width:none}
 .box{background:#152231;border:2px dashed #34495f;border-radius:14px;padding:12px 16px;margin-top:22px;text-align:right}
 .box a{color:#8cc8ff}
 bdi{font-weight:700}
@@ -150,6 +152,14 @@ mark{background:var(--hi);color:inherit;padding:0 2px;border-radius:3px}
  <h1>ترانيم مدارس الأحد</h1>
  <div class="en">Brethren Sunday School Presenter</div>
  <p>برنامج مجاني لعرض ترانيم مدارس الأحد والكتاب المقدس على البروجكتور.</p>
+<div class="feats top">
+ <div class="feat">بيلاقي الترنيمة حتى لو كاتبها غلط أو جزء منها</div>
+ <div class="feat">فلتر بالمواضيع</div>
+ <div class="feat">قصص وشواهد مقترحة مع كل ترنيمة</div>
+ <div class="feat">الكتاب المقدس كامل ومشكّل</div>
+ <div class="feat">شاشة للبروجكتور بلونين بيتبادلوا</div>
+ <div class="feat">مجاني وبيشتغل من غير نت</div>
+</div>
  <a class="dl" id="dl" href="https://github.com/brethrensundayschoolpresenter/brethren-sunday-school-presenter/releases/latest">⬇️ نزّل لـ ويندوز ١٠ و ١١</a>
  <div class="ver" id="ver">&nbsp;</div>
  <a class="howto" href="https://github.com/brethrensundayschoolpresenter/brethren-sunday-school-presenter/raw/main/How-to-Install.pdf">📄 طريقة التسطيب خطوة بخطوة بالصور</a>
@@ -206,14 +216,6 @@ mark{background:var(--hi);color:inherit;padding:0 2px;border-radius:3px}
 
 <div class="mcap" id="mcap">ترانيم مدارس الأحد</div>
 
-<div class="feats">
- <div class="feat"><b>🔎</b>بحث بيلاقي الترنيمة حتى لو كاتب الكلمة غلط أو جزء من الترنيمة</div>
- <div class="feat"><b>🗂️</b>فلتر بالمواضيع</div>
- <div class="feat"><b>📖</b>قصص وشواهد مقترحة مع كل ترنيمة</div>
- <div class="feat"><b>✝️</b>الكتاب المقدس كامل ومشكّل</div>
- <div class="feat"><b>🖥️</b>شاشة للبروجكتور بلونين بيتبادلوا</div>
- <div class="feat"><b>💛</b>مجاني وبيشتغل من غير نت</div>
-</div>
 
 
 <a class="fb" href="https://m.me/61578584879222" target="_blank" rel="noopener">
@@ -226,9 +228,8 @@ mark{background:var(--hi);color:inherit;padding:0 2px;border-radius:3px}
 
 <div class="reg" id="reg"><form id="regf" novalidate>
  <h3>قبل التحميل 👋</h3>
- <div class="s">اكتب بياناتك عشان نعرف مين بيستخدم البرنامج، وبعدها التحميل هيبدأ على طول.</div>
+ <div class="s">عرّفنا بيك وبالاجتماع اللي بتخدم فيه، وبعدها التحميل هيبدأ على طول.</div>
  <label for="rN">الاسم</label><input id="rN" autocomplete="name" required>
- <label for="rP">رقم الموبايل</label><input id="rP" type="tel" inputmode="tel" autocomplete="tel" dir="ltr" style="text-align:right" required>
  <label for="rM">الاجتماع / الكنيسة</label><input id="rM" required>
  <div class="err" id="rE"></div>
  <div class="row"><button class="go" type="submit">⬇️ حفظ وتنزيل</button><button class="x" type="button" id="rX">إلغاء</button></div>
@@ -260,15 +261,13 @@ document.getElementById('rX').onclick = () => document.getElementById('reg').cla
 document.getElementById('reg').addEventListener('click', e => { if (e.target.id === 'reg') e.currentTarget.classList.remove('open'); });
 document.getElementById('regf').addEventListener('submit', async e => {
   e.preventDefault();
-  const n = document.getElementById('rN').value.trim(), p = document.getElementById('rP').value.trim(), m = document.getElementById('rM').value.trim();
-  const digits = p.replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/[^0-9]/g, '');
+  const n = document.getElementById('rN').value.trim(), m = document.getElementById('rM').value.trim();
   const err = document.getElementById('rE');
   if (n.length < 2) { err.textContent = 'اكتب اسمك'; return; }
-  if (digits.length < 8 || digits.length > 15) { err.textContent = 'اكتب رقم موبايل صحيح'; return; }
   if (m.length < 2) { err.textContent = 'اكتب اسم الاجتماع أو الكنيسة'; return; }
   err.textContent = '';
   const fd = new FormData();
-  fd.append('entry.1735689864', n); fd.append('entry.1881219465', p); fd.append('entry.520013336', m);
+  fd.append('entry.1735689864', n); fd.append('entry.520013336', m);
   try { await fetch(FORM, { method: 'POST', mode: 'no-cors', body: fd }); } catch (x) {}
   try { localStorage.setItem('bssp_reg', '1'); } catch (x) {}
   document.getElementById('reg').classList.remove('open');
