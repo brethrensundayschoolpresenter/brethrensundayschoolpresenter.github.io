@@ -51,6 +51,20 @@ bdi{font-weight:700}
 .fb svg{flex:0 0 34px}
 .fb small{display:block;font-weight:600;font-size:14px;opacity:.9}
 .demo-t{font-size:20px;margin:6px 0 10px}
+.reg{position:fixed;inset:0;background:#000b;display:none;align-items:center;justify-content:center;z-index:100;padding:16px}
+.reg.open{display:flex}
+.reg form{background:#152231;border:2px solid #3d5570;border-radius:18px;padding:22px 22px 18px;width:min(440px,100%);text-align:right;box-shadow:0 24px 70px #000c}
+.reg h3{margin:0 0 4px;font-size:22px}
+.reg .s{font-size:14px;color:#9fb0c2;margin-bottom:12px}
+.reg label{display:block;font-weight:800;font-size:15px;margin:10px 0 4px}
+.reg input{width:100%;font:inherit;font-size:17px;padding:9px 12px;border-radius:10px;border:2px solid #3d5570;background:#0e1622;color:#fff;outline:none}
+.reg input:focus{border-color:#ffff00}
+.reg .err{color:#ff8a8a;font-size:13px;min-height:18px;margin-top:6px}
+.reg .row{display:flex;gap:10px;margin-top:10px}
+.reg button{font:inherit;font-weight:800;font-size:18px;border-radius:12px;padding:9px 18px;cursor:pointer;border:2.5px solid #111}
+.reg button.go{flex:1;background:#ffff00;color:#111}
+.reg button.x{background:transparent;color:#9fb0c2;border-color:#3d5570}
+.reg .priv{font-size:12px;color:#7f93a8;margin-top:10px}
 /* ---------- demo stage (designed at 960x540, scaled to fit) ---------- */
 .stagewrap{position:relative;width:100%;aspect-ratio:16/9;border-radius:18px;overflow:hidden;box-shadow:0 16px 50px #000a;background:#fbfaf6;border:2px solid #2c3d50;color:#1d1d1d}
 .stage{position:absolute;top:0;right:0;width:960px;height:540px;transform-origin:top right;text-align:right}
@@ -209,6 +223,17 @@ mark{background:var(--hi);color:inherit;padding:0 2px;border-radius:3px}
 
 
 </div>
+
+<div class="reg" id="reg"><form id="regf" novalidate>
+ <h3>قبل التحميل 👋</h3>
+ <div class="s">اكتب بياناتك عشان نعرف مين بيستخدم البرنامج، وبعدها التحميل هيبدأ على طول.</div>
+ <label for="rN">الاسم</label><input id="rN" autocomplete="name" required>
+ <label for="rP">رقم الموبايل</label><input id="rP" type="tel" inputmode="tel" autocomplete="tel" dir="ltr" style="text-align:right" required>
+ <label for="rM">الاجتماع / الكنيسة</label><input id="rM" required>
+ <div class="err" id="rE"></div>
+ <div class="row"><button class="go" type="submit">⬇️ حفظ وتنزيل</button><button class="x" type="button" id="rX">إلغاء</button></div>
+ <div class="priv">البيانات دي بتوصل لخدمة مدارس الأحد بس، ومش بتتنشر.</div>
+</form></div>
 <script>
 // ---- download buttons always point to the newest installers ----
 fetch('https://api.github.com/repos/brethrensundayschoolpresenter/brethren-sunday-school-presenter/releases/latest')
@@ -220,6 +245,35 @@ fetch('https://api.github.com/repos/brethrensundayschoolpresenter/brethren-sunda
    if (b) document.getElementById('dl7').href = b.browser_download_url; else document.getElementById('dl7').style.display = 'none';
    if (r.tag_name) document.getElementById('ver').innerHTML = 'النسخة <bdi dir="ltr">' + r.tag_name.replace(/^v/, '') + '</bdi> — حجمها حوالي ٨٠ ميجا';
  }).catch(() => {});
+
+
+// ---- before a download: name, phone and meeting go to the service's Google Form (once per browser)
+const FORM = 'https://docs.google.com/forms/d/e/1FAIpQLSeOKyMpyAyBKAhD9_Fheqym-wyP91tAttS_a4M0oACJL7mzXg/formResponse';
+let pending = '';
+function registered() { try { return localStorage.getItem('bssp_reg') === '1'; } catch (e) { return false; } }
+['dl', 'dl7'].forEach(id => document.getElementById(id).addEventListener('click', e => {
+  if (registered()) return;
+  e.preventDefault(); pending = e.currentTarget.href;
+  document.getElementById('reg').classList.add('open'); document.getElementById('rN').focus();
+}));
+document.getElementById('rX').onclick = () => document.getElementById('reg').classList.remove('open');
+document.getElementById('reg').addEventListener('click', e => { if (e.target.id === 'reg') e.currentTarget.classList.remove('open'); });
+document.getElementById('regf').addEventListener('submit', async e => {
+  e.preventDefault();
+  const n = document.getElementById('rN').value.trim(), p = document.getElementById('rP').value.trim(), m = document.getElementById('rM').value.trim();
+  const digits = p.replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d)).replace(/[^0-9]/g, '');
+  const err = document.getElementById('rE');
+  if (n.length < 2) { err.textContent = 'اكتب اسمك'; return; }
+  if (digits.length < 8 || digits.length > 15) { err.textContent = 'اكتب رقم موبايل صحيح'; return; }
+  if (m.length < 2) { err.textContent = 'اكتب اسم الاجتماع أو الكنيسة'; return; }
+  err.textContent = '';
+  const fd = new FormData();
+  fd.append('entry.1735689864', n); fd.append('entry.1881219465', p); fd.append('entry.520013336', m);
+  try { await fetch(FORM, { method: 'POST', mode: 'no-cors', body: fd }); } catch (x) {}
+  try { localStorage.setItem('bssp_reg', '1'); } catch (x) {}
+  document.getElementById('reg').classList.remove('open');
+  location.href = pending;
+});
 
 // ---- demo: the 960x540 stage is scaled to the box ----
 const wrap = document.getElementById('wrap'), stage = document.getElementById('stage');
