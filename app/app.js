@@ -79,7 +79,7 @@ function hymnItem(n, sub) {
 
 // ---------- top bar ----------
 function bar(html) { $('bar').innerHTML = html; }
-function homeBar(sub) { bar(`<img src="icon-192.png" alt=""><div class="brand">ترانيم مدارس الأحد<small>${sub || 'للخادم وهو بيحضّر'}</small></div><span class="sp"></span><a class="ib" href="#/about" aria-label="عن البرنامج">${IC.info}</a>`); }
+function homeBar(sub) { bar(`<img src="icon-192.png" alt=""><div class="brand">ترانيم مدارس الأحد<small>${sub || 'Brethren Sunday School Presenter'}</small></div><span class="sp"></span><a class="ib" href="#/about" aria-label="عن البرنامج">${IC.info}</a>`); }
 function backBar(label, extra, y) { bar(`<button class="back${y ? ' y' : ''}" id="bk">${IC.back}<span>${esc(label)}</span></button><span class="sp"></span>${extra || ''}`); $('bk').onclick = goBack; }
 function goBack() { if (history.length > 1 && NAV.depth > 0) history.back(); else location.hash = '#/'; }
 function showSearch(on, ph) { $('sbox').style.display = on ? '' : 'none'; if (ph) $('q').placeholder = ph; }
@@ -92,7 +92,8 @@ function vHymns() {
   $('q').value = NAV.q.hymns; sboxState();
   const q = latinDigits(NAV.q.hymns.trim()), m = $('main');
   if (!q) {
-    m.innerHTML = (localStorage.getItem('ssw_hint') ? '' : `<div class="hint" id="hint"><b>أهلًا بيك!</b> دوّر على أي ترنيمة حتى لو كاتب الكلمة غلط، وافتحها تلاقي فكرتها والآيات اللي فيها وقصة مناسبة ليها. <b>ضيف البرنامج للشاشة الرئيسية</b> من قائمة المتصفح عشان يفتح زي أي برنامج ومن غير نت. <button style="color:#1f6fc5;font-weight:800" onclick="localStorage.setItem('ssw_hint',1);this.parentNode.remove()">تمام</button></div>`)
+    m.innerHTML = `<div class="hint"><b>رجاء محبة:</b> استخدم البرنامج كمساعد بس، لأنه مش بديل إنك تاخد وقت قدّام الرب وتطلب إرشاده قبل ما تختار الترانيم.</div>`
+      + (localStorage.getItem('ssw_hint2') || matchMedia('(display-mode: standalone)').matches || navigator.standalone ? '' : `<div class="hint">عايز تفتحه زي أي برنامج ومن غير نت؟ ضيفه للشاشة الرئيسية من قائمة المتصفح (Add to Home Screen). <button style="color:#1f6fc5;font-weight:800" onclick="localStorage.setItem('ssw_hint2',1);this.parentNode.remove()">تمام</button></div>`)
       + alphaHTML(H.map(h => h.num));
     return;
   }
@@ -220,8 +221,9 @@ function vFav() {
 }
 function vAbout() {
   setTab(''); backBar('رجوع'); showSearch(false);
-  $('main').innerHTML = `<div class="ht"><span class="hl">ترانيم مدارس الأحد</span></div>
-  <div class="card"><p>نسخة الموبايل للخادم: تدوّر على أي ترنيمة، وتشوف فكرتها والآيات اللي كلامها مأخوذ منها وقصة مناسبة ليها، وتحضّر من الكتاب المقدس. بتشتغل من غير نت، وبتتحدّث لوحدها لما تنزل ترانيم جديدة.</p></div>
+  $('main').innerHTML = `<div class="ht"><span class="hl">ترانيم مدارس الأحد</span></div><div style="direction:ltr;text-align:right;color:var(--mut);font-weight:700">Brethren Sunday School Presenter</div>
+  <div class="card"><p>تدوّر على أي ترنيمة، وتشوف فكرتها والآيات اللي كلامها مأخوذ منها وقصة مناسبة ليها، وتقرا في الكتاب المقدس. بيشتغل من غير نت، وبيتحدّث لوحده لما تنزل ترانيم جديدة.</p></div>
+  <div class="card"><span class="lb"><span>رجاء محبة</span></span><p style="font-weight:500">استخدم البرنامج كمساعد بس، لأنه مش بديل إنك تاخد وقت قدّام الرب وتطلب إرشاده قبل ما تختار الترانيم.</p></div>
   <div class="card"><span class="lb"><span>ضيفه للشاشة الرئيسية</span></span><p style="font-weight:500"><b>آيفون:</b> من Safari دوس زرار المشاركة وبعدين «Add to Home Screen».<br><b>أندرويد:</b> من Chrome دوس النقط التلاتة وبعدين «Add to Home screen» أو «Install app».</p></div>
   <div class="card"><span class="lb"><span>للعرض على البروجكتور</span></span><p style="font-weight:500">نزّل برنامج الكمبيوتر من <a href="../" style="color:#1f6fc5;text-decoration:underline">هنا</a>.</p></div>
   <div class="card"><span class="lb"><span>لقيت غلطة؟</span></span><p style="font-weight:500">ابعتها لنا في <a href="https://m.me/61578584879222" style="color:#1f6fc5;text-decoration:underline">رسالة على الصفحة</a>.</p></div>
