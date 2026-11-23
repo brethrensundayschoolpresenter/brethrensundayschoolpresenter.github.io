@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
 <title>Brethren Sunday School Presenter</title>
 <meta name="description" content="كل ترانيم مدارس الأحد بفكرتها وآياتها وقصة مناسبة ليها، والكتاب المقدس">
 <meta name="theme-color" content="#fbfaf7">
@@ -100,7 +100,8 @@ main{padding:12px 14px calc(90px + var(--safe-b))}
 .tp{display:flex;justify-content:space-between;align-items:center;gap:10px}
 .tp .n{font-size:12.5px;color:var(--mut);font-weight:700;white-space:nowrap}
 /* tabs */
-.tabs{position:fixed;bottom:0;right:0;left:0;z-index:20;background:var(--panel);border-top:2px dashed var(--line);display:flex;padding:6px 6px calc(6px + var(--safe-b))}
+body.typing .tabs{display:none}
+.tabs{position:fixed;bottom:0;right:0;left:0;z-index:20;transform:translateZ(0);background:var(--panel);border-top:2px dashed var(--line);display:flex;padding:6px 6px calc(6px + var(--safe-b))}
 .tabs a{flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;font-weight:800;font-size:12.5px;color:#666;padding:4px 0;border-radius:12px}
 .tabs svg{width:23px;height:23px;stroke:currentColor;fill:none;stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round}
 .tabs a.on{color:#111;background:var(--hi)}
@@ -175,7 +176,7 @@ main{padding:12px 14px calc(90px + var(--safe-b))}
 .fi-act button:active{border-color:#111;background:var(--hi)}
 .fi-act svg{width:16px;height:16px;stroke:#111;fill:none;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
 .fi-act button:disabled{opacity:.25}
-.fnote{display:block;width:100%;margin-top:7px;font:inherit;font-size:15px;font-weight:600;line-height:1.6;border:2px dashed #d9d6cf;border-radius:10px;padding:6px 10px;background:#fffef3;outline:0;resize:none;overflow:hidden;min-height:40px}
+.fnote{display:block;width:100%;margin-top:7px;font:inherit;font-size:16px;font-weight:600;line-height:1.6;border:2px dashed #d9d6cf;border-radius:10px;padding:6px 10px;background:#fffef3;outline:0;resize:none;overflow:hidden;min-height:40px}
 .fnote:focus{border-color:#111;border-style:solid}
 .addnote{margin-top:6px;font-size:13.5px;font-weight:800;color:#1f6fc5}
 .fadd{display:flex;gap:8px;margin:6px 0 4px}
@@ -194,6 +195,8 @@ main{padding:12px 14px calc(90px + var(--safe-b))}
 .fpc b{display:block;font-size:15px}
 .fdel{display:block;margin:22px auto 6px;color:#c62828;font-weight:800;font-size:14px;border:2px solid #f1c4c4;border-radius:12px;padding:6px 16px;background:#fff}
 .fdel.sure{background:#c62828;color:#fff;border-color:#c62828}
+.hbtns{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.hbtns .addf{margin-top:10px}
+.golyr{display:inline-flex;align-items:center;gap:6px;margin:10px 0 0;border:2.5px solid #111;border-radius:12px;padding:5px 14px;font-weight:800;font-size:15px;background:#fff;box-shadow:0 2px 0 #111;font-family:inherit;color:#111}
 .addf{display:inline-flex;align-items:center;gap:6px;margin:10px 0 0;border:2.5px solid #111;border-radius:12px;padding:5px 14px;font-weight:800;font-size:15px;background:var(--hi);box-shadow:0 2px 0 #111}
 .addf svg{width:17px;height:17px;stroke:#111;fill:none;stroke-width:2.4;stroke-linecap:round}
 .vrow{display:flex;gap:6px;align-items:stretch}

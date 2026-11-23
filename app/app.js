@@ -96,7 +96,24 @@ function seenCount() {
   if (!n) { n = localStorage.getItem('ssw_reg') === '1' ? Math.min(967, H.length) : H.length; try { localStorage.setItem('ssw_seen', n); } catch (e) {} }   // 967 = before the first new hymn
   return n;
 }
-function saveNotes(v, notes) { try { localStorage.setItem('ssw_notes', JSON.stringify({ v, notes })); } catch (e) {} }
+// notes of every data update are kept per version, so an update you missed still shows its notes, and nothing old shows twice
+function saveNotes(v, notes, hist, from) {   // from = the data version the phone had before this update
+  try {
+    let N = null; try { N = JSON.parse(localStorage.getItem('ssw_notes') || 'null'); } catch (e) {}
+    const h = (N && N.h) || {}; if (N && !N.h && N.notes) h[N.v] = N.notes;
+    if (hist) { for (const k in hist) if (+k > (from || 0) && +k <= v) h[k] = hist[k]; } else h[v] = notes;
+    if (!h[v] && notes) h[v] = notes;
+    for (const k of Object.keys(h)) if (+k < v - 20) delete h[k];
+    localStorage.setItem('ssw_notes', JSON.stringify({ v: Math.max(v, (N && N.v) || 0), h }));
+  } catch (e) {}
+}
+function pendingNotes() {
+  let N = null; try { N = JSON.parse(localStorage.getItem('ssw_notes') || 'null'); } catch (e) {}
+  if (!N) return [];
+  const seen = +localStorage.getItem('ssw_notes_seen') || 0, h = N.h || { [N.v]: N.notes || [] }, out = [];
+  Object.keys(h).map(Number).filter(k => k > seen && k <= N.v).sort((a, b) => a - b).forEach(k => (h[k] || []).forEach(t => { if (!out.includes(t)) out.push(t); }));
+  return out;
+}
 // popup after an update (opens by itself, once):
 //  new hymns -> «ترنيمة جديدة اتضافت» + the names (tap = open it); only fixes -> «الترانيم اتحدّثت» + the notes
 // «البرنامج اتحدّث»: bump APPV + APP_NEWS when the web app itself gets something new
@@ -106,8 +123,7 @@ const appNewsDue = () => +(localStorage.getItem('ssw_appv') || 0) < APPV;
 function newHymnsHTML() {
   const n = seenCount(), nw = H.length > n ? H.slice(n) : [];
   const app = appNewsDue() ? APP_NEWS : [];
-  let N = null; try { N = JSON.parse(localStorage.getItem('ssw_notes') || 'null'); } catch (e) {}
-  const notes = N && !(+localStorage.getItem('ssw_notes_seen') >= N.v) ? N.notes.filter(t => !nw.some(h => t.includes(h.title))) : [];
+  const notes = pendingNotes().filter(t => !nw.some(h => t.includes(h.title)));
   if (!nw.length && !notes.length && !app.length) return '';
   const title = nw.length ? (nw.length > 1 ? 'ترانيم جديدة اتضافت' : 'ترنيمة جديدة اتضافت') : app.length ? 'البرنامج اتحدّث' : 'الترانيم اتحدّثت';
   return `<div class="upd-card"><div class="upd-ic">✨</div><h3>${title}</h3>`
@@ -116,16 +132,28 @@ function newHymnsHTML() {
     + (app.length ? `${nw.length || notes.length ? '<b>جديد في البرنامج:</b>' : ''}<ul>${app.map(t => `<li>${esc(t)}</li>`).join('')}</ul><a class="upd-h" href="#/f" onclick="closeNews()">افتح «فرصي» <span>‹</span></a>` : '')
     + `<button class="upd-ok" onclick="closeNews()">تمام</button></div>`;
 }
-function closeNews() {
+function markNewsSeen() {
   try { localStorage.setItem('ssw_appv', APPV); localStorage.setItem('ssw_seen', H.length); const N = JSON.parse(localStorage.getItem('ssw_notes') || 'null'); if (N) localStorage.setItem('ssw_notes_seen', N.v); } catch (e) {}
-  const p = $('updPop'); if (p) p.remove();
 }
+function closeNews() { markNewsSeen(); const p = $('updPop'); if (p) p.remove(); }
+let reloading = false;
 function showNews() {
-  if ($('updPop') || $('welcome') && $('welcome').style.display !== 'none') return;
+  if (reloading || $('updPop') || $('welcome') && $('welcome').style.display !== 'none') return;
   const h = newHymnsHTML(); if (!h) return;
   const d = document.createElement('div'); d.className = 'upd-pop'; d.id = 'updPop'; d.innerHTML = h;
   d.addEventListener('click', e => { if (e.target === d) closeNews(); });
   document.body.appendChild(d);
+  setTimeout(() => { if (!reloading && $('updPop') && !document.hidden) markNewsSeen(); }, 2500);   // really seen: closing the app with it open must not bring the same news back
+}
+// new data arrived while the app is open: reload on the home screen (once per version), otherwise a yellow button
+function dataArrived(v) {
+  const k = 'ssw_rl_' + v;
+  if ((location.hash || '#/') === '#/' && !$('q').value && scrollY < 50 && !$('updPop') && !document.querySelector('.sheet') && !sessionStorage.getItem(k)) { sessionStorage.setItem(k, '1'); reloading = true; const p = $('updPop'); if (p) p.remove(); setTimeout(() => location.reload(), 600); return; }
+  if ($('updBtn')) return;
+  const el = document.createElement('button'); el.id = 'updBtn';
+  el.className = 'toast show'; el.style.pointerEvents = 'auto'; el.style.background = '#ffff00'; el.style.color = '#111'; el.style.border = '2px solid #111';
+  el.textContent = 'وصل تحديث للترانيم ✨ — دوس هنا'; el.onclick = () => { reloading = true; location.reload(); };
+  document.body.appendChild(el);
 }
 
 // ---------- views ----------
@@ -167,14 +195,15 @@ function vHymn(n) {
   });
   $('main').innerHTML = `<div class="ht"><span class="hl">${esc(h.title)}</span></div>`
     + (tps.length ? `<div class="chips">${tps.map(t => `<a class="chip" href="#/t/${t.id}">${esc(t.name)}</a>`).join('')}</div>` : '')
-    + `<button class="addf" id="adf">${ICF.plus} ضيفها لفرصة</button>`
+    + `<div class="hbtns"><button class="addf" id="adf">${ICF.plus} ضيفها لفرصة</button>${d ? '<button class="golyr" id="glr">كلمات الترنيمة ↓</button>' : ''}</div>`
     + (d ? `<div class="card"><span class="lb"><span>فكرة الترنيمة</span></span><p>${esc(d.i)}</p></div>` : '')
     + (vs.length ? `<div class="card"><span class="lb"><span>آيات في الترنيمة</span></span><div class="vs">${vs.map(([p, ph], i) => `<div class="vrow"><button class="vch" data-k="${i}"><div class="q">«${esc(ph)}»</div><div class="r">${esc(refTxt(p))}</div></button><button class="vplus" data-vk="${i}" aria-label="ضيف الشاهد لفرصة">+</button></div>`).join('')}</div></div>` : '')
     + (sp ? `<div class="card story" id="sty"><span class="lb"><span>قصة مقترحة</span></span><b>${esc(d.s[0])}</b><p style="font-weight:500">${esc(d.s[2])}</p><span class="r">${esc(refTxt(sp))} ‹ افتح القصة</span><br><button class="addf story-add" id="ads">${ICF.plus} ضيف القصة لفرصة</button></div>` : '')
-    + `<div class="tools"><button id="fsm">خط أصغر</button><button id="fsp">خط أكبر</button></div><div class="lyr">${lyr}</div><button class="mist" id="mist">${IC.chat}<span>لقيت غلطة في الترنيمة دي؟ ابعتها لنا</span></button>`;
+    + `<div class="tools" id="lyrT"><button id="fsm">خط أصغر</button><button id="fsp">خط أكبر</button></div><div class="lyr">${lyr}</div><button class="mist" id="mist">${IC.chat}<span>لقيت غلطة في الترنيمة دي؟ ابعتها لنا</span></button>`;
   $('main').querySelectorAll('.vch').forEach(b => b.onclick = () => openPassage(vs[+b.dataset.k][0], n));
   if ($('sty')) $('sty').onclick = e => { if (!e.target.closest('#ads')) openPassage(sp, n); };
   $('adf').onclick = () => addToForsa({ t: 'h', n, note: '' }, 'الترنيمة');
+  if ($('glr')) $('glr').onclick = () => { const y = $('lyrT').getBoundingClientRect().top + scrollY - 70; scrollTo({ top: y, behavior: 'smooth' }); };
   $('main').querySelectorAll('.vplus').forEach(b => b.onclick = () => { const p = vs[+b.dataset.vk][0]; withBible(() => addToForsa({ t: 'v', b: p.b, c: p.c, v: p.v, v2: p.v2, note: '' }, 'الشاهد')); });
   if ($('ads')) $('ads').onclick = () => withBible(() => addToForsa({ t: 'v', b: sp.b, c: sp.c, v: sp.v, v2: sp.v2, note: '' }, 'القصة'));
   $('fv').onclick = () => { const i = FAV.indexOf(n); if (i >= 0) FAV.splice(i, 1); else FAV.unshift(n); saveFav(); $('fv').classList.toggle('on', i < 0); toast(i < 0 ? 'اتضافت للمفضلة' : 'اتشالت من المفضلة'); };
@@ -645,7 +674,9 @@ function loadBible() {
 const DATA_VERSION = 9;
 const RAW = 'https://raw.githubusercontent.com/brethrensundayschoolpresenter/brethren-sunday-school-presenter/main/renderer/data/';
 async function sha256(t) { const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(t)); return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join(''); }
+let lastCheck = 0;
 async function checkUpdates() {
+  lastCheck = Date.now();
   try {
     if (!('caches' in window) || !navigator.onLine) return;
     const c = await (await fetch(RAW + 'content.json?t=' + Date.now(), { cache: 'no-store' })).json();
@@ -660,12 +691,8 @@ async function checkUpdates() {
     const cache = await caches.open('ssw-data');
     for (const f in got) await cache.put(new URL('data/' + f, location.href).href, new Response(got[f], { headers: { 'Content-Type': 'text/javascript; charset=utf-8' } }));
     localStorage.setItem('ssw_dv', c.dataVersion);
-    if (c.notes && c.notes.length) saveNotes(c.dataVersion, c.notes);
-    const el = document.createElement('button');
-    el.className = 'toast show'; el.style.pointerEvents = 'auto'; el.style.background = '#ffff00'; el.style.color = '#111'; el.style.border = '2px solid #111';
-    el.textContent = 'في ترانيم جديدة — دوس هنا تشوفها'; el.onclick = () => location.reload();
-    if ((location.hash || '#/') === '#/' && !$('q').value && scrollY < 50 && !sessionStorage.getItem('ssw_rl2')) { sessionStorage.setItem('ssw_rl2', '1'); setTimeout(() => location.reload(), 600); }
-    document.body.appendChild(el);
+    if ((c.notes && c.notes.length) || c.history) saveNotes(c.dataVersion, c.notes, c.history, have);
+    dataArrived(c.dataVersion);
   } catch (e) {}
 }
 
@@ -681,6 +708,8 @@ async function sendReg() {
 function askReg() {
   if (localStorage.getItem('ssw_reg') === '1' || localStorage.getItem('bssp_reg') === '1') return;
   $('welcome').style.display = '';
+  // a new phone: everything it has now is not «new» for it
+  try { localStorage.setItem('ssw_seen', H.length); localStorage.setItem('ssw_notes_seen', localStorage.getItem('ssw_dv') || DATA_VERSION); localStorage.setItem('ssw_appv', APPV); } catch (e) {}
   $('wN').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); $('wM').focus(); } });
   $('wf').addEventListener('submit', e => {
     e.preventDefault();
@@ -698,8 +727,8 @@ async function syncBundled() {
     if (!('caches' in window) || !navigator.onLine) return;
     const have = +(localStorage.getItem('ssw_dv') || 0);
     if (have >= DATA_VERSION) return;
-    let notes = [];
-    try { notes = (await (await fetch('%64ata/content.json?fresh=' + DATA_VERSION, { cache: 'no-cache' })).json()).notes || []; } catch (e) {}
+    let notes = [], hist = null;
+    try { const c = await (await fetch('%64ata/content.json?fresh=' + DATA_VERSION, { cache: 'no-cache' })).json(); notes = c.notes || []; hist = c.history || null; } catch (e) {}
     const got = {};
     for (const f of ['hymns.js', 'topics.js', 'stories.js']) {
       // '%64ata' = 'data': an older offline worker on the phone doesn't recognise this path, so it can't answer with its old copy
@@ -710,9 +739,9 @@ async function syncBundled() {
     const cache = await caches.open('ssw-data');
     for (const f in got) await cache.put(new URL('data/' + f, location.href).href, new Response(got[f], { headers: { 'Content-Type': 'text/javascript; charset=utf-8' } }));
     localStorage.setItem('ssw_dv', DATA_VERSION);
-    if (have && notes.length) saveNotes(DATA_VERSION, notes);
-    const n = (got['hymns.js'].match(/"num":/g) || []).length;
-    if (n && n !== H.length && !sessionStorage.getItem('ssw_rl')) { sessionStorage.setItem('ssw_rl', '1'); location.reload(); }
+    if (have && (notes.length || hist)) saveNotes(DATA_VERSION, notes, hist, have);
+    if (have) dataArrived(DATA_VERSION);
+    else { const n = (got['hymns.js'].match(/"num":/g) || []).length; if (n && n !== H.length && !sessionStorage.getItem('ssw_rl')) { sessionStorage.setItem('ssw_rl', '1'); location.reload(); } }
   } catch (e) {}
 }
 
@@ -728,8 +757,13 @@ if ('serviceWorker' in navigator) {
   const hadSW = !!navigator.serviceWorker.controller;
   navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(r => r.update()).catch(() => {});
   let reloaded = false;
-  navigator.serviceWorker.addEventListener('controllerchange', () => { if (hadSW && !reloaded) { reloaded = true; location.reload(); } });
+  navigator.serviceWorker.addEventListener('controllerchange', () => { if (hadSW && !reloaded) { reloaded = true; reloading = true; location.reload(); } });
 }
 syncBundled();
 setTimeout(() => { loadBible(); checkUpdates(); sendReg(); }, 1200);
+// the bottom bar stays at the bottom: while typing (keyboard open, the phone may move «fixed» things) it hides, and comes back after
+document.addEventListener('focusin', e => { if (e.target.matches('input:not([type=date]),textarea')) document.body.classList.add('typing'); });
+document.addEventListener('focusout', () => setTimeout(() => { if (!document.activeElement || !document.activeElement.matches('input,textarea')) document.body.classList.remove('typing'); }, 50));
+// a phone keeps the app open in the background for days: look for updates again when it comes back
+document.addEventListener('visibilitychange', () => { if (!document.hidden && Date.now() - lastCheck > 15 * 60 * 1000) { checkUpdates(); sendReg(); } });
 addEventListener('online', sendReg);
