@@ -377,6 +377,12 @@ askReg();
 // keep the loading screen until the app font is ready, so the words never jump from another font
 Promise.race([document.fonts ? document.fonts.load('800 16px K').then(() => document.fonts.ready) : Promise.resolve(), new Promise(r => setTimeout(r, 2500))])
   .then(() => { $('load').style.opacity = 0; setTimeout(() => $('load').remove(), 300); });
-if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
+if ('serviceWorker' in navigator) {
+  // always look for a newer version of the app files; when one takes over, reload once so it shows right away
+  const hadSW = !!navigator.serviceWorker.controller;
+  navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(r => r.update()).catch(() => {});
+  let reloaded = false;
+  navigator.serviceWorker.addEventListener('controllerchange', () => { if (hadSW && !reloaded) { reloaded = true; location.reload(); } });
+}
 setTimeout(() => { loadBible(); checkUpdates(); sendReg(); }, 1200);
 addEventListener('online', sendReg);
