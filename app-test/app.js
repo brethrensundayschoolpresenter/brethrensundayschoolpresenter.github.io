@@ -408,7 +408,7 @@ function vForsa(id) {
   let st; const later = () => { clearTimeout(st); st = setTimeout(save, 300); };
   const items = f.items.map((it, i) => {
     const main = it.t === 'h'
-      ? `<a class="fi-main" href="#/h/${it.n}"><div class="k">ترنيمة</div><div class="t">${esc(H[it.n - 1] ? hName(it.n) : '—')}</div></a>`
+      ? `<div class="fi-main"><a href="#/h/${it.n}"><div class="k">ترنيمة</div><div class="t">${esc(H[it.n - 1] ? hName(it.n) : '—')}</div></a>${f.hideSug ? '' : hymnSug(it.n)}</div>`
       : `<a class="fi-main" href="#/b/${it.b}/${it.c}/${it.v}-${it.v2}"><div class="k">شاهد</div><div class="t">${esc(refTxt(it))}</div><div class="s">${esc(verseText(it))}</div></a>`;
     return `<div class="fi" data-i="${i}"><div class="fi-top"><span class="fnum">${arD(i + 1)}</span>${main}<div class="fi-act"><button data-a="up" ${i ? '' : 'disabled'} aria-label="لفوق">${ICF.up}</button><button data-a="down" ${i < f.items.length - 1 ? '' : 'disabled'} aria-label="لتحت">${ICF.down}</button><button data-a="del" aria-label="شيل">${ICF.x}</button></div></div>`
       + (it.note ? `<textarea class="fnote" rows="1" placeholder="ملاحظة…">${esc(it.note)}</textarea>` : `<button class="addnote" data-a="note">+ ملاحظة ${it.t === 'h' ? 'على الترنيمة دي' : 'على الشاهد ده'}</button>`) + '</div>';
@@ -416,7 +416,7 @@ function vForsa(id) {
   $('main').innerHTML = `<div class="fhead"><input class="ftitle" id="fT" placeholder="عنوان الفرصة (اختياري)" value="${esc(f.title)}">
     <div class="frow"><label for="fD">التاريخ</label><input type="date" id="fD" value="${f.date}"><span class="dl" id="fDl">${whenTxt(f.date)}</span></div>
     <div class="frow"><label for="fP">المكان</label><input id="fP" placeholder="اختياري" value="${esc(f.place)}"></div></div>
-    <div class="sec">الترانيم والشواهد</div>
+    <div class="sec fsec"><span>الترانيم والشواهد</span>${f.items.some(i => i.t === 'h' && HD[i.n]) ? `<button class="sugt" id="sugT">${f.hideSug ? 'اظهر الآيات والقصص' : 'اخفي الآيات والقصص'}</button>` : ''}</div>
     ${items || '<div class="hint">لسه مافيش حاجة. ضيف ترنيمة أو شاهد من هنا، أو من صفحة أي ترنيمة بزرار «ضيفها لفرصة».</div>'}
     <div class="fadd"><button id="aH">${ICF.plus} ترنيمة</button><button id="aV">${ICF.plus} شاهد</button></div>
     <div class="fref" id="fR"><input id="fRi" placeholder="زي: يو ٣ ١٦ أو مز ٢٣ ١-٤" enterkeyhint="done"><button id="fRb">ضيف</button></div>
@@ -441,6 +441,7 @@ function vForsa(id) {
       [f.items[i], f.items[j]] = [f.items[j], f.items[i]]; save(); const y = scrollY; vForsa(id); scrollTo(0, y);
     });
   });
+  if ($('sugT')) $('sugT').onclick = () => { f.hideSug = !f.hideSug; save(); const y = scrollY; vForsa(id); scrollTo(0, y); };
   $('aH').onclick = () => hymnPicker(f);
   $('aV').onclick = () => { $('fR').classList.toggle('on'); if ($('fR').classList.contains('on')) $('fRi').focus(); };
   const addRef = () => withBible(() => {
@@ -457,6 +458,14 @@ function vForsa(id) {
     FR = FR.filter(x => x.id !== id); saveFR(); location.hash = '#/f'; toast('الفرصة اتمسحت');
   };
   if (B) {} else loadBible().then(() => { if (location.hash === '#/f/' + id && f.items.some(i => i.t === 'v')) { const y = scrollY; vForsa(id); scrollTo(0, y); } });
+}
+// small, under a hymn inside a فرصة: its verses + the suggested story (tap = open)
+function hymnSug(n) {
+  const d = HD[n]; if (!d) return '';
+  const vs = d.v.map(([r, ph]) => [deepRef(r), ph]).filter(x => x[0]), sp = deepRef(d.s[1]);
+  const a = (p, txt) => `<a class="sg" href="#/b/${p.b}/${p.c}/${p.v}-${p.v2}">${txt}</a>`;
+  return `<div class="fsug">${vs.length ? `<div><b>آيات:</b> ${vs.map(([p, ph]) => a(p, `«${esc(ph)}» <span>${esc(refTxt(p))}</span>`)).join('، ')}</div>` : ''}`
+    + (sp ? `<div><b>قصة:</b> ${a(sp, `${esc(d.s[0])} <span>${esc(refTxt(sp))}</span>`)}</div>` : '') + '</div>';
 }
 const withBible = fn => B ? fn() : (toast('لحظة…'), loadBible().then(fn));
 function undoToast(msg, undo) {
