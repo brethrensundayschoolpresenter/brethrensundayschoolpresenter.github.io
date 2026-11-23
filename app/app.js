@@ -303,10 +303,35 @@ async function checkUpdates() {
   } catch (e) {}
 }
 
+
+// ---------- first open: name + meeting (same Google Form as the download page; sent later if offline) ----------
+const FORM = 'https://docs.google.com/forms/d/e/1FAIpQLSeOKyMpyAyBKAhD9_Fheqym-wyP91tAttS_a4M0oACJL7mzXg/formResponse';
+async function sendReg() {
+  let r; try { r = JSON.parse(localStorage.getItem('ssw_reg_wait') || 'null'); } catch (e) {}
+  if (!r || !navigator.onLine) return;
+  const fd = new FormData(); fd.append('entry.1735689864', r.n); fd.append('entry.520013336', r.m + ' (موبايل)');
+  try { await fetch(FORM, { method: 'POST', mode: 'no-cors', body: fd }); localStorage.removeItem('ssw_reg_wait'); } catch (e) {}
+}
+function askReg() {
+  if (localStorage.getItem('ssw_reg') === '1' || localStorage.getItem('bssp_reg') === '1') return;
+  $('welcome').style.display = '';
+  $('wN').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); $('wM').focus(); } });
+  $('wf').addEventListener('submit', e => {
+    e.preventDefault();
+    const n = $('wN').value.trim(), m = $('wM').value.trim();
+    if (n.length < 2) { $('wE').textContent = 'اكتب اسمك'; $('wN').focus(); return; }
+    if (m.length < 2) { $('wE').textContent = 'اكتب اسم الاجتماع أو الكنيسة'; $('wM').focus(); return; }
+    try { localStorage.setItem('ssw_reg_wait', JSON.stringify({ n, m })); localStorage.setItem('ssw_reg', '1'); localStorage.setItem('ssw_name', n); } catch (x) {}
+    $('welcome').remove(); sendReg(); toast('أهلًا بيك يا ' + n.split(' ')[0]);
+  });
+}
+
 // ---------- start ----------
 route();
+askReg();
 // keep the loading screen until the app font is ready, so the words never jump from another font
 Promise.race([document.fonts ? document.fonts.load('800 16px K').then(() => document.fonts.ready) : Promise.resolve(), new Promise(r => setTimeout(r, 2500))])
   .then(() => { $('load').style.opacity = 0; setTimeout(() => $('load').remove(), 300); });
 if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
-setTimeout(() => { loadBible(); checkUpdates(); }, 1200);
+setTimeout(() => { loadBible(); checkUpdates(); sendReg(); }, 1200);
+addEventListener('online', sendReg);

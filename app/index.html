@@ -108,6 +108,18 @@ main{padding:12px 14px calc(90px + var(--safe-b))}
 .load span{visibility:hidden}
 .load img{width:84px;height:84px;border-radius:20px;animation:bob 1.6s ease-in-out infinite}
 @keyframes bob{50%{transform:translateY(-6px)}}
+.welcome{position:fixed;inset:0;z-index:40;background:var(--bg);display:flex;align-items:center;justify-content:center;padding:20px;overflow:auto}
+.welcome form{width:min(420px,100%);background:var(--panel);border:2px dashed var(--line);border-radius:20px;padding:22px 20px 18px;text-align:right}
+.welcome img{width:72px;height:72px;border-radius:18px;display:block;margin:0 auto 8px}
+.welcome h2{margin:0;text-align:center;font-size:24px}
+.welcome .en{direction:ltr;text-align:center;color:var(--mut);font-weight:700;font-size:min(13px,3.4vw);white-space:nowrap}
+.welcome p{margin:10px 0 4px;font-size:15px;line-height:1.7;color:#333;text-align:center}
+.welcome label{display:block;font-weight:800;font-size:15px;margin:12px 0 4px}
+.welcome input{width:100%;font:inherit;font-size:17px;font-weight:700;padding:9px 12px;border-radius:12px;border:2.5px solid #111;background:#fff;outline:none}
+.welcome input:focus{background:#fffde6}
+.welcome .err{color:#c62828;font-size:13px;font-weight:700;min-height:18px;margin-top:6px}
+.welcome button{width:100%;margin-top:8px;background:var(--hi);border:2.5px solid #111;border-radius:14px;padding:10px;font-weight:800;font-size:18px}
+.welcome .priv{font-size:12px;color:var(--mut);text-align:center;margin-top:10px}
 .toast{position:fixed;bottom:calc(84px + var(--safe-b));left:50%;transform:translateX(-50%) translateY(20px);background:#111;color:#fff;font-weight:800;font-size:14px;padding:8px 16px;border-radius:12px;opacity:0;transition:.25s;z-index:60;pointer-events:none;white-space:nowrap}
 .toast.show{opacity:1;transform:translateX(-50%)}
 @media (min-width:760px){main{max-width:760px;margin:0 auto}.top .in{max-width:760px;margin:0 auto}}
@@ -126,6 +138,17 @@ main{padding:12px 14px calc(90px + var(--safe-b))}
  <a href="#/bible" data-t="bible"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5z"/><path d="M12 7v6M9 10h6"/></svg>الكتاب</a>
  <a href="#/fav" data-t="fav"><svg viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.6z"/></svg>المفضلة</a>
 </nav>
+<div class="welcome" id="welcome" style="display:none"><form id="wf" novalidate>
+ <img src="icon-192.png" alt="">
+ <h2>أهلًا بيك</h2>
+ <div class="en">Brethren Sunday School Presenter</div>
+ <p>عرّفنا بيك وبالاجتماع اللي بتخدم فيه، مرة واحدة بس.</p>
+ <label for="wN">الاسم</label><input id="wN" autocomplete="name" enterkeyhint="next">
+ <label for="wM">الاجتماع / الكنيسة</label><input id="wM" enterkeyhint="done">
+ <div class="err" id="wE"></div>
+ <button type="submit">ابدأ</button>
+ <div class="priv">البيانات دي بتوصل لخدمة مدارس الأحد بس، ومش بتتنشر.</div>
+</form></div>
 <div class="toast" id="toast"></div>
 <script src="data/hymns.js"></script>
 <script src="data/topics.js"></script>
