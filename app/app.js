@@ -100,15 +100,29 @@ function seenCount() {
   return n;
 }
 function saveNotes(v, notes) { try { localStorage.setItem('ssw_notes', JSON.stringify({ v, notes })); } catch (e) {} }
+// popup after an update (opens by itself, once):
+//  new hymns -> «ترنيمة جديدة اتضافت» + the names (tap = open it); only fixes -> «الترانيم اتحدّثت» + the notes
 function newHymnsHTML() {
   const n = seenCount(), nw = H.length > n ? H.slice(n) : [];
   let N = null; try { N = JSON.parse(localStorage.getItem('ssw_notes') || 'null'); } catch (e) {}
-  const notes = N && !(+localStorage.getItem('ssw_notes_seen') >= N.v) ? N.notes : [];
+  const notes = N && !(+localStorage.getItem('ssw_notes_seen') >= N.v) ? N.notes.filter(t => !nw.some(h => t.includes(h.title))) : [];
   if (!nw.length && !notes.length) return '';
-  return `<div class="newh" id="newh"><b>${nw.length ? (nw.length > 1 ? 'ترانيم جديدة اتضافت' : 'ترنيمة جديدة اتضافت') : 'الجديد في الترانيم'}</b>`
-    + nw.map(h => `<a href="#/h/${h.num}">«${esc(h.title)}» ‹ افتحها</a>`).join('')
-    + notes.filter(t => !nw.some(h => t.includes(h.title))).map(t => `<span class="nn">• ${esc(t)}</span>`).join('')
-    + `<button onclick="localStorage.setItem('ssw_seen',${H.length});localStorage.setItem('ssw_notes_seen',${N ? N.v : 0});this.parentNode.remove()">تمام</button></div>`;
+  const title = nw.length ? (nw.length > 1 ? 'ترانيم جديدة اتضافت' : 'ترنيمة جديدة اتضافت') : 'الترانيم اتحدّثت';
+  return `<div class="upd-card"><div class="upd-ic">✨</div><h3>${title}</h3>`
+    + nw.map(h => `<a class="upd-h" href="#/h/${h.num}" onclick="closeNews()">«${esc(h.title)}» <span>افتحها ‹</span></a>`).join('')
+    + (notes.length ? `<ul>${notes.map(t => `<li>${esc(t)}</li>`).join('')}</ul>` : '')
+    + `<button class="upd-ok" onclick="closeNews()">تمام</button></div>`;
+}
+function closeNews() {
+  try { localStorage.setItem('ssw_seen', H.length); const N = JSON.parse(localStorage.getItem('ssw_notes') || 'null'); if (N) localStorage.setItem('ssw_notes_seen', N.v); } catch (e) {}
+  const p = $('updPop'); if (p) p.remove();
+}
+function showNews() {
+  if ($('updPop') || $('welcome') && $('welcome').style.display !== 'none') return;
+  const h = newHymnsHTML(); if (!h) return;
+  const d = document.createElement('div'); d.className = 'upd-pop'; d.id = 'updPop'; d.innerHTML = h;
+  d.addEventListener('click', e => { if (e.target === d) closeNews(); });
+  document.body.appendChild(d);
 }
 
 // ---------- views ----------
@@ -120,7 +134,6 @@ function vHymns() {
   if (!q) {
     m.innerHTML = `<div class="hint"><b>رجاء محبة:</b> استخدم البرنامج للمساعدة بس، لأنه مش بديل إنك تاخد وقت قدّام الرب وتطلب إرشاده قبل فرصة الترانيم.</div>`
       + (localStorage.getItem('ssw_hint2') || matchMedia('(display-mode: standalone)').matches || navigator.standalone ? '' : `<div class="hint">عايز تفتحه زي أي برنامج ومن غير نت؟ ضيفه للشاشة الرئيسية (Add to Home Screen) — <a href="../#add" style="color:#1f6fc5;font-weight:800;text-decoration:underline">شوف إزاي بالصور</a>. <button style="color:#1f6fc5;font-weight:800" onclick="localStorage.setItem('ssw_hint2',1);this.parentNode.remove()">تمام</button></div>`)
-      + newHymnsHTML()
       + alphaHTML(H.map(h => h.num));
     return;
   }
@@ -425,7 +438,7 @@ function askReg() {
     if (n.length < 2) { $('wE').textContent = 'اكتب اسمك'; $('wN').focus(); return; }
     if (m.length < 2) { $('wE').textContent = 'اكتب اسم الاجتماع أو الكنيسة'; $('wM').focus(); return; }
     try { localStorage.setItem('ssw_reg_wait', JSON.stringify({ n, m })); localStorage.setItem('ssw_reg', '1'); localStorage.setItem('ssw_name', n); } catch (x) {}
-    $('welcome').remove(); sendReg(); toast('أهلًا بيك يا ' + n.split(' ')[0]);
+    $('welcome').remove(); sendReg(); toast('أهلًا بيك يا ' + n.split(' ')[0]); setTimeout(showNews, 1500);
   });
 }
 
@@ -456,7 +469,7 @@ async function syncBundled() {
 // ---------- start ----------
 route();
 askReg();
-if ((H.length > seenCount() || newHymnsHTML()) && !sessionStorage.getItem('ssw_newtoast')) { sessionStorage.setItem('ssw_newtoast', '1'); setTimeout(() => toast(H.length - seenCount() > 1 ? 'في ترانيم جديدة اتضافت' : H.length > seenCount() ? 'ترنيمة جديدة اتضافت: «' + H[H.length - 1].title + '»' : 'الترانيم اتحدّثت'), 900); }
+setTimeout(showNews, 700);
 // keep the loading screen until the app font is ready, so the words never jump from another font
 Promise.race([document.fonts ? document.fonts.load('800 16px K').then(() => document.fonts.ready) : Promise.resolve(), new Promise(r => setTimeout(r, 2500))])
   .then(() => { $('load').style.opacity = 0; setTimeout(() => $('load').remove(), 300); });
