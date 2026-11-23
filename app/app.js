@@ -117,19 +117,20 @@ function pendingNotes() {
 // popup after an update (opens by itself, once):
 //  new hymns -> «ترنيمة جديدة اتضافت» + the names (tap = open it); only fixes -> «الترانيم اتحدّثت» + the notes
 // «البرنامج اتحدّث»: bump APPV + APP_NEWS when the web app itself gets something new
-const APPV = 2;
-const APP_NEWS = ['«فرصي»: حضّر الفرصة بتاعتك — الترانيم والشواهد وملاحظاتك، وكل الفرص بتفضل متسجلة بتاريخها.', 'هتعرض الفرصة على البروجكتور؟ من جوه الفرصة دوس «هتعرضها على الكمبيوتر؟» وابعتها لنفسك واتساب، وافتحها في برنامج الكمبيوتر من «فرصي».', 'الفرص بتتحفظ على الموبايل ده بس، فخد منها نسخة من آخر «فرصي» وابعتها لنفسك واتساب.', '«اقتراح» بقى بيفتح واتساب: ابعت أي غلطة، أو لو عايز تضيف ترنيمة ابعتها لنا مكتوبة تكست أو باوربوينت.'];
+const APPV = 3;
+const APP_NEWS = ['زرار «كلمات الترنيمة ↓» بقى فوق في صفحة كل ترنيمة: دوس عليه ينزلك على كلام الترنيمة على طول، والآيات والقصة فوقه.', 'موضوع جديد في «المواضيع»: «اللسان والكلام» — ٣٣ ترنيمة عن اللسان والكلام.'];
+const APP_LINK = ['#/t/36', 'افتح «اللسان والكلام»'];
 const appNewsDue = () => +(localStorage.getItem('ssw_appv') || 0) < APPV;
 function newHymnsHTML() {
   const n = seenCount(), nw = H.length > n ? H.slice(n) : [];
   const app = appNewsDue() ? APP_NEWS : [];
-  const notes = pendingNotes().filter(t => !nw.some(h => t.includes(h.title)));
+  const notes = pendingNotes().filter(t => !nw.some(h => t.includes(h.title)) && !(app.length && app.some(x => x.includes('اللسان والكلام')) && t.includes('اللسان والكلام')));
   if (!nw.length && !notes.length && !app.length) return '';
   const title = nw.length ? (nw.length > 1 ? 'ترانيم جديدة اتضافت' : 'ترنيمة جديدة اتضافت') : app.length ? 'البرنامج اتحدّث' : 'الترانيم اتحدّثت';
   return `<div class="upd-card"><div class="upd-ic">✨</div><h3>${title}</h3>`
     + nw.map(h => `<a class="upd-h" href="#/h/${h.num}" onclick="closeNews()">«${esc(h.title)}» <span>افتحها ‹</span></a>`).join('')
     + (notes.length ? `<ul>${notes.map(t => `<li>${esc(t)}</li>`).join('')}</ul>` : '')
-    + (app.length ? `${nw.length || notes.length ? '<b>جديد في البرنامج:</b>' : ''}<ul>${app.map(t => `<li>${esc(t)}</li>`).join('')}</ul><a class="upd-h" href="#/f" onclick="closeNews()">افتح «فرصي» <span>‹</span></a>` : '')
+    + (app.length ? `${nw.length || notes.length ? '<b>جديد في البرنامج:</b>' : ''}<ul>${app.map(t => `<li>${esc(t)}</li>`).join('')}</ul><a class="upd-h" href="${APP_LINK[0]}" onclick="closeNews()">${APP_LINK[1]} <span>‹</span></a>` : '')
     + `<button class="upd-ok" onclick="closeNews()">تمام</button></div>`;
 }
 function markNewsSeen() {
