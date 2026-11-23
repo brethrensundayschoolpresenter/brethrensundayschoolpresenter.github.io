@@ -379,7 +379,8 @@ async function checkUpdates() {
     localStorage.setItem('ssw_dv', c.dataVersion);
     const el = document.createElement('button');
     el.className = 'toast show'; el.style.pointerEvents = 'auto'; el.style.background = '#ffff00'; el.style.color = '#111'; el.style.border = '2px solid #111';
-    el.textContent = 'في ترانيم جديدة — دوس هنا'; el.onclick = () => location.reload();
+    el.textContent = 'في ترانيم جديدة — دوس هنا تشوفها'; el.onclick = () => location.reload();
+    if ((location.hash || '#/') === '#/' && !$('q').value && scrollY < 50 && !sessionStorage.getItem('ssw_rl2')) { sessionStorage.setItem('ssw_rl2', '1'); setTimeout(() => location.reload(), 600); }
     document.body.appendChild(el);
   } catch (e) {}
 }
@@ -407,6 +408,27 @@ function askReg() {
   });
 }
 
+// ---------- the hymns that came with this version of the web app (same site, so they never lag behind) ----------
+async function syncBundled() {
+  try {
+    if (!('caches' in window) || !navigator.onLine) return;
+    const have = +(localStorage.getItem('ssw_dv') || 0);
+    if (have >= DATA_VERSION) return;
+    const got = {};
+    for (const f of ['hymns.js', 'topics.js', 'stories.js']) {
+      // '%64ata' = 'data': an older offline worker on the phone doesn't recognise this path, so it can't answer with its old copy
+      const r = await fetch('%64ata/' + f + '?fresh=' + DATA_VERSION, { cache: 'no-cache' });
+      if (!r.ok) return;
+      got[f] = await r.text();
+    }
+    const cache = await caches.open('ssw-data');
+    for (const f in got) await cache.put(new URL('data/' + f, location.href).href, new Response(got[f], { headers: { 'Content-Type': 'text/javascript; charset=utf-8' } }));
+    localStorage.setItem('ssw_dv', DATA_VERSION);
+    const n = (got['hymns.js'].match(/"num":/g) || []).length;
+    if (n && n !== H.length && !sessionStorage.getItem('ssw_rl')) { sessionStorage.setItem('ssw_rl', '1'); location.reload(); }
+  } catch (e) {}
+}
+
 // ---------- start ----------
 route();
 askReg();
@@ -420,5 +442,6 @@ if ('serviceWorker' in navigator) {
   let reloaded = false;
   navigator.serviceWorker.addEventListener('controllerchange', () => { if (hadSW && !reloaded) { reloaded = true; location.reload(); } });
 }
+syncBundled();
 setTimeout(() => { loadBible(); checkUpdates(); sendReg(); }, 1200);
 addEventListener('online', sendReg);

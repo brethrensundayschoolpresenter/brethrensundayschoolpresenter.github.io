@@ -1,6 +1,6 @@
 // ترانيم مدارس الأحد — offline: app files network-first (so fixes arrive), hymn/Bible data cache-first
 // (new hymn data is written into the 'ssw-data' cache by app.js after checking content.json on GitHub)
-const SHELL = 'ssw-shell-v16';
+const SHELL = 'ssw-shell-v17';
 const FILES = ['./', 'index.html', 'app.js', 'engine.js', 'books.js', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png', '../fonts/BalooBhaijaan2-VF.ttf', '../fonts/NotoNaskh.ttf'];
 const DATA = ['data/hymns.js', 'data/topics.js', 'data/stories.js', 'data/bible.js'];
 self.addEventListener('install', e => {
@@ -20,6 +20,7 @@ self.addEventListener('activate', e => {
 self.addEventListener('fetch', e => {
   const u = new URL(e.request.url);
   if (e.request.method !== 'GET' || u.origin !== location.origin) return;
+  if (/\/app\/data\//.test(u.pathname) && u.searchParams.has('fresh')) return;   // the page is refreshing its data: go to the network
   if (/\/app\/data\//.test(u.pathname)) {
     e.respondWith((async () => {
       const d = await caches.open('ssw-data'), key = u.origin + u.pathname;
