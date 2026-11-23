@@ -640,7 +640,6 @@ async function loop() {
     $('keys').innerHTML = '<span class="kc" id="kD">↓</span><span class="kc" id="kE">Enter</span>';
   }
 }
-if (!matchMedia('(prefers-reduced-motion: reduce)').matches) loop();
-else { $('empty').style.opacity = 0; $('hy').classList.add('on'); }
+loop();   // always runs (phones with «Reduce Motion» / battery saver were left on a still frame)
 </script>
 </body></html>
