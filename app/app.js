@@ -100,8 +100,8 @@ function saveNotes(v, notes) { try { localStorage.setItem('ssw_notes', JSON.stri
 // popup after an update (opens by itself, once):
 //  new hymns -> «ترنيمة جديدة اتضافت» + the names (tap = open it); only fixes -> «الترانيم اتحدّثت» + the notes
 // «البرنامج اتحدّث»: bump APPV + APP_NEWS when the web app itself gets something new
-const APPV = 1;
-const APP_NEWS = ['«فرصي»: حضّر الفرصة بتاعتك — الترانيم والشواهد وملاحظاتك، وكل الفرص بتفضل متسجلة بتاريخها.', 'من صفحة أي ترنيمة دوس «ضيفها لفرصة»، أو من «الكتاب» دوس على الآية.', 'الفرص بتتحفظ على الموبايل ده بس، فخد منها نسخة من «فرصي» وابعتها لنفسك واتساب.'];
+const APPV = 2;
+const APP_NEWS = ['«فرصي»: حضّر الفرصة بتاعتك — الترانيم والشواهد وملاحظاتك، وكل الفرص بتفضل متسجلة بتاريخها.', 'هتعرض الفرصة على البروجكتور؟ من جوه الفرصة دوس «هتعرضها على الكمبيوتر؟» وابعتها لنفسك واتساب، وافتحها في برنامج الكمبيوتر من «النهارده».', 'الفرص بتتحفظ على الموبايل ده بس، فخد منها نسخة من آخر «فرصي» وابعتها لنفسك واتساب.', '«اقتراح» بقى بيفتح واتساب: ابعت أي غلطة، أو ترنيمة ناقصة مكتوبة أو PowerPoint.'];
 const appNewsDue = () => +(localStorage.getItem('ssw_appv') || 0) < APPV;
 function newHymnsHTML() {
   const n = seenCount(), nw = H.length > n ? H.slice(n) : [];
@@ -433,6 +433,7 @@ function vForsa(id) {
     <div class="fref-h">أو افتح «الكتاب» ودوس على الآية وبعدين «ضيف للفرصة».</div>
     <div class="sec">ملاحظاتك على الفرصة</div>
     <textarea class="fnotes" id="fN" placeholder="اكتب أي حاجة: ترتيب الفرصة، الفكرة، حاجة عايز تقولها…">${esc(f.note)}</textarea>
+    <button class="fpc" id="fPC"><b>هتعرضها على الكمبيوتر؟</b> ابعت الفرصة دي ملف لنفسك واتساب، وافتحه في برنامج الكمبيوتر من «النهارده».</button>
     <button class="fdel" id="fX">امسح الفرصة دي</button>`;
   const grow = el => { el.style.height = 'auto'; el.style.height = el.scrollHeight + 2 + 'px'; };
   document.querySelectorAll('#main textarea').forEach(grow);
@@ -463,6 +464,7 @@ function vForsa(id) {
   $('fRb').onclick = addRef;
   $('fRi').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); addRef(); } });
   $('fsh').onclick = () => shareForsa(f);
+  $('fPC').onclick = () => sendForsaToPC(f);
   $('fX').onclick = () => {
     const b = $('fX');
     if (!b.classList.contains('sure')) { b.classList.add('sure'); b.textContent = 'متأكد؟ دوس تاني للمسح'; setTimeout(() => { if (b.isConnected) { b.classList.remove('sure'); b.textContent = 'امسح الفرصة دي'; } }, 3500); return; }
