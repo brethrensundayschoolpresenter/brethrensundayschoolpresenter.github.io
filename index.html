@@ -191,12 +191,58 @@ section{scroll-margin-top:70px}
 .pdf:hover{border-color:#fff}
 .final{margin-top:34px}
 @media (max-width:860px){.g{grid-template-columns:1fr}.inst{grid-template-columns:1fr}nav a.l{display:none}}
-.mob{display:flex;align-items:center;gap:14px;text-align:right;background:#152231cc;border:2px solid #e6c800;border-radius:16px;padding:14px 18px;margin:30px auto 0;max-width:760px;color:#eef3f8;text-decoration:none;transition:.2s}
-.mob:hover{transform:translateY(-2px);box-shadow:0 12px 30px #0007}
-.mob svg{width:40px;height:40px;stroke:var(--hi);fill:none;stroke-width:2;flex:none}
+.mob{display:flex;align-items:flex-start;gap:14px;text-align:right;background:#152231cc;border:2px solid #e6c800;border-radius:16px;padding:16px 18px;margin:30px auto 0;max-width:760px;color:#eef3f8}
+.mob svg{width:40px;height:40px;stroke:var(--hi);fill:none;stroke-width:2;flex:none;margin-top:4px}
 .mob b{display:block;font-size:19px;color:var(--hi)}
-.mob span{font-size:15px;line-height:1.6;color:#cfd8e2;flex:1}
-.mob i{font-style:normal;font-weight:800;color:var(--hi);white-space:nowrap}
+.mob>span{font-size:15px;line-height:1.7;color:#cfd8e2;flex:1}
+.mbtn{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+.mgo{background:var(--hi);color:#111;font-weight:800;border-radius:10px;padding:6px 16px;text-decoration:none;border:2px solid #111}
+.mhow{font:inherit;font-weight:800;font-size:15px;color:#fff;background:#1b2b3c;border:2px solid #5b738c;border-radius:10px;padding:5px 14px;cursor:pointer}
+.mhow:hover{border-color:#fff}
+/* add to home screen guide (opens on tap) */
+.hs{position:fixed;inset:0;background:#000c;display:none;align-items:flex-start;justify-content:center;z-index:110;padding:16px;overflow:auto}
+.hs.open{display:flex}
+.hs .bx{background:#152231;border:2px solid #3d5570;border-radius:18px;padding:18px 18px 16px;width:min(720px,100%);text-align:right;box-shadow:0 24px 70px #000c;animation:pop .25s ease-out;margin:auto 0}
+.hs h3{margin:0 0 2px;font-size:22px}
+.hs .s{color:#9fb0c2;font-size:15px;margin-bottom:10px}
+.hs .tb{display:flex;gap:8px;margin-bottom:12px}
+.hs .tb button{font:inherit;font-weight:800;font-size:16px;border-radius:10px;padding:5px 18px;cursor:pointer;border:2px solid #3d5570;background:transparent;color:#9fb0c2}
+.hs .tb button.on{background:var(--hi);color:#111;border-color:var(--hi)}
+.hs .pane{display:none}.hs .pane.on{display:block}
+.hs .row3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+.hs .stp p{margin:6px 0 0;font-size:15px;line-height:1.6;color:#dbe4ee}
+.hs .stp p b.n{display:inline-flex;width:24px;height:24px;border-radius:50%;background:var(--hi);color:#111;align-items:center;justify-content:center;font-size:14px;margin-left:6px}
+.hs .end{margin:14px 0 0;font-weight:800;color:#e8ff9c;text-align:center;font-size:16px}
+.hs .x{float:left;font:inherit;font-weight:800;color:#9fb0c2;background:none;border:2px solid #3d5570;border-radius:10px;padding:2px 12px;cursor:pointer}
+.ph{direction:ltr;text-align:left;font-family:-apple-system,"Segoe UI",Roboto,sans-serif;background:#f2f2f7;color:#111;border-radius:22px;border:6px solid #000;height:300px;position:relative;overflow:hidden;font-size:12px}
+.ph .hl2{outline:3px solid #ffcc00;outline-offset:2px;border-radius:6px;position:relative}
+.ph .hl2::after{content:attr(data-n);position:absolute;top:-12px;right:-12px;width:20px;height:20px;border-radius:50%;background:#ffcc00;color:#000;font:800 12px sans-serif;display:flex;align-items:center;justify-content:center}
+.ph .pg{position:absolute;inset:0 0 54px 0;background:#fbfaf7;padding:14px 10px;font-family:K,sans-serif;direction:rtl;text-align:right}
+.ph .pg i{display:block;height:10px;background:#e6e4df;border-radius:5px;margin:8px 0}
+.ph .pg b{display:inline-block;background:#ff0;font-size:13px;padding:0 4px}
+.ph .sbar{position:absolute;left:0;right:0;bottom:0;height:54px;background:#f9f9f9;border-top:1px solid #ddd;display:flex;align-items:center;justify-content:space-around;color:#0a84ff;font-size:20px}
+.ph .sbar svg{width:22px;height:22px;stroke:#0a84ff;fill:none;stroke-width:2}
+.ph .sheet{position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:14px 14px 0 0;padding:10px 12px;box-shadow:0 -6px 20px #0003}
+.ph .sheet .li{display:flex;justify-content:space-between;align-items:center;padding:9px 6px;border-bottom:1px solid #eee;font-size:13px}
+.ph .sheet .li span:last-child{color:#666}
+.ph .dlg{position:absolute;left:0;right:0;top:0;background:#f2f2f7;height:100%}
+.ph .dlg .hd{display:flex;justify-content:space-between;padding:12px;font-size:13px;color:#0a84ff;font-weight:600;border-bottom:1px solid #ddd;background:#f9f9f9}
+.ph .dlg .hd b{color:#111}
+.ph .app{display:flex;gap:10px;align-items:center;margin:16px 12px;background:#fff;border-radius:10px;padding:10px}
+.ph .app img{width:44px;height:44px;border-radius:10px}
+.ph .chrome{position:absolute;left:0;right:0;top:0;height:48px;background:#fff;border-bottom:1px solid #ddd;display:flex;align-items:center;padding:0 10px;gap:8px}
+.ph .chrome .url{flex:1;background:#f1f3f4;border-radius:20px;height:28px;padding:0 10px;display:flex;align-items:center;color:#555;font-size:11px}
+.ph .chrome .dots{font-size:22px;line-height:1;padding:0 4px;color:#333}
+.ph.and .pg{top:48px;bottom:0}
+.ph .menu{position:absolute;right:6px;top:44px;background:#fff;border-radius:8px;box-shadow:0 6px 24px #0004;width:72%;padding:4px 0}
+.ph .menu div{padding:9px 12px;font-size:13px}
+.ph .ad{position:absolute;left:8%;right:8%;top:30%;background:#fff;border-radius:16px;box-shadow:0 10px 40px #0005;padding:14px}
+.ph .ad h5{margin:0 0 8px;font-size:15px}
+.ph .ad .bt{display:flex;justify-content:flex-end;gap:14px;margin-top:12px;color:#1a73e8;font-weight:600}
+.ph.home{background:linear-gradient(160deg,#4a6fa5,#1d2b44)}
+.ph.home .ic{position:absolute;top:30%;left:50%;transform:translateX(-50%);text-align:center;color:#fff;font-size:11px;width:90px}
+.ph.home .ic img{width:62px;height:62px;border-radius:15px;display:block;margin:0 auto 4px;box-shadow:0 6px 16px #0006}
+@media (max-width:700px){.hs .row3{grid-template-columns:1fr}.ph{height:260px}}
 /* features */
 .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;text-align:right}
 .f{background:#152231cc;border:2px solid var(--line);border-radius:16px;padding:14px 16px;transition:transform .25s,border-color .25s,box-shadow .25s;position:relative;overflow:hidden}
@@ -265,7 +311,8 @@ code{unicode-bidi:isolate;background:#0e1622;border:1px solid #3d5570;border-rad
 
 <div class="pills rv"><span>كل ترانيم مدارس الأحد في مكان واحد</span><span>الترانيم متقسمة موضوعات</span><span>كل ترنيمة ليها آيات وقصة</span><span>الكتاب المقدس</span><span>مجاني ومن غير نت</span></div>
 
-<section id="demo"><a class="mob rv" href="app/"><svg viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M11 18h2"/></svg><span><b>نسخة الموبايل</b>كل الترانيم بفكرتها وآياتها وقصصها والكتاب المقدس على موبايلك. مجانية ومن غير نت.</span><i>افتحها ‹</i></a>
+<section id="demo"><div class="mob rv"><svg viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M11 18h2"/></svg><span><b>نسخة الموبايل (للخادم)</b>كل الترانيم بفكرتها وآياتها وقصصها والكتاب المقدس على موبايلك، مجانية ومن غير نت. افتحها من الموبايل واعملها <bdi>Add to Home Screen</bdi> وهتبقى زي أي <bdi>app</bdi> على موبايلك.<span class="mbtn"><a class="mgo" href="app/">افتح نسخة الموبايل</a><button class="mhow" type="button" id="howBtn">إزاي أضيفها للشاشة الرئيسية؟</button></span></span></div>
+
 <h2 class="t rv">شوف البرنامج بيعمل إيه</h2>
 <div class="sub rv">عرض سريع بيتعاد لوحده</div>
 
@@ -386,6 +433,23 @@ code{unicode-bidi:isolate;background:#0e1622;border:1px solid #3d5570;border-rad
 <div class="end">ربنا يبارك خدمتكم</div>
 </div>
 
+<div class="hs" id="hs"><div class="bx">
+ <button class="x" type="button" id="hsX">قفل ✕</button>
+ <h3>ضيف نسخة الموبايل للشاشة الرئيسية</h3>
+ <div class="s">افتح <bdi dir="ltr">brethrensundayschoolpresenter.github.io/app</bdi> من الموبايل، واعمل الخطوات دي مرة واحدة. كده هتبقى أيقونة زي أي <bdi>app</bdi> على موبايلك، وتفتح من غير نت.</div>
+ <div class="tb"><button type="button" class="on" data-p="ios"><bdi>iPhone</bdi></button><button type="button" data-p="and"><bdi>Android</bdi></button></div>
+ <div class="pane on" id="p-ios"><div class="row3">
+  <div class="stp"><div class="ph"><div class="pg"><b>ترانيم مدارس الأحد</b><i></i><i style="width:80%"></i><i></i><i style="width:60%"></i></div><div class="sbar"><span>‹</span><span>›</span><span class="hl2" data-n="1"><svg viewBox="0 0 24 24"><path d="M12 3v12M7 8l5-5 5 5"/><path d="M5 12v8h14v-8"/></svg></span><span>▭</span><span>⧉</span></div></div><p><b class="n">١</b>افتح اللينك من <bdi><b>Safari</b></bdi> ودوس زرار المشاركة تحت.</p></div>
+  <div class="stp"><div class="ph"><div class="pg"><b>ترانيم مدارس الأحد</b><i></i><i style="width:80%"></i><i></i><i style="width:60%"></i></div><div class="sheet"><div class="li"><span>Copy</span><span>⧉</span></div><div class="li"><span>Add to Reading List</span><span>◯</span></div><div class="li hl2" data-n="2"><span><b>Add to Home Screen</b></span><span>⊞</span></div><div class="li"><span>Find on Page</span><span>⌕</span></div></div></div><p><b class="n">٢</b>انزل شوية واختار <bdi><b>Add to Home Screen</b></bdi>.</p></div>
+  <div class="stp"><div class="ph"><div class="dlg"><div class="hd"><span>Cancel</span><b>Add to Home Screen</b><span class="hl2" data-n="3">Add</span></div><div class="app"><img src="app/icon-192.png" alt=""><div><b>Brethren Sunday School Presenter</b><br><span style="color:#888">brethrensundayschoolpresenter.github.io</span></div></div></div></div><p><b class="n">٣</b>دوس <bdi><b>Add</b></bdi> فوق.</p></div>
+ </div></div>
+ <div class="pane" id="p-and"><div class="row3">
+  <div class="stp"><div class="ph and"><div class="chrome"><div class="url">brethrensundayschoolpresenter.github.io/app</div><span class="dots hl2" data-n="1">⋮</span></div><div class="pg"><b>ترانيم مدارس الأحد</b><i></i><i style="width:80%"></i><i></i><i style="width:60%"></i></div></div><p><b class="n">١</b>افتح اللينك من <bdi><b>Chrome</b></bdi> ودوس على النقط التلاتة فوق.</p></div>
+  <div class="stp"><div class="ph and"><div class="chrome"><div class="url">brethrensundayschoolpresenter.github.io/app</div><span class="dots">⋮</span></div><div class="pg"><b>ترانيم مدارس الأحد</b><i></i><i style="width:80%"></i><i></i><i style="width:60%"></i></div><div class="menu"><div>New tab</div><div>Bookmarks</div><div class="hl2" data-n="2"><b>Add to Home screen</b></div><div>Share…</div></div></div><p><b class="n">٢</b>اختار <bdi><b>Add to Home screen</b></bdi> (أو <bdi><b>Install app</b></bdi>).</p></div>
+  <div class="stp"><div class="ph and"><div class="pg"><b>ترانيم مدارس الأحد</b><i></i><i style="width:80%"></i><i></i><i style="width:60%"></i></div><div class="ad"><h5>Install app</h5><div class="app" style="margin:0;padding:0"><img src="app/icon-192.png" alt=""><div><b>Brethren Sunday School Presenter</b></div></div><div class="bt"><span>Cancel</span><span class="hl2" data-n="3">Install</span></div></div></div><p><b class="n">٣</b>دوس <bdi><b>Install</b></bdi> أو <bdi><b>Add</b></bdi>.</p></div>
+ </div></div>
+ <p class="end">وبس! هتلاقي أيقونة «Brethren Sunday School Presenter» على الشاشة الرئيسية، بتفتح زي أي app ومن غير نت.</p>
+</div></div>
 <div class="reg" id="reg"><form id="regf" novalidate>
  <h3>قبل التحميل 👋</h3>
  <div class="s">عرّفنا بيك وبالاجتماع اللي بتخدم فيه، وبعدها التحميل هيبدأ على طول.</div>
@@ -436,6 +500,13 @@ document.getElementById('regf').addEventListener('submit', async e => {
 });
 
 
+
+// ---- add-to-home-screen guide (only opens when asked, so the page stays short) ----
+document.getElementById('howBtn').onclick = () => { const ios = /iPhone|iPad|iPod/.test(navigator.userAgent), and = /Android/.test(navigator.userAgent); document.getElementById('hs').classList.add('open'); if (and && !ios) document.querySelector('#hs .tb [data-p="and"]').click(); };
+if (location.hash === '#add') setTimeout(() => document.getElementById('howBtn').click(), 300);
+document.getElementById('hsX').onclick = () => document.getElementById('hs').classList.remove('open');
+document.getElementById('hs').addEventListener('click', e => { if (e.target.id === 'hs') e.currentTarget.classList.remove('open'); });
+document.querySelectorAll('#hs .tb button').forEach(b => b.onclick = () => { document.querySelectorAll('#hs .tb button').forEach(x => x.classList.toggle('on', x === b)); document.querySelectorAll('#hs .pane').forEach(p => p.classList.toggle('on', p.id === 'p-' + b.dataset.p)); });
 // ---- scroll reveal + counters ----
 const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { threshold: .12 });
 document.querySelectorAll('.rv').forEach((el, i) => { el.style.transitionDelay = (el.classList.contains('f') ? (i % 3) * 90 : 0) + 'ms'; io.observe(el); });
