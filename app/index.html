@@ -31,8 +31,9 @@ mark{background:var(--hi);color:inherit;border-radius:3px;padding:0 1px}
 .top{position:sticky;top:0;z-index:20;background:var(--panel);border-bottom:2px dashed var(--line);padding:calc(env(safe-area-inset-top,0px) + 8px) 14px 8px}
 .bar{display:flex;align-items:center;gap:10px;min-height:40px}
 .bar img{width:34px;height:34px;border-radius:9px}
-.brand{font-weight:800;font-size:18px;line-height:1.1}
-.brand small{display:block;font-size:12px;color:var(--mut);font-weight:600}
+.brand{font-weight:800;font-size:18px;line-height:1.1;white-space:nowrap}
+.brand{min-width:0}
+.brand small{display:block;font-size:12px;color:var(--mut);font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;direction:ltr;text-align:right}
 .bar .sp{flex:1}
 .ib{width:40px;height:40px;border-radius:12px;border:2px solid #111;display:flex;align-items:center;justify-content:center;background:#fff;flex:none}
 .ib svg{width:20px;height:20px;stroke:#111;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}

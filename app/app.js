@@ -221,7 +221,7 @@ function vFav() {
 }
 function vAbout() {
   setTab(''); backBar('رجوع'); showSearch(false);
-  $('main').innerHTML = `<div class="ht"><span class="hl">ترانيم مدارس الأحد</span></div><div style="direction:ltr;text-align:right;color:var(--mut);font-weight:700">Brethren Sunday School Presenter</div>
+  $('main').innerHTML = `<div class="ht"><span class="hl">ترانيم مدارس الأحد</span></div><div style="direction:ltr;text-align:right;color:var(--mut);font-weight:700;white-space:nowrap;font-size:min(16px,4.2vw)">Brethren Sunday School Presenter</div>
   <div class="card"><p>تدوّر على أي ترنيمة، وتشوف فكرتها والآيات اللي كلامها مأخوذ منها وقصة مناسبة ليها، وتقرا في الكتاب المقدس. بيشتغل من غير نت، وبيتحدّث لوحده لما تنزل ترانيم جديدة.</p></div>
   <div class="card"><span class="lb"><span>رجاء محبة</span></span><p style="font-weight:500">استخدم البرنامج كمساعد بس، لأنه مش بديل إنك تاخد وقت قدّام الرب وتطلب إرشاده قبل فرصة الترانيم.</p></div>
   <div class="card"><span class="lb"><span>ضيفه للشاشة الرئيسية</span></span><p style="font-weight:500"><b>آيفون:</b> من Safari دوس زرار المشاركة وبعدين «Add to Home Screen».<br><b>أندرويد:</b> من Chrome دوس النقط التلاتة وبعدين «Add to Home screen» أو «Install app».</p></div>
