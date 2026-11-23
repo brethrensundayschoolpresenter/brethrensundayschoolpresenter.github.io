@@ -102,19 +102,25 @@ function seenCount() {
 function saveNotes(v, notes) { try { localStorage.setItem('ssw_notes', JSON.stringify({ v, notes })); } catch (e) {} }
 // popup after an update (opens by itself, once):
 //  new hymns -> «ترنيمة جديدة اتضافت» + the names (tap = open it); only fixes -> «الترانيم اتحدّثت» + the notes
+// «البرنامج اتحدّث»: bump APPV + APP_NEWS when the web app itself gets something new
+const APPV = 1;
+const APP_NEWS = ['«فرصي»: حضّر الفرصة بتاعتك — الترانيم والشواهد وملاحظاتك، وكل الفرص بتفضل متسجلة بتاريخها.', 'من صفحة أي ترنيمة دوس «ضيفها لفرصة»، أو من «الكتاب» دوس على الآية.'];
+const appNewsDue = () => +(localStorage.getItem('ssw_appv') || 0) < APPV;
 function newHymnsHTML() {
   const n = seenCount(), nw = H.length > n ? H.slice(n) : [];
+  const app = appNewsDue() ? APP_NEWS : [];
   let N = null; try { N = JSON.parse(localStorage.getItem('ssw_notes') || 'null'); } catch (e) {}
   const notes = N && !(+localStorage.getItem('ssw_notes_seen') >= N.v) ? N.notes.filter(t => !nw.some(h => t.includes(h.title))) : [];
-  if (!nw.length && !notes.length) return '';
-  const title = nw.length ? (nw.length > 1 ? 'ترانيم جديدة اتضافت' : 'ترنيمة جديدة اتضافت') : 'الترانيم اتحدّثت';
+  if (!nw.length && !notes.length && !app.length) return '';
+  const title = nw.length ? (nw.length > 1 ? 'ترانيم جديدة اتضافت' : 'ترنيمة جديدة اتضافت') : app.length ? 'البرنامج اتحدّث' : 'الترانيم اتحدّثت';
   return `<div class="upd-card"><div class="upd-ic">✨</div><h3>${title}</h3>`
     + nw.map(h => `<a class="upd-h" href="#/h/${h.num}" onclick="closeNews()">«${esc(h.title)}» <span>افتحها ‹</span></a>`).join('')
     + (notes.length ? `<ul>${notes.map(t => `<li>${esc(t)}</li>`).join('')}</ul>` : '')
+    + (app.length ? `${nw.length || notes.length ? '<b>جديد في البرنامج:</b>' : ''}<ul>${app.map(t => `<li>${esc(t)}</li>`).join('')}</ul><a class="upd-h" href="#/f" onclick="closeNews()">افتح «فرصي» <span>‹</span></a>` : '')
     + `<button class="upd-ok" onclick="closeNews()">تمام</button></div>`;
 }
 function closeNews() {
-  try { localStorage.setItem('ssw_seen', H.length); const N = JSON.parse(localStorage.getItem('ssw_notes') || 'null'); if (N) localStorage.setItem('ssw_notes_seen', N.v); } catch (e) {}
+  try { localStorage.setItem('ssw_appv', APPV); localStorage.setItem('ssw_seen', H.length); const N = JSON.parse(localStorage.getItem('ssw_notes') || 'null'); if (N) localStorage.setItem('ssw_notes_seen', N.v); } catch (e) {}
   const p = $('updPop'); if (p) p.remove();
 }
 function showNews() {
@@ -164,12 +170,16 @@ function vHymn(n) {
   });
   $('main').innerHTML = `<div class="ht"><span class="hl">${esc(h.title)}</span></div>`
     + (tps.length ? `<div class="chips">${tps.map(t => `<a class="chip" href="#/t/${t.id}">${esc(t.name)}</a>`).join('')}</div>` : '')
+    + `<button class="addf" id="adf">${ICF.plus} ضيفها لفرصة</button>`
     + (d ? `<div class="card"><span class="lb"><span>فكرة الترنيمة</span></span><p>${esc(d.i)}</p></div>` : '')
-    + (vs.length ? `<div class="card"><span class="lb"><span>آيات في الترنيمة</span></span><div class="vs">${vs.map(([p, ph], i) => `<button class="vch" data-k="${i}"><div class="q">«${esc(ph)}»</div><div class="r">${esc(refTxt(p))}</div></button>`).join('')}</div></div>` : '')
-    + (sp ? `<div class="card story" id="sty"><span class="lb"><span>قصة مقترحة</span></span><b>${esc(d.s[0])}</b><p style="font-weight:500">${esc(d.s[2])}</p><span class="r">${esc(refTxt(sp))} ‹ افتح القصة</span></div>` : '')
+    + (vs.length ? `<div class="card"><span class="lb"><span>آيات في الترنيمة</span></span><div class="vs">${vs.map(([p, ph], i) => `<div class="vrow"><button class="vch" data-k="${i}"><div class="q">«${esc(ph)}»</div><div class="r">${esc(refTxt(p))}</div></button><button class="vplus" data-vk="${i}" aria-label="ضيف الشاهد لفرصة">+</button></div>`).join('')}</div></div>` : '')
+    + (sp ? `<div class="card story" id="sty"><span class="lb"><span>قصة مقترحة</span></span><b>${esc(d.s[0])}</b><p style="font-weight:500">${esc(d.s[2])}</p><span class="r">${esc(refTxt(sp))} ‹ افتح القصة</span><br><button class="addf story-add" id="ads">${ICF.plus} ضيف القصة لفرصة</button></div>` : '')
     + `<div class="tools"><button id="fsm">خط أصغر</button><button id="fsp">خط أكبر</button></div><div class="lyr">${lyr}</div><button class="mist" id="mist">${IC.chat}<span>لقيت غلطة في الترنيمة دي؟ ابعتها لنا</span></button>`;
   $('main').querySelectorAll('.vch').forEach(b => b.onclick = () => openPassage(vs[+b.dataset.k][0], n));
-  if ($('sty')) $('sty').onclick = () => openPassage(sp, n);
+  if ($('sty')) $('sty').onclick = e => { if (!e.target.closest('#ads')) openPassage(sp, n); };
+  $('adf').onclick = () => addToForsa({ t: 'h', n, note: '' }, 'الترنيمة');
+  $('main').querySelectorAll('.vplus').forEach(b => b.onclick = () => { const p = vs[+b.dataset.vk][0]; withBible(() => addToForsa({ t: 'v', b: p.b, c: p.c, v: p.v, v2: p.v2, note: '' }, 'الشاهد')); });
+  if ($('ads')) $('ads').onclick = () => withBible(() => addToForsa({ t: 'v', b: sp.b, c: sp.c, v: sp.v, v2: sp.v2, note: '' }, 'القصة'));
   $('fv').onclick = () => { const i = FAV.indexOf(n); if (i >= 0) FAV.splice(i, 1); else FAV.unshift(n); saveFav(); $('fv').classList.toggle('on', i < 0); toast(i < 0 ? 'اتضافت للمفضلة' : 'اتشالت من المفضلة'); };
   $('shr').onclick = () => shareHymn(n);
   $('mist').onclick = () => suggest(n);
@@ -249,6 +259,7 @@ function vChapter(b, c, v1, v2) {
       + ch.map((t, i) => `<div class="vl${hit(i) ? ' hit' : ''}" id="v${i}"><b>${arD(i + 1)}</b>${esc(t)}</div>`).join('')
       + `<div class="cnav">${c > 0 ? `<button id="pc">‹ الأصحاح ${arD(c)}</button>` : '<span></span>'}${c < B[b].chapters.length - 1 ? `<button id="nc">الأصحاح ${arD(c + 2)} ›</button>` : ''}</div>`;
     $('fsm').onclick = () => fontStep(-1); $('fsp').onclick = () => fontStep(1);
+    verseSelect(b, c);
     if ($('pc')) $('pc').onclick = () => { NAV.from = null; location.hash = `#/b/${b}/${c - 1}`; };
     if ($('nc')) $('nc').onclick = () => { NAV.from = null; location.hash = `#/b/${b}/${c + 1}`; };
     const t = v1 != null && $('v' + Math.max(0, v1 - 1));
@@ -265,6 +276,7 @@ function vAbout() {
   setTab(''); backBar('رجوع'); showSearch(false);
   $('main').innerHTML = `<div class="ht"><span class="hl">ترانيم مدارس الأحد</span></div><div style="direction:ltr;text-align:right;color:var(--mut);font-weight:700;white-space:nowrap;font-size:min(16px,4.2vw)">Brethren Sunday School Presenter</div>
   <div class="card"><p>تدوّر على أي ترنيمة، وتشوف فكرتها والآيات اللي كلامها مأخوذ منها وقصة مناسبة ليها، وتقرا في الكتاب المقدس. بيشتغل من غير نت، وبيتحدّث لوحده لما تنزل ترانيم جديدة.</p></div>
+  <div class="card"><span class="lb"><span>فرصي</span></span><p style="font-weight:500">حضّر الفرصة: ضيف الترانيم والشواهد واكتب ملاحظاتك، وكل الفرص بتفضل متسجلة بتاريخها. بتتحفظ على الموبايل ده بس، فلو عايز نسخة منها ابعتها لنفسك واتساب من زرار المشاركة.</p></div>
   <div class="card"><span class="lb"><span>رجاء محبة</span></span><p style="font-weight:500">استخدم البرنامج للمساعدة بس، لأنه مش بديل إنك تاخد وقت قدّام الرب وتطلب إرشاده قبل فرصة الترانيم.</p></div>
   <div class="card"><span class="lb"><span>ضيفه للشاشة الرئيسية</span></span><p style="font-weight:500"><a href="../#add" style="color:#1f6fc5;font-weight:800;text-decoration:underline">شوف الخطوات بالصور</a><br><b>آيفون:</b> من Safari دوس زرار المشاركة وبعدين «Add to Home Screen».<br><b>أندرويد:</b> من Chrome دوس النقط التلاتة وبعدين «Add to Home screen» أو «Install app».</p></div>
   <div class="card"><span class="lb"><span>للعرض على البروجكتور</span></span><p style="font-weight:500">نزّل برنامج الكمبيوتر من <a href="../" style="color:#1f6fc5;text-decoration:underline">هنا</a>.</p></div>
@@ -344,6 +356,213 @@ addEventListener('scroll', () => {
   azPlace(); $('azh').classList.add('show'); clearTimeout(azShowT); azShowT = setTimeout(() => $('azh').classList.remove('show'), 1200);
 }, { passive: true });
 
+// ---------- «فرصي»: the servant prepares a فرصة (hymns + verses + notes); kept on this phone only ----------
+let FR = [];
+try { FR = JSON.parse(localStorage.getItem('ssw_forsa') || '[]'); } catch (e) {}
+const saveFR = () => { try { localStorage.setItem('ssw_forsa', JSON.stringify(FR)); } catch (e) { toast('مش قادر أحفظ على الموبايل ده'); } };
+const ymd = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+const todayStr = () => ymd(new Date());
+const MON = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
+const DAY = ['الأحد', 'الاتنين', 'التلات', 'الأربع', 'الخميس', 'الجمعة', 'السبت'];
+function fDate(s) { const [y, m, d] = String(s || todayStr()).split('-').map(Number); const t = new Date(y, m - 1, d); return `${DAY[t.getDay()]} ${arD(d)} ${MON[m - 1]} ${arD(y)}`; }
+function whenTxt(s) {
+  const a = new Date(s + 'T00:00'), b = new Date(todayStr() + 'T00:00'), n = Math.round((a - b) / 864e5);
+  return n === 0 ? 'النهارده' : n === 1 ? 'بكرة' : n === -1 ? 'امبارح' : n > 1 && n < 8 ? 'كمان ' + arD(n) + ' أيام' : '';
+}
+const fName = f => f.title || 'فرصة ' + fDate(f.date).split(' ').slice(1, 3).join(' ');
+const fById = id => FR.find(f => f.id === id);
+function newForsa() {
+  const f = { id: Date.now().toString(36), date: todayStr(), title: '', place: '', note: '', items: [] };
+  FR.unshift(f); saveFR(); try { localStorage.setItem('ssw_flast', f.id); } catch (e) {} return f;
+}
+const fSort = () => FR.slice().sort((a, b) => (b.date > a.date ? 1 : b.date < a.date ? -1 : b.id > a.id ? 1 : -1));
+const verseText = it => B && B[it.b] && B[it.b].chapters[it.c] ? B[it.b].chapters[it.c].slice(it.v, it.v2 + 1).join(' ') : (it.x || '');
+const itemKey = it => it.t === 'h' ? 'h' + it.n : `v${it.b}.${it.c}.${it.v}.${it.v2}`;
+function countTxt(f) {
+  const h = f.items.filter(i => i.t === 'h').length, v = f.items.length - h, out = [];
+  if (h) out.push(h === 1 ? 'ترنيمة' : h === 2 ? 'ترنيمتين' : arD(h) + (h <= 10 ? ' ترانيم' : ' ترنيمة'));
+  if (v) out.push(v === 1 ? 'شاهد' : v === 2 ? 'شاهدين' : arD(v) + (v <= 10 ? ' شواهد' : ' شاهد'));
+  return out.join(' و') || 'لسه فاضية';
+}
+const ICF = {
+  plus: '<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>',
+  up: '<svg viewBox="0 0 24 24"><path d="m6 15 6-6 6 6"/></svg>',
+  down: '<svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>',
+  x: '<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg>',
+  book: '<svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5z"/></svg>',
+  note: '<svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>'
+};
+
+// the log: every فرصة, coming ones first
+function vForsaList() {
+  setTab('forsa'); homeBar('حضّر فرصتك: ترانيم وشواهد وملاحظات'); showSearch(false);
+  const t = todayStr(), all = fSort(), up = all.filter(f => f.date >= t).reverse(), past = all.filter(f => f.date < t);
+  const row = f => { const w = whenTxt(f.date); return `<a class="it fl" href="#/f/${f.id}"><div class="t">${esc(fName(f))}${w ? `<span class="badge">${w}</span>` : ''}</div><div class="s">${esc(fDate(f.date))}${f.place ? ' · ' + esc(f.place) : ''} · ${countTxt(f)}</div></a>`; };
+  $('main').innerHTML = `<button class="newf" id="nf">${ICF.plus.replace('<svg', '<svg style="width:22px;height:22px;stroke:#111;fill:none;stroke-width:2.6;stroke-linecap:round"')} فرصة جديدة</button>`
+    + (FR.length ? '' : `<div class="hint">اعمل فرصة، وضيف ليها الترانيم والشواهد اللي هتستخدمها، واكتب ملاحظاتك. الفرص كلها بتفضل متسجلة هنا بتاريخها.<br><b>بتتحفظ على الموبايل ده بس.</b></div>`)
+    + (up.length ? `<div class="sec">الفرص الجاية</div>${up.map(row).join('')}` : '')
+    + (past.length ? `<div class="sec">الفرص اللي فاتت</div>${past.map(row).join('')}` : '');
+  $('nf').onclick = () => { const f = newForsa(); location.hash = '#/f/' + f.id; };
+}
+
+// one فرصة
+function vForsa(id) {
+  const f = fById(id); if (!f) { location.hash = '#/f'; return; }
+  try { localStorage.setItem('ssw_flast', f.id); } catch (e) {}
+  setTab('forsa'); showSearch(false);
+  backBar('فرصي', `<button class="ib" id="fsh" aria-label="ابعتها">${IC.share}</button>`);
+  const save = () => { saveFR(); };
+  let st; const later = () => { clearTimeout(st); st = setTimeout(save, 300); };
+  const items = f.items.map((it, i) => {
+    const main = it.t === 'h'
+      ? `<div class="fi-main"><a href="#/h/${it.n}"><div class="k">ترنيمة</div><div class="t">${esc(H[it.n - 1] ? hName(it.n) : '—')}</div></a></div>`
+      : `<a class="fi-main" href="#/b/${it.b}/${it.c}/${it.v}-${it.v2}"><div class="k">شاهد</div><div class="t">${esc(refTxt(it))}</div><div class="s">${esc(verseText(it))}</div></a>`;
+    return `<div class="fi" data-i="${i}"><div class="fi-top"><span class="fnum">${arD(i + 1)}</span>${main}<div class="fi-act"><button data-a="up" ${i ? '' : 'disabled'} aria-label="لفوق">${ICF.up}</button><button data-a="down" ${i < f.items.length - 1 ? '' : 'disabled'} aria-label="لتحت">${ICF.down}</button><button data-a="del" aria-label="شيل">${ICF.x}</button></div></div>`
+      + (it.t === 'h' && HD[it.n] && !f.hideSug ? (it.sug ? hymnSug(it.n) + `<button class="sgb" data-a="sug">اخفي الآيات والقصة</button>` : `<button class="sgb" data-a="sug">اظهر الآيات والقصة ‹</button>`) : '')
+      + (it.note ? `<textarea class="fnote" rows="1" placeholder="ملاحظة…">${esc(it.note)}</textarea>` : `<button class="addnote" data-a="note">+ ملاحظة ${it.t === 'h' ? 'على الترنيمة دي' : 'على الشاهد ده'}</button>`) + '</div>';
+  }).join('');
+  $('main').innerHTML = `<div class="fhead"><input class="ftitle" id="fT" placeholder="عنوان الفرصة (اختياري)" value="${esc(f.title)}">
+    <div class="frow"><label for="fD">التاريخ</label><input type="date" id="fD" value="${f.date}"><span class="dl" id="fDl">${whenTxt(f.date)}</span></div>
+    <div class="frow"><label for="fP">المكان</label><input id="fP" placeholder="اختياري" value="${esc(f.place)}"></div></div>
+    <div class="sec fsec"><span>الترانيم والشواهد</span>${f.items.some(i => i.t === 'h' && HD[i.n]) ? `<button class="sugt" id="sugT">${f.hideSug ? 'اظهر الاقتراحات' : 'اخفي الاقتراحات'}</button>` : ''}</div>
+    ${items || '<div class="hint">لسه مافيش حاجة. ضيف ترنيمة أو شاهد من هنا، أو من صفحة أي ترنيمة بزرار «ضيفها لفرصة».</div>'}
+    <div class="fadd"><button id="aH">${ICF.plus} ترنيمة</button><button id="aV">${ICF.plus} شاهد</button></div>
+    <div class="fref" id="fR"><input id="fRi" placeholder="زي: يو ٣ ١٦ أو مز ٢٣ ١-٤" enterkeyhint="done"><button id="fRb">ضيف</button></div>
+    <div class="fref-h">أو افتح «الكتاب» ودوس على الآية وبعدين «ضيف للفرصة».</div>
+    <div class="sec">ملاحظاتك على الفرصة</div>
+    <textarea class="fnotes" id="fN" placeholder="اكتب أي حاجة: ترتيب الفرصة، الفكرة، حاجة عايز تقولها…">${esc(f.note)}</textarea>
+    <button class="fdel" id="fX">امسح الفرصة دي</button>`;
+  const grow = el => { el.style.height = 'auto'; el.style.height = el.scrollHeight + 2 + 'px'; };
+  document.querySelectorAll('#main textarea').forEach(grow);
+  $('fT').oninput = () => { f.title = $('fT').value.trim(); later(); };
+  $('fP').oninput = () => { f.place = $('fP').value.trim(); later(); };
+  $('fD').onchange = () => { if ($('fD').value) { f.date = $('fD').value; save(); $('fDl').textContent = whenTxt(f.date); } else $('fD').value = f.date; };
+  $('fN').oninput = () => { grow($('fN')); f.note = $('fN').value; later(); };
+  $('main').querySelectorAll('.fi').forEach(el => {
+    const i = +el.dataset.i;
+    const ta = el.querySelector('.fnote'); if (ta) ta.oninput = () => { grow(ta); f.items[i].note = ta.value; later(); };
+    el.querySelectorAll('[data-a]').forEach(b => b.onclick = () => {
+      const a = b.dataset.a;
+      if (a === 'note') { b.outerHTML = `<textarea class="fnote" rows="1" placeholder="ملاحظة…"></textarea>`; const t = el.querySelector('.fnote'); t.oninput = () => { grow(t); f.items[i].note = t.value; later(); }; t.focus(); return; }
+      if (a === 'sug') { f.items[i].sug = !f.items[i].sug; save(); const y = scrollY; vForsa(id); scrollTo(0, y); return; }
+      if (a === 'del') { const [gone] = f.items.splice(i, 1); save(); vForsa(id); undoToast('اتشالت', () => { f.items.splice(i, 0, gone); save(); vForsa(id); }); return; }
+      const j = a === 'up' ? i - 1 : i + 1; if (j < 0 || j >= f.items.length) return;
+      [f.items[i], f.items[j]] = [f.items[j], f.items[i]]; save(); const y = scrollY; vForsa(id); scrollTo(0, y);
+    });
+  });
+  if ($('sugT')) $('sugT').onclick = () => { f.hideSug = !f.hideSug; save(); const y = scrollY; vForsa(id); scrollTo(0, y); };
+  $('aH').onclick = () => hymnPicker(f);
+  $('aV').onclick = () => { $('fR').classList.toggle('on'); if ($('fR').classList.contains('on')) $('fRi').focus(); };
+  const addRef = () => withBible(() => {
+    const p = parseRefRange($('fRi').value);
+    if (!p) { toast('مش فاهم الشاهد — اكتبه زي: يو ٣ ١٦'); return; }
+    if (addItem(f, { t: 'v', b: p.b, c: p.c, v: p.v, v2: p.v2, note: '' })) { vForsa(id); toast('الشاهد اتضاف'); }
+  });
+  $('fRb').onclick = addRef;
+  $('fRi').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); addRef(); } });
+  $('fsh').onclick = () => shareForsa(f);
+  $('fX').onclick = () => {
+    const b = $('fX');
+    if (!b.classList.contains('sure')) { b.classList.add('sure'); b.textContent = 'متأكد؟ دوس تاني للمسح'; setTimeout(() => { if (b.isConnected) { b.classList.remove('sure'); b.textContent = 'امسح الفرصة دي'; } }, 3500); return; }
+    FR = FR.filter(x => x.id !== id); saveFR(); location.hash = '#/f'; toast('الفرصة اتمسحت');
+  };
+  if (B) {} else loadBible().then(() => { if (location.hash === '#/f/' + id && f.items.some(i => i.t === 'v')) { const y = scrollY; vForsa(id); scrollTo(0, y); } });
+}
+// small, under a hymn inside a فرصة: its verses + the suggested story (tap = open)
+function hymnSug(n) {
+  const d = HD[n]; if (!d) return '';
+  const vs = d.v.map(([r, ph]) => [deepRef(r), ph]).filter(x => x[0]), sp = deepRef(d.s[1]);
+  const row = (p, lb, txt) => `<a class="sg" href="#/b/${p.b}/${p.c}/${p.v}-${p.v2}"><b>${lb}</b><i>${txt}</i><span>${esc(refTxt(p))}</span></a>`;
+  return `<div class="fsug">${vs.map(([p, ph]) => row(p, 'آية', '«' + esc(ph) + '»')).join('')}${sp ? row(sp, 'قصة', esc(d.s[0])) : ''}</div>`;
+}
+const withBible = fn => B ? fn() : (toast('لحظة…'), loadBible().then(fn));
+function undoToast(msg, undo) {
+  const el = document.createElement('div'); el.className = 'vsel'; el.innerHTML = `<span>${msg}</span><button>رجّعها</button>`;
+  el.querySelector('button').onclick = () => { el.remove(); undo(); };
+  document.body.appendChild(el); setTimeout(() => el.remove(), 4000);
+}
+// «يو ٣ ١٦» / «مز ٢٣ ١-٤» / «يو ٣: ١٦-١٨»
+function parseRefRange(q) {
+  const s = latinDigits(q).replace(/[ً-ْ]/g, '').trim();
+  const m = s.match(/^(.*?\D)\s*(\d+)\s*[\s.:،,]\s*(\d+)\s*[-–]\s*(\d+)\s*$/);
+  let p = m ? abbrevRef(m[1] + ' ' + m[2] + ' ' + m[3]) : abbrevRef(s);
+  if (!p) return null;
+  if (m) { const last = B[p.b].chapters[p.c].length - 1; p.v2 = Math.max(p.v, Math.min(+m[4] - 1, last)); }
+  return p;
+}
+function addItem(f, it) {
+  if (f.items.some(x => itemKey(x) === itemKey(it))) { toast('موجودة في الفرصة دي بالفعل'); return false; }
+  if (it.t === 'v') it.x = verseText(it);
+  f.items.push(it); saveFR(); try { localStorage.setItem('ssw_flast', f.id); } catch (e) {} return true;
+}
+function closeSheet() { const s = $('sheet'); if (s) s.remove(); }
+function openSheet(html) {
+  closeSheet();
+  const d = document.createElement('div'); d.className = 'sheet'; d.id = 'sheet';
+  d.innerHTML = `<div class="sheet-in"><div class="grab"></div>${html}</div>`;
+  d.addEventListener('click', e => { if (e.target === d) closeSheet(); });
+  document.body.appendChild(d); return d;
+}
+// from a hymn page / a verse: «ضيفها لأنهي فرصة؟»
+function addToForsa(it, label) {
+  const go = f => { if (addItem(f, it)) toast('اتضافت لـ «' + fName(f) + '»'); closeSheet(); };
+  if (!FR.length) { const f = newForsa(); go(f); toast('اتعملت فرصة جديدة واتضاف ليها ' + label); return; }
+  const t = todayStr(), last = localStorage.getItem('ssw_flast');
+  const list = fSort().filter(f => f.date >= t || f.id === last).reverse();
+  const more = fSort().filter(f => !list.includes(f)).slice(0, 3);
+  const row = f => `<button class="it${f.id === last ? ' last' : ''}" data-id="${f.id}"><div class="t">${esc(fName(f))}</div><div class="s">${esc(fDate(f.date))} · ${countTxt(f)}</div></button>`;
+  const s = openSheet(`<h3>ضيف ${esc(label)} لأنهي فرصة؟</h3>${list.map(row).join('')}${more.length ? '<div class="sec">فرص قديمة</div>' + more.map(row).join('') : ''}<button class="newf" data-new="1">${ICF.plus.replace('<svg', '<svg style="width:20px;height:20px;stroke:#111;fill:none;stroke-width:2.6"')} فرصة جديدة</button>`);
+  s.querySelectorAll('[data-id]').forEach(b => b.onclick = () => go(fById(b.dataset.id)));
+  s.querySelector('[data-new]').onclick = () => go(newForsa());
+}
+// inside a فرصة: pick hymns (search by name or any words)
+function hymnPicker(f) {
+  const s = openSheet(`<h3>ضيف ترنيمة</h3><div class="search"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="pq" type="search" autocomplete="off" placeholder="اسم الترنيمة أو أي كلمة منها…"></div><div class="pk" id="pl"></div>`);
+  const has = n => f.items.some(x => x.t === 'h' && x.n === n);
+  const draw = () => {
+    const q = latinDigits($('pq').value.trim()); let nums = [];
+    if (!q) nums = FAV.slice(0, 30);
+    else { const seen = new Set(); [...KE.searchTitles(q, 20), ...KE.searchFragments(q, 20), ...KE.searchHymnText(q, 20)].forEach(r => { if (!seen.has(r.num) && seen.size < 30) { seen.add(r.num); nums.push(r.num); } }); }
+    $('pl').innerHTML = (!q && nums.length ? '<div class="sec">من المفضلة</div>' : '') + nums.map(n => `<button class="it" data-n="${n}"><div class="t">${esc(hName(n))}</div><span class="ok">${has(n) ? '✓ اتضافت' : ''}</span></button>`).join('')
+      + (!nums.length ? `<div class="empty" style="padding:20px">${q ? 'مالقيتش ترنيمة بالكلام ده' : 'اكتب اسم الترنيمة أو كلمة منها'}</div>` : '');
+    $('pl').querySelectorAll('[data-n]').forEach(b => b.onclick = () => { const n = +b.dataset.n; if (has(n)) return; addItem(f, { t: 'h', n, note: '' }); b.querySelector('.ok').textContent = '✓ اتضافت'; });
+  };
+  let t; $('pq').oninput = () => { clearTimeout(t); t = setTimeout(draw, 150); };
+  draw(); setTimeout(() => $('pq').focus(), 250);
+  const obs = new MutationObserver(() => { if (!$('sheet')) { obs.disconnect(); if (location.hash === '#/f/' + f.id) vForsa(f.id); } });
+  obs.observe(document.body, { childList: true });
+}
+async function shareForsa(f) {
+  let txt = fName(f) + '\n' + fDate(f.date) + (f.place ? '\nالمكان: ' + f.place : '') + '\n';
+  f.items.forEach((it, i) => {
+    txt += '\n' + arD(i + 1) + '. ' + (it.t === 'h' ? 'ترنيمة: ' + (H[it.n - 1] ? hName(it.n) : '') : refTxt(it) + '\n' + verseText(it));
+    if (it.note) txt += '\n   ملاحظة: ' + it.note;
+  });
+  if (f.note) txt += '\n\nملاحظات:\n' + f.note;
+  try { if (navigator.share) { await navigator.share({ title: fName(f), text: txt }); return; } } catch (e) { return; }
+  window.open('https://wa.me/?text=' + encodeURIComponent(txt), '_blank');
+}
+// Bible chapter: tap verses to pick them, then «ضيف للفرصة»
+function verseSelect(b, c) {
+  let sel = [];
+  const bar = () => {
+    let el = $('vsel');
+    if (!sel.length) { if (el) el.remove(); return; }
+    if (!el) { el = document.createElement('div'); el.className = 'vsel'; el.id = 'vsel'; document.body.appendChild(el); }
+    const v = Math.min(...sel), v2 = Math.max(...sel);
+    el.innerHTML = `<span>${esc(refTxt({ b, c, v, v2 }))}</span><button id="vsA">+ ضيف للفرصة</button><button class="x" id="vsX">×</button>`;
+    $('vsA').onclick = () => { addToForsa({ t: 'v', b, c, v, v2, note: '' }, 'الشاهد'); clear(); };
+    $('vsX').onclick = clear;
+  };
+  const clear = () => { sel = []; document.querySelectorAll('.vl.sel').forEach(x => x.classList.remove('sel')); bar(); };
+  document.querySelectorAll('#main .vl').forEach(el => el.onclick = () => {
+    const i = +el.id.slice(1), k = sel.indexOf(i);
+    if (k >= 0) sel.splice(k, 1); else sel.push(i);
+    el.classList.toggle('sel', k < 0); bar();
+  });
+}
+addEventListener('hashchange', () => { const v = $('vsel'); if (v) v.remove(); closeSheet(); });
+
 // ---------- router ----------
 let lastHash = '';
 function route() {
@@ -360,6 +579,7 @@ function route() {
     else { const r = (p[3] || '').split('-'); vChapter(+p[1], +p[2], p[3] ? +r[0] : null, p[3] ? +(r[1] || r[0]) : null); }
   }
   else if (p[0] === 'fav') { NAV.tab = 'fav'; vFav(); }
+  else if (p[0] === 'f') { NAV.tab = 'forsa'; NAV.from = null; if (p[1]) vForsa(p[1]); else vForsaList(); }
   else if (p[0] === 'about') vAbout();
   else vHymns();
   azSetup();
@@ -437,7 +657,7 @@ function askReg() {
     const n = $('wN').value.trim(), m = $('wM').value.trim();
     if (n.length < 2) { $('wE').textContent = 'اكتب اسمك'; $('wN').focus(); return; }
     if (m.length < 2) { $('wE').textContent = 'اكتب اسم الاجتماع أو الكنيسة'; $('wM').focus(); return; }
-    try { localStorage.setItem('ssw_reg_wait', JSON.stringify({ n, m })); localStorage.setItem('ssw_reg', '1'); localStorage.setItem('ssw_name', n); } catch (x) {}
+    try { localStorage.setItem('ssw_reg_wait', JSON.stringify({ n, m })); localStorage.setItem('ssw_reg', '1'); localStorage.setItem('ssw_name', n); localStorage.setItem('ssw_appv', APPV); } catch (x) {}
     $('welcome').remove(); sendReg(); toast('أهلًا بيك يا ' + n.split(' ')[0]); setTimeout(showNews, 1500);
   });
 }
