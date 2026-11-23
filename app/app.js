@@ -104,7 +104,7 @@ function saveNotes(v, notes) { try { localStorage.setItem('ssw_notes', JSON.stri
 //  new hymns -> «ترنيمة جديدة اتضافت» + the names (tap = open it); only fixes -> «الترانيم اتحدّثت» + the notes
 // «البرنامج اتحدّث»: bump APPV + APP_NEWS when the web app itself gets something new
 const APPV = 1;
-const APP_NEWS = ['«فرصي»: حضّر الفرصة بتاعتك — الترانيم والشواهد وملاحظاتك، وكل الفرص بتفضل متسجلة بتاريخها.', 'من صفحة أي ترنيمة دوس «ضيفها لفرصة»، أو من «الكتاب» دوس على الآية.'];
+const APP_NEWS = ['«فرصي»: حضّر الفرصة بتاعتك — الترانيم والشواهد وملاحظاتك، وكل الفرص بتفضل متسجلة بتاريخها.', 'من صفحة أي ترنيمة دوس «ضيفها لفرصة»، أو من «الكتاب» دوس على الآية.', 'الفرص بتتحفظ على الموبايل ده بس، فخد منها نسخة من «فرصي» وابعتها لنفسك واتساب.'];
 const appNewsDue = () => +(localStorage.getItem('ssw_appv') || 0) < APPV;
 function newHymnsHTML() {
   const n = seenCount(), nw = H.length > n ? H.slice(n) : [];
@@ -276,7 +276,7 @@ function vAbout() {
   setTab(''); backBar('رجوع'); showSearch(false);
   $('main').innerHTML = `<div class="ht"><span class="hl">ترانيم مدارس الأحد</span></div><div style="direction:ltr;text-align:right;color:var(--mut);font-weight:700;white-space:nowrap;font-size:min(16px,4.2vw)">Brethren Sunday School Presenter</div>
   <div class="card"><p>تدوّر على أي ترنيمة، وتشوف فكرتها والآيات اللي كلامها مأخوذ منها وقصة مناسبة ليها، وتقرا في الكتاب المقدس. بيشتغل من غير نت، وبيتحدّث لوحده لما تنزل ترانيم جديدة.</p></div>
-  <div class="card"><span class="lb"><span>فرصي</span></span><p style="font-weight:500">حضّر الفرصة: ضيف الترانيم والشواهد واكتب ملاحظاتك، وكل الفرص بتفضل متسجلة بتاريخها. بتتحفظ على الموبايل ده بس، فلو عايز نسخة منها ابعتها لنفسك واتساب من زرار المشاركة.</p></div>
+  <div class="card"><span class="lb"><span>فرصي</span></span><p style="font-weight:500">حضّر الفرصة: ضيف الترانيم والشواهد واكتب ملاحظاتك، وكل الفرص بتفضل متسجلة بتاريخها. بتتحفظ على الموبايل ده بس، فخد منها نسخة من «فرصي» (زرار «خد نسخة») وابعتها لنفسك واتساب، وعلى أي موبايل تاني رجّعها بـ«رجّع نسخة».</p></div>
   <div class="card"><span class="lb"><span>رجاء محبة</span></span><p style="font-weight:500">استخدم البرنامج للمساعدة بس، لأنه مش بديل إنك تاخد وقت قدّام الرب وتطلب إرشاده قبل فرصة الترانيم.</p></div>
   <div class="card"><span class="lb"><span>ضيفه للشاشة الرئيسية</span></span><p style="font-weight:500"><a href="../#add" style="color:#1f6fc5;font-weight:800;text-decoration:underline">شوف الخطوات بالصور</a><br><b>آيفون:</b> من Safari دوس زرار المشاركة وبعدين «Add to Home Screen».<br><b>أندرويد:</b> من Chrome دوس النقط التلاتة وبعدين «Add to Home screen» أو «Install app».</p></div>
   <div class="card"><span class="lb"><span>للعرض على البروجكتور</span></span><p style="font-weight:500">نزّل برنامج الكمبيوتر من <a href="../" style="color:#1f6fc5;text-decoration:underline">هنا</a>.</p></div>
@@ -399,10 +399,15 @@ function vForsaList() {
   const t = todayStr(), all = fSort(), up = all.filter(f => f.date >= t).reverse(), past = all.filter(f => f.date < t);
   const row = f => { const w = whenTxt(f.date); return `<a class="it fl" href="#/f/${f.id}"><div class="t">${esc(fName(f))}${w ? `<span class="badge">${w}</span>` : ''}</div><div class="s">${esc(fDate(f.date))}${f.place ? ' · ' + esc(f.place) : ''} · ${countTxt(f)}</div></a>`; };
   $('main').innerHTML = `<button class="newf" id="nf">${ICF.plus.replace('<svg', '<svg style="width:22px;height:22px;stroke:#111;fill:none;stroke-width:2.6;stroke-linecap:round"')} فرصة جديدة</button>`
-    + (FR.length ? '' : `<div class="hint">اعمل فرصة، وضيف ليها الترانيم والشواهد اللي هتستخدمها، واكتب ملاحظاتك. الفرص كلها بتفضل متسجلة هنا بتاريخها.<br><b>بتتحفظ على الموبايل ده بس.</b></div>`)
+    + (FR.length ? '' : `<div class="hint">اعمل فرصة، وضيف ليها الترانيم والشواهد اللي هتستخدمها، واكتب ملاحظاتك. الفرص كلها بتفضل متسجلة هنا بتاريخها.</div>`)
     + (up.length ? `<div class="sec">الفرص الجاية</div>${up.map(row).join('')}` : '')
-    + (past.length ? `<div class="sec">الفرص اللي فاتت</div>${past.map(row).join('')}` : '');
+    + (past.length ? `<div class="sec">الفرص اللي فاتت</div>${past.map(row).join('')}` : '')
+    + `<div class="hint fbk"><b>الفرص متسجلة على الموبايل ده بس</b> (جوه المتصفح). لو هتغيّر الموبايل أو تمسح بيانات المتصفح، خد نسخة وابعتها لنفسك واتساب، وعلى الموبايل الجديد دوس «رجّع نسخة» واختار الملف.
+      <div class="fbk-b">${FR.length ? '<button id="bkS">خد نسخة</button>' : ''}<button id="bkR">رجّع نسخة</button></div><input type="file" id="bkF" accept=".json,application/json,text/plain" hidden></div>`;
   $('nf').onclick = () => { const f = newForsa(); location.hash = '#/f/' + f.id; };
+  if ($('bkS')) $('bkS').onclick = backupForsas;
+  $('bkR').onclick = () => $('bkF').click();
+  $('bkF').onchange = () => { const f = $('bkF').files[0]; if (f) restoreForsas(f); };
 }
 
 // one فرصة
@@ -474,6 +479,25 @@ function hymnSug(n) {
   const vs = d.v.map(([r, ph]) => [deepRef(r), ph]).filter(x => x[0]), sp = deepRef(d.s[1]);
   const row = (p, lb, txt) => `<a class="sg" href="#/b/${p.b}/${p.c}/${p.v}-${p.v2}"><b>${lb}</b><i>${txt}</i><span>${esc(refTxt(p))}</span></a>`;
   return `<div class="fsug">${vs.map(([p, ph]) => row(p, 'آية', '«' + esc(ph) + '»')).join('')}${sp ? row(sp, 'قصة', esc(d.s[0])) : ''}</div>`;
+}
+// backup: one small file with all the فرص (send it to yourself on WhatsApp); restore = pick that file
+async function backupForsas() {
+  const name = 'فرصي-' + todayStr() + '.json';
+  const txt = JSON.stringify({ app: 'ssw-forsa', v: 1, saved: todayStr(), forsas: FR });
+  const file = new File([txt], name, { type: 'application/json' });
+  try { if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: 'نسخة من فرصي' }); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(file); a.download = name; document.body.appendChild(a); a.click(); a.remove();
+  toast('النسخة اتحفظت في التحميلات');
+}
+async function restoreForsas(file) {
+  try {
+    const d = JSON.parse(await file.text()), list = d && d.app === 'ssw-forsa' && Array.isArray(d.forsas) ? d.forsas : null;
+    if (!list) throw 0;
+    let n = 0;
+    list.forEach(f => { if (f && f.id && Array.isArray(f.items) && !fById(f.id)) { FR.push(f); n++; } });
+    saveFR(); vForsaList();
+    toast(!n ? 'الفرص دي موجودة بالفعل' : n === 1 ? 'رجعت فرصة' : n === 2 ? 'رجعت فرصتين' : 'رجعت ' + arD(n) + (n <= 10 ? ' فرص' : ' فرصة'));
+  } catch (e) { toast('الملف ده مش نسخة من «فرصي»'); }
 }
 const withBible = fn => B ? fn() : (toast('لحظة…'), loadBible().then(fn));
 function undoToast(msg, undo) {
