@@ -8,12 +8,12 @@
 <meta property="og:type" content="website">
 <meta property="og:title" content="Brethren Sunday School Presenter - ترانيم مدارس الأحد">
 <meta property="og:description" content="برنامج مجاني لعرض ترانيم مدارس الأحد والكتاب المقدس على البروجكتور — نزّل آخر نسخة لويندوز">
-<meta property="og:image" content="https://brethrensundayschoolpresenter.github.io/preview.png?v=3">
+<meta property="og:image" content="https://brethrensundayschoolpresenter.github.io/preview.png?v=4">
 <meta property="og:image:width" content="1280">
 <meta property="og:image:height" content="640">
 <meta property="og:url" content="https://brethrensundayschoolpresenter.github.io/">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://brethrensundayschoolpresenter.github.io/preview.png?v=3">
+<meta name="twitter:image" content="https://brethrensundayschoolpresenter.github.io/preview.png?v=4">
 <link rel="icon" href="icon.png">
 <style>
 @font-face{font-family:B;src:url(fonts/BalooBhaijaan2-VF.ttf);font-weight:400 800;font-display:swap}
@@ -154,6 +154,49 @@ mark{background:var(--hi);color:inherit;padding:0 2px;border-radius:3px}
 .caption b{color:var(--hi)}
 .mcap{display:none;margin:10px auto 0;background:#000;color:#fff;font-weight:800;font-size:19px;padding:8px 16px;border-radius:12px;max-width:94%;min-height:46px}
 .mcap b{color:var(--hi)}
+/* nav */
+nav{position:sticky;top:0;z-index:30;background:#0a1019d9;backdrop-filter:blur(10px);border-bottom:1px solid #ffffff12}
+nav .nw{max-width:1000px;margin:0 auto;padding:0 16px;display:flex;align-items:center;gap:16px;height:58px}
+nav .brand{display:flex;align-items:center;gap:10px;color:#fff;text-decoration:none;font-weight:800;font-size:18px}
+nav .brand img{width:34px;height:34px;border-radius:9px}
+nav .sp{flex:1}
+nav a.l{color:#9fb0c2;text-decoration:none;font-weight:700;font-size:15px;transition:.2s}
+nav a.l:hover{color:#fff}
+nav a.go{background:var(--hi);color:#111;text-decoration:none;font-weight:800;border-radius:10px;padding:6px 16px;border:2px solid #111}
+section{scroll-margin-top:70px}
+.note{max-width:720px;margin:20px auto 0;background:#2a2315;border:2px solid #b89a2e;border-radius:16px;color:#f6e9c8;font-size:17px;font-weight:600;padding:12px 20px;line-height:1.75;box-shadow:0 10px 30px #0006}
+.note b{color:#ffe27a}.note a{color:#ffe27a;font-weight:800;display:inline-block;margin-top:2px}
+.pills{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:20px 0 4px}
+.pills span{background:#152231cc;border:2px solid var(--line);border-radius:999px;padding:6px 16px;font-weight:700;font-size:15.5px}
+/* install */
+.inst{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;counter-reset:s;text-align:right}
+.inst div{background:#152231cc;border:2px solid var(--line);border-radius:14px;padding:14px 16px;display:flex;gap:12px;align-items:flex-start;font-size:15px;color:#cfd8e2}
+.inst div::before{counter-increment:s;content:counter(s);flex:none;width:28px;height:28px;border-radius:50%;background:var(--hi);color:#111;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px}
+.inst b{color:#fff;display:block}
+.g{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px;text-align:right}
+.gs{background:#152231cc;border:2px solid var(--line);border-radius:16px;padding:16px 18px}
+.gs h3{margin:0 0 4px;font-size:18px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.gs h3 .tag{white-space:nowrap;font-size:12px;background:#3b82f62b;color:#8fb8ff;border-radius:999px;padding:1px 10px}
+.gs p{margin:0 0 10px;color:#b7c6d6;font-size:15px}
+.gs ol{margin:0 0 12px;padding-right:20px;color:#dbe4ee;font-size:15px;line-height:1.8}
+.gs.av{grid-column:1/-1}
+.pic{direction:ltr;text-align:left;font-family:"Segoe UI",Tahoma,sans-serif;border-radius:10px;overflow:hidden;font-size:12.5px;line-height:1.45;box-shadow:0 10px 30px #0008}
+.pic .hl{outline:2.5px solid #ffcc00;outline-offset:2px;border-radius:3px;position:relative}
+.pic .hl::after{content:attr(data-n);position:absolute;top:-11px;right:-11px;width:20px;height:20px;border-radius:50%;background:#ffcc00;color:#000;font:800 12px B,sans-serif;display:flex;align-items:center;justify-content:center}
+.ss{background:#0063b1;color:#fff;padding:16px 18px}
+.ss h4{margin:0 0 8px;font-size:19px;font-weight:400}
+.ss u{color:#fff}.ss .row{display:flex;justify-content:flex-end;gap:8px;margin-top:16px}
+.ss .row span{border:2px solid #fff;padding:4px 16px}
+.sac{background:#2b2b2b;color:#fff;padding:16px 18px}
+.sac h4{margin:0 0 8px;font-size:16px}
+.sac .row{display:flex;gap:8px;margin-top:14px}.sac .row span{flex:1;text-align:center;padding:6px;border-radius:4px;background:#3a3a3a}.sac .row span.ok{background:#e4d6ff;color:#000}
+.ws{background:#202020;color:#fff;padding:14px 18px}
+.ws .path{color:#bbb;font-size:12px;margin-bottom:10px}
+.ws .r{display:flex;align-items:center;gap:8px;margin:7px 0}.ws .r i{width:14px;height:14px;border-radius:50%;border:2px solid #aaa;display:inline-block}.ws .r i.on{border:4px solid #4cc2ff}
+.pdf{display:inline-block;margin-top:16px;font-size:16px;font-weight:800;color:#fff;background:#1b2b3c;border:2.5px solid #5b738c;border-radius:12px;padding:8px 18px;text-decoration:none}
+.pdf:hover{border-color:#fff}
+.final{margin-top:34px}
+@media (max-width:860px){.g{grid-template-columns:1fr}.inst{grid-template-columns:1fr}nav a.l{display:none}}
 /* features */
 .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;text-align:right}
 .f{background:#152231cc;border:2px solid var(--line);border-radius:16px;padding:14px 16px;transition:transform .25s,border-color .25s,box-shadow .25s;position:relative;overflow:hidden}
@@ -195,7 +238,16 @@ code{unicode-bidi:isolate;background:#0e1622;border:1px solid #3d5570;border-rad
 @media (prefers-reduced-motion:reduce){.rv{opacity:1;transform:none}.bg i,.hero img{animation:none}}
 </style>
 </head>
-<body><div class="bg"><i></i><i></i><i></i></div><div class="w">
+<body><div class="bg"><i></i><i></i><i></i></div>
+<nav><div class="nw">
+ <a class="brand" href="#top"><img src="icon.png" alt=""><span>ترانيم مدارس الأحد</span></a>
+ <span class="sp"></span>
+ <a class="l" href="#demo">شوف البرنامج</a>
+ <a class="l" href="#feats">كل اللي في البرنامج</a>
+ <a class="l" href="#install">التسطيب</a>
+ <a class="go" href="#top">تحميل</a>
+</div></nav>
+<div class="w" id="top">
 
 <div class="hero">
  <img src="icon.png" alt="">
@@ -205,18 +257,14 @@ code{unicode-bidi:isolate;background:#0e1622;border:1px solid #3d5570;border-rad
  <a class="new" href="#feats"><b>جديد</b>فكرة كل ترنيمة والآيات اللي فيها وقصة مناسبة ليها</a>
  <a class="dl" id="dl" href="https://github.com/brethrensundayschoolpresenter/brethren-sunday-school-presenter/releases/latest">⬇️ نزّل لـ ويندوز ١٠ و ١١</a>
  <div class="ver" id="ver">&nbsp;</div>
- <a class="howto" href="https://github.com/brethrensundayschoolpresenter/brethren-sunday-school-presenter/raw/main/How-to-Install.pdf">📄 طريقة التسطيب خطوة بخطوة بالصور</a>
+ 
  <a class="dl7" id="dl7" href="https://github.com/brethrensundayschoolpresenter/brethren-sunday-school-presenter/releases/latest">⬇️ عندك ويندوز ٧ أو ٨؟ نزّل من هنا (٣٢ و ٦٤)</a>
+ <div class="note"><b>⚠ تنبيه:</b> ويندوز ممكن يقولك إن البرنامج "مش آمن" — ده طبيعي مع أي برنامج مجاني جديد، والبرنامج سليم.<br><a href="#install">شوف إزاي تسطّبه خطوة بخطوة بالصور ↓</a></div>
 </div>
 
-<div class="stats rv">
- <div class="stat"><b data-n="967">٠</b><span>ترنيمة</span></div>
- <div class="stat"><b data-n="35">٠</b><span>موضوع من الكتاب</span></div>
- <div class="stat"><b data-n="66">٠</b><span>سفر مشكّل</span></div>
- <div class="stat"><b data-n="0" data-t="مجاني">٠</b><span>ومن غير نت</span></div>
-</div>
+<div class="pills rv"><span>كل ترانيم مدارس الأحد في مكان واحد</span><span>الترانيم متقسمة موضوعات</span><span>كل ترنيمة ليها آيات وقصة</span><span>الكتاب المقدس</span><span>مجاني ومن غير نت</span></div>
 
-<h2 class="t rv">شوف البرنامج بيعمل إيه</h2>
+<section id="demo"><h2 class="t rv">شوف البرنامج بيعمل إيه</h2>
 <div class="sub rv">عرض سريع بيتعاد لوحده</div>
 
 <div class="stagewrap rv" id="wrap" aria-label="عرض سريع للبرنامج">
@@ -276,6 +324,7 @@ code{unicode-bidi:isolate;background:#0e1622;border:1px solid #3d5570;border-rad
  </div>
 </div>
 <div class="mcap" id="mcap">ترانيم مدارس الأحد</div>
+</section>
 <div class="steps" id="steps"><span>البحث</span><span>حتى لو غلط</span><span>المواضيع</span><span>فكرة الترنيمة</span><span>الآيات</span><span>القصة</span><span>البروجكتور</span><span>الكتاب المقدس</span></div>
 
 <h2 class="t rv" id="feats">كل اللي في البرنامج</h2>
@@ -286,8 +335,8 @@ code{unicode-bidi:isolate;background:#0e1622;border:1px solid #3d5570;border-rad
  <div class="f rv nw"><svg viewBox="0 0 24 24"><path d="M9 18h6M10 22h4M12 2a7 7 0 0 0-4 12.7V17h8v-2.3A7 7 0 0 0 12 2z"/></svg><h3>فكرة كل ترنيمة</h3><p>تحت كل ترنيمة فكرتها في سطرين، تساعدك تقدّمها للأطفال.</p></div>
  <div class="f rv nw"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5z"/><path d="M8 7h8M8 11h6"/></svg><h3>الآيات اللي في الترنيمة</h3><p>الآيات اللي كلام الترنيمة مأخوذ منها، دوس على أي آية تفتح في الكتاب، و«رجوع للترنيمة» يرجعك مكانك.</p></div>
  <div class="f rv nw"><svg viewBox="0 0 24 24"><path d="M12 7v14M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/></svg><h3>قصة مقترحة لكل ترنيمة</h3><p>قصة من الكتاب المقدس مناسبة لكل ترنيمة، ومكتوب ليه اخترناها، وتفتح من أول آية.</p></div>
- <div class="f rv"><svg viewBox="0 0 24 24"><path d="M3 6h18M3 12h12M3 18h8"/></svg><h3>٣٥ موضوع</h3><p>الترانيم متقسمة مواضيع من الكتاب: محبة الله، الصليب، الصلاة، الطاعة… وكل ترنيمة اتراجعت على حسب كلامها.</p></div>
- <div class="f rv nw"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2zM22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg><h3>الكتاب المقدس مشكّل</h3><p>اكتب الشاهد مختصر زي <code>يو 3 16</code> واضغط Enter، وبعدها رقم + Enter يعرض آية تانية من نفس الأصحاح.</p></div>
+ <div class="f rv"><svg viewBox="0 0 24 24"><path d="M3 6h18M3 12h12M3 18h8"/></svg><h3>الترانيم متقسمة موضوعات</h3><p>زي محبة الله، الصليب، الصلاة، الطاعة… ودوس على أي موضوع تلاقي كل ترانيمه.</p></div>
+ <div class="f rv nw"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2zM22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg><h3>الكتاب المقدس</h3><p>اكتب الشاهد مختصر زي <code>يو ٣ ١٦</code> واضغط Enter، وبعدها رقم + Enter يعرض آية تانية من نفس الأصحاح.</p></div>
  <div class="f rv"><svg viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="13" rx="2"/><path d="M8 21h8M12 16v5"/></svg><h3>شاشة للبروجكتور</h3><p>الشاشة اللي معروضة دلوقتي كبيرة، واللي جاية صغيرة تحتها، والأعداد بلونين بيتبادلوا.</p></div>
  <div class="f rv"><svg viewBox="0 0 24 24"><path d="M3 12a9 9 0 0 1 15.5-6.3L21 8M21 3v5h-5M21 12a9 9 0 0 1-15.5 6.3L3 16M3 21v-5h5"/></svg><h3>بيتحدّث لوحده</h3><p>أي ترانيم جديدة أو تصليح بيوصلك لوحده من غير ما تنزّل البرنامج تاني.</p></div>
  <div class="f rv nw"><svg viewBox="0 0 24 24"><path d="M12 8v4l3 2"/><circle cx="12" cy="12" r="9"/></svg><h3>الأحدث الأول</h3><p>جوه كل حرف، الترانيم الأحدث بتظهر الأول، والترانيم المكررة اتشالت وفضلت النسخة الأنظم.</p></div>
@@ -295,13 +344,37 @@ code{unicode-bidi:isolate;background:#0e1622;border:1px solid #3d5570;border-rad
  <div class="f rv"><svg viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.6z"/></svg><h3>مجاني بالكامل</h3><p>من غير اشتراك ومن غير نت، على ويندوز ٧ لحد ١١.</p></div>
 </div>
 
-<div class="warn">
- <h2>⚠️ لو ظهرلك تحذير وانت بتسطّب… متقلقش</h2>
- <div class="st"><b class="n">١</b><p><b>شاشة زرقا من ويندوز</b> مكتوب فيها <bdi>Windows protected your PC</bdi>:<br>دوس على الكلمة الصغيرة <bdi>More info</bdi>، وبعدين على زرار <bdi>Run anyway</bdi>.</p></div>
- <div class="st"><b class="n">٢</b><p><b>برنامج الحماية (الأنتي فيروس) قال إن فيه فيروس:</b><br>ده إنذار غلط بيحصل مع أي برنامج جديد ومجاني لسه برامج الحماية متعرفهوش. افتح برنامج الحماية واختار <b>سماح</b> (<bdi>Allow</bdi>) أو <b>استرجاع</b> (<bdi>Restore</bdi>) للملف، وبعدين شغّله تاني.<br>
- لو بتستخدم حماية ويندوز: افتح <b>أمان Windows</b> ← <b>الحماية من الفيروسات والمخاطر</b> ← <b>محفوظات الحماية</b> ← اختار الملف ← <b>إجراءات</b> ← <b>سماح</b>.</p></div>
- <p class="ok">✅ ده بيحصل أول مرة بس، وبعد كده البرنامج بيحدّث نفسه لوحده لما تنزل نسخة جديدة. البرنامج مجاني، وكل الكود بتاعه موجود ومفتوح لأي حد يشوفه على <a href="https://github.com/brethrensundayschoolpresenter/brethren-sunday-school-presenter" style="color:#8cc8ff">GitHub</a>.</p>
+<section id="install"><h2 class="t rv">التسطيب خطوة بخطوة</h2>
+<div class="sub rv">أول مرة بس، وبعد كده البرنامج بيحدّث نفسه لوحده</div>
+<div class="inst rv">
+ <div><span><b>نزّل البرنامج</b>نسخة <bdi>Windows 10 / 11</bdi>، أو <bdi>7 / 8</bdi> للكمبيوتر القديم.</span></div>
+ <div><span><b>شغّل الملف</b>بيتسطّب لوحده ويعمل أيقونة على سطح المكتب.</span></div>
+ <div><span><b>وصّل البروجكتور</b>ودوس «فتح شاشة العرض».</span></div>
 </div>
+<div class="g">
+ <div class="gs rv">
+  <h3>لو ظهرت شاشة زرقا</h3>
+  <p>بتظهر أول مرة بس مع أي برنامج جديد.</p>
+  <ol><li>دوس <bdi><b>More info</b></bdi></li><li>وبعدين <bdi><b>Run anyway</b></bdi></li></ol>
+  <div class="pic"><div class="ss"><h4>Windows protected your PC</h4>Microsoft Defender SmartScreen prevented an unrecognized app from starting. Running this app might put your PC at risk.<br><span class="hl" data-n="1"><u>More info</u></span><div class="row"><span class="hl" data-n="2">Run anyway</span><span>Don't run</span></div></div></div>
+ </div>
+ <div class="gs rv">
+  <h3>لو ظهرت "Smart App Control" <span class="tag">Windows 11 بس</span></h3>
+  <p>على بعض أجهزة Windows 11 بيظهر الشباك ده ومافيهوش "Run anyway". اعمل كده مرة واحدة:</p>
+  <ol><li>دوس <bdi><b>Okay</b></bdi></li><li>اكتب <bdi><b>Windows Security</b></bdi> في البحث جنب زرار Start وافتحه</li><li>ادخل <bdi><b>App &amp; browser control</b></bdi> ← <bdi><b>Smart App Control settings</b></bdi></li><li>اختار <bdi><b>Off</b></bdi> وشغّل الملف تاني</li></ol>
+  <div class="pic"><div class="sac"><h4>Smart App Control blocked an app that may be unsafe</h4>We blocked Brethren-Sunday-School-Presenter-Setup.exe because we could not verify its publisher…<div class="row"><span class="ok hl" data-n="1">Okay</span><span>Get apps from the Store</span></div></div>
+  <div class="ws"><div class="path">Windows Security › App &amp; browser control › Smart App Control</div><div class="r"><i></i>On</div><div class="r"><i></i>Evaluation</div><div class="r"><span class="hl" data-n="4" style="display:flex;align-items:center;gap:8px;padding-right:6px"><i class="on"></i>Off</span></div></div></div>
+ </div>
+ <div class="gs av rv">
+  <h3>لو برنامج الحماية (الأنتي فيروس) قال إن فيه فيروس</h3>
+  <p>ده إنذار غلط بيحصل مع أي برنامج جديد ومجاني لسه برامج الحماية متعرفهوش. افتح برنامج الحماية واختار <b>سماح</b> (<bdi>Allow</bdi>) أو <b>استرجاع</b> (<bdi>Restore</bdi>) للملف، وبعدين شغّله تاني.<br>
+  لو بتستخدم حماية ويندوز: افتح <b>أمان Windows</b> ← <b>الحماية من الفيروسات والمخاطر</b> ← <b>محفوظات الحماية</b> ← اختار الملف ← <b>إجراءات</b> ← <b>سماح</b>.</p>
+  <p>البرنامج مجاني، وكل الكود بتاعه مفتوح لأي حد يشوفه على <a href="https://github.com/brethrensundayschoolpresenter/brethren-sunday-school-presenter" style="color:#8cc8ff">GitHub</a>.</p>
+ </div>
+</div>
+<a class="pdf" href="https://github.com/brethrensundayschoolpresenter/brethren-sunday-school-presenter/raw/main/How-to-Install.pdf">📄 نزّل خطوات التسطيب بالصور (PDF)</a>
+</section>
+<div class="final"><a class="dl" href="#top" style="font-size:19px">⬆️ ارجع فوق ونزّل البرنامج — مجاني</a></div>
 
 
 <a class="fb" href="https://m.me/61578584879222" target="_blank" rel="noopener">
@@ -364,17 +437,7 @@ document.getElementById('regf').addEventListener('submit', async e => {
 // ---- scroll reveal + counters ----
 const io = new IntersectionObserver(es => es.forEach(e => { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }), { threshold: .12 });
 document.querySelectorAll('.rv').forEach((el, i) => { el.style.transitionDelay = (el.classList.contains('f') ? (i % 3) * 90 : 0) + 'ms'; io.observe(el); });
-const ar = n => String(n).replace(/\d/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
-const co = new IntersectionObserver(es => es.forEach(e => {
-  if (!e.isIntersecting) return; co.unobserve(e.target);
-  e.target.querySelectorAll('b[data-n]').forEach(b => {
-    if (b.dataset.t) { b.textContent = b.dataset.t; return; }
-    const N = +b.dataset.n, t0 = performance.now();
-    const f = t => { const k = Math.min(1, (t - t0) / 1400); b.textContent = ar(Math.round(N * (1 - Math.pow(1 - k, 3)))); if (k < 1) requestAnimationFrame(f); };
-    requestAnimationFrame(f);
-  });
-}), { threshold: .4 });
-co.observe(document.querySelector('.stats'));
+
 
 // ---- demo: the 960x540 stage is scaled to the box ----
 const wrap = document.getElementById('wrap'), stage = document.getElementById('stage');
@@ -446,7 +509,7 @@ async function loop() {
     $('keys').innerHTML = '<span class="kc" id="kE2">Enter</span>'; $('keys').classList.add('on'); await key('kE2'); $('keys').classList.remove('on');
     $('empty').style.opacity = 0; $('bvK').classList.add('on');
     proj('الْمَحَبَّةُ تَتَأَنَّى وَتَرْفُقُ. الْمَحَبَّةُ لَا تَحْسِدُ.<br>الْمَحَبَّةُ لَا تَتَفَاخَرُ، وَلَا تَنْتَفِخُ<div class="r">كورنثوس الأولى ١٣: ٤</div>', true);
-    $('dim').classList.add('on'); $('proj').classList.add('on'); cap('آية <b>مشكّلة</b> على البروجكتور على طول'); await wait(2800);
+    $('dim').classList.add('on'); $('proj').classList.add('on'); cap('الآية تطلع على <b>البروجكتور</b> على طول'); await wait(2800);
     cap('مجاني… و<b>بيتحدّث لوحده</b>'); await wait(1800);
     $('keys').innerHTML = '<span class="kc" id="kD">↓</span><span class="kc" id="kE">Enter</span>';
   }
