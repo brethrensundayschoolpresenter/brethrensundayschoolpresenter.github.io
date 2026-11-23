@@ -1,0 +1,35 @@
+// ترانيم مدارس الأحد — offline: app files network-first (so fixes arrive), hymn/Bible data cache-first
+// (new hymn data is written into the 'ssw-data' cache by app.js after checking content.json on GitHub)
+const SHELL = 'ssw-shell-v1';
+const FILES = ['./', 'index.html', 'app.js', 'engine.js', 'books.js', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png', '../fonts/BalooBhaijaan2-VF.ttf', '../fonts/NotoNaskh.ttf'];
+const DATA = ['data/hymns.js', 'data/topics.js', 'data/stories.js', 'data/bible.js'];
+self.addEventListener('install', e => {
+  e.waitUntil((async () => {
+    const s = await caches.open(SHELL); await s.addAll(FILES);
+    const d = await caches.open('ssw-data');
+    for (const f of DATA) { const u = new URL(f, self.registration.scope).href; if (!(await d.match(u))) { try { await d.add(u); } catch (x) {} } }
+    self.skipWaiting();
+  })());
+});
+self.addEventListener('activate', e => {
+  e.waitUntil((async () => {
+    for (const k of await caches.keys()) if (k.startsWith('ssw-shell-') && k !== SHELL) await caches.delete(k);
+    await self.clients.claim();
+  })());
+});
+self.addEventListener('fetch', e => {
+  const u = new URL(e.request.url);
+  if (e.request.method !== 'GET' || u.origin !== location.origin) return;
+  if (/\/app\/data\//.test(u.pathname)) {
+    e.respondWith((async () => {
+      const d = await caches.open('ssw-data'), key = u.origin + u.pathname;
+      const hit = await d.match(key); if (hit) return hit;
+      const r = await fetch(e.request); if (r.ok) d.put(key, r.clone()); return r;
+    })());
+    return;
+  }
+  e.respondWith((async () => {
+    try { const r = await fetch(e.request); if (r.ok) (await caches.open(SHELL)).put(e.request, r.clone()); return r; }
+    catch (x) { return (await caches.match(e.request, { ignoreSearch: true })) || (await caches.match('index.html')); }
+  })());
+});

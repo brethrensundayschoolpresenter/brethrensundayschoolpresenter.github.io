@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>ترانيم مدارس الأحد — للخدام</title>
+<meta name="description" content="كل ترانيم مدارس الأحد بفكرتها وآياتها وقصة مناسبة ليها، والكتاب المقدس — للخادم وهو بيحضّر">
+<meta name="theme-color" content="#fbfaf7">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="مدارس الأحد">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta property="og:title" content="ترانيم مدارس الأحد — للخدام">
+<meta property="og:description" content="كل الترانيم بفكرتها وآياتها وقصصها، والكتاب المقدس، على الموبايل ومن غير نت">
+<meta property="og:image" content="https://brethrensundayschoolpresenter.github.io/preview.png?v=4">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>
+@font-face{font-family:K;src:url(../fonts/BalooBhaijaan2-VF.ttf);font-weight:400 800;font-display:swap}
+@font-face{font-family:N;src:url(../fonts/NotoNaskh.ttf);font-display:swap}
+:root{--bg:#fbfaf7;--panel:#fff;--soft:#f6f5f2;--line:#b9b9b9;--line2:#e6e4df;--txt:#111;--mut:#7a7a7a;--hi:#ffff00;--blue:#bfe3f7;--fs:19px;--safe-b:env(safe-area-inset-bottom,0px)}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--txt);font-family:K,sans-serif;font-size:16px}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+a{color:inherit;text-decoration:none}
+.hl{background:linear-gradient(transparent 18%,var(--hi) 18%,var(--hi) 88%,transparent 88%);padding:0 6px}
+mark{background:var(--hi);color:inherit;border-radius:3px;padding:0 1px}
+/* top */
+.top{position:sticky;top:0;z-index:20;background:var(--panel);border-bottom:2px dashed var(--line);padding:calc(env(safe-area-inset-top,0px) + 8px) 14px 8px}
+.bar{display:flex;align-items:center;gap:10px;min-height:40px}
+.bar img{width:34px;height:34px;border-radius:9px}
+.brand{font-weight:800;font-size:18px;line-height:1.1}
+.brand small{display:block;font-size:12px;color:var(--mut);font-weight:600}
+.bar .sp{flex:1}
+.ib{width:40px;height:40px;border-radius:12px;border:2px solid #111;display:flex;align-items:center;justify-content:center;background:#fff;flex:none}
+.ib svg{width:20px;height:20px;stroke:#111;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.ib.on{background:var(--hi)}
+.ib.on svg{fill:#111}
+.back{display:flex;align-items:center;gap:6px;font-weight:800;font-size:16px;border:2px solid #111;border-radius:12px;padding:5px 12px 5px 10px;background:#fff;max-width:70%;overflow:hidden;white-space:nowrap;text-overflow:ellipsis}
+.back svg{width:18px;height:18px;stroke:#111;fill:none;stroke-width:2.4;flex:none}
+.back.y{background:var(--hi)}
+.search{margin-top:8px;display:flex;align-items:center;gap:8px;border:2.5px solid #111;border-radius:14px;padding:0 12px;height:46px;background:#fff}
+.search svg{width:20px;height:20px;stroke:#111;fill:none;stroke-width:2.2;flex:none}
+.search input{flex:1;border:0;outline:0;font:inherit;font-size:17px;font-weight:700;background:transparent;min-width:0}
+.search input::placeholder{color:#aaa;font-weight:600}
+.search .x{font-size:22px;color:#999;padding:0 4px;display:none}
+.search.has .x{display:block}
+/* main */
+main{padding:12px 14px calc(90px + var(--safe-b))}
+.sec{font-weight:800;font-size:14px;margin:16px 2px 6px;color:#333}
+.letter{display:inline-block;background:var(--hi);font-weight:800;font-size:15px;padding:0 10px;border-radius:6px;margin:14px 2px 4px}
+.it{display:block;background:var(--panel);border:2px solid var(--line2);border-radius:14px;padding:10px 14px;margin-bottom:7px}
+.it:active{background:#fff8c4;border-color:#e6d400}
+.it .t{font-weight:800;font-size:17px;line-height:1.35}
+.it .s{font-size:13.5px;color:var(--mut);margin-top:2px;line-height:1.5}
+.it .s.n{font-family:N,serif;font-size:15px;color:#333;line-height:1.8}
+.it .r{float:left;font-size:12px;color:var(--mut);font-weight:700;margin-top:3px}
+.empty{text-align:center;color:var(--mut);font-weight:700;padding:40px 10px;line-height:1.8}
+.hint{background:var(--panel);border:2px dashed var(--line);border-radius:14px;padding:10px 14px;font-size:14px;line-height:1.7;color:#333;margin-bottom:10px}
+.hint b{font-weight:800}
+/* hymn page */
+.ht{font-size:27px;font-weight:800;line-height:1.35;margin:4px 0 2px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0 2px}
+.chip{font-size:13px;font-weight:700;color:#1f6fc5;border:1.5px solid #c9dcef;background:#f3f8fd;border-radius:999px;padding:2px 10px}
+.card{background:var(--panel);border:2px dashed var(--line);border-radius:16px;padding:12px 14px;margin:12px 0}
+.card .lb{font-weight:800;font-size:13px;margin-bottom:4px;display:block}
+.card .lb span{background:var(--hi);padding:0 6px}
+.card p{margin:0;font-size:16px;line-height:1.8;font-weight:600}
+.card + .card{margin-top:-2px}
+.vs{display:flex;flex-direction:column;gap:7px}
+.vch{display:block;border:2px solid var(--line2);border-radius:12px;padding:7px 11px;background:#fafafa;text-align:right}
+.vch:active{border-color:#111}
+.vch .q{font-weight:800;font-size:15.5px}
+.vch .r{font-size:12.5px;color:var(--mut);font-weight:700}
+.vch .r::after{content:" ‹ افتحها";color:#1f6fc5}
+.story{cursor:pointer}
+.story b{font-size:17px}
+.story .r{font-size:13px;color:#1f6fc5;font-weight:700;text-decoration:underline;text-underline-offset:3px}
+.lyr{margin-top:14px}
+.vb{border-radius:16px;padding:14px 16px 16px;margin-bottom:10px;border:2px solid #ddd;font-weight:800;font-size:var(--fs);line-height:1.85;text-align:center;position:relative}
+.vb.w{background:#fff}.vb.bl{background:var(--blue)}
+.vb .tag{display:inline-block;font-size:12px;background:var(--hi);padding:0 7px;margin-bottom:4px;line-height:1.6}
+.tools{display:flex;gap:8px;justify-content:center;margin:6px 0 2px}
+.tools button{border:2px solid #111;border-radius:10px;padding:2px 14px;font-weight:800;background:#fff;font-size:15px}
+/* bible */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(98px,1fr));gap:7px}
+.grid.ch{grid-template-columns:repeat(auto-fill,minmax(52px,1fr))}
+.grid button{background:var(--panel);border:2px solid var(--line2);border-radius:12px;padding:9px 4px;font-weight:800;font-size:15px}
+.grid button:active{background:var(--hi);border-color:#111}
+.vl{font-family:N,serif;font-size:calc(var(--fs) - 1px);line-height:2;padding:6px 10px;border-radius:10px;border:2px solid transparent;margin-bottom:3px;background:transparent}
+.vl b{font-family:K;font-size:12px;background:#ececec;border-radius:6px;padding:0 6px;margin-left:6px;vertical-align:3px}
+.vl.hit{background:#fff8c4;border-color:#e6d400}
+.vl.hit b{background:var(--hi)}
+.cnav{display:flex;justify-content:space-between;gap:8px;margin:14px 0}
+.cnav button{flex:1;border:2px solid #111;border-radius:12px;padding:8px;font-weight:800;background:#fff}
+/* topics */
+.tp{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.tp .n{font-size:12.5px;color:var(--mut);font-weight:700;white-space:nowrap}
+/* tabs */
+.tabs{position:fixed;bottom:0;right:0;left:0;z-index:20;background:var(--panel);border-top:2px dashed var(--line);display:flex;padding:6px 6px calc(6px + var(--safe-b))}
+.tabs a{flex:1;display:flex;flex-direction:column;align-items:center;gap:1px;font-weight:800;font-size:12.5px;color:#666;padding:4px 0;border-radius:12px}
+.tabs svg{width:23px;height:23px;stroke:currentColor;fill:none;stroke-width:2.1;stroke-linecap:round;stroke-linejoin:round}
+.tabs a.on{color:#111;background:var(--hi)}
+.load{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;z-index:50;font-weight:800;color:#333;transition:opacity .3s}
+.load img{width:84px;height:84px;border-radius:20px;animation:bob 1.6s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(-6px)}}
+.toast{position:fixed;bottom:calc(84px + var(--safe-b));left:50%;transform:translateX(-50%) translateY(20px);background:#111;color:#fff;font-weight:800;font-size:14px;padding:8px 16px;border-radius:12px;opacity:0;transition:.25s;z-index:60;pointer-events:none;white-space:nowrap}
+.toast.show{opacity:1;transform:translateX(-50%)}
+@media (min-width:760px){main{max-width:760px;margin:0 auto}.top .in{max-width:760px;margin:0 auto}}
+</style>
+</head>
+<body>
+<div class="load" id="load"><img src="icon-192.png" alt=""><span>بيحمّل الترانيم…</span></div>
+<header class="top"><div class="in">
+ <div class="bar" id="bar"></div>
+ <div class="search" id="sbox"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><input id="q" type="search" autocomplete="off" enterkeyhint="search"><button class="x" id="qx" aria-label="امسح">×</button></div>
+</div></header>
+<main id="main"></main>
+<nav class="tabs" id="tabs">
+ <a href="#/" data-t="hymns"><svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>الترانيم</a>
+ <a href="#/topics" data-t="topics"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h6"/></svg>المواضيع</a>
+ <a href="#/bible" data-t="bible"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5z"/><path d="M12 7v6M9 10h6"/></svg>الكتاب</a>
+ <a href="#/fav" data-t="fav"><svg viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.6z"/></svg>المفضلة</a>
+</nav>
+<div class="toast" id="toast"></div>
+<script src="data/hymns.js"></script>
+<script src="data/topics.js"></script>
+<script src="data/stories.js"></script>
+<script src="books.js"></script>
+<script src="engine.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

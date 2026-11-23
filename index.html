@@ -191,6 +191,12 @@ section{scroll-margin-top:70px}
 .pdf:hover{border-color:#fff}
 .final{margin-top:34px}
 @media (max-width:860px){.g{grid-template-columns:1fr}.inst{grid-template-columns:1fr}nav a.l{display:none}}
+.mob{display:flex;align-items:center;gap:14px;text-align:right;background:#152231cc;border:2px solid #e6c800;border-radius:16px;padding:14px 18px;margin:30px auto 0;max-width:760px;color:#eef3f8;text-decoration:none;transition:.2s}
+.mob:hover{transform:translateY(-2px);box-shadow:0 12px 30px #0007}
+.mob svg{width:40px;height:40px;stroke:var(--hi);fill:none;stroke-width:2;flex:none}
+.mob b{display:block;font-size:19px;color:var(--hi)}
+.mob span{font-size:15px;line-height:1.6;color:#cfd8e2;flex:1}
+.mob i{font-style:normal;font-weight:800;color:var(--hi);white-space:nowrap}
 /* features */
 .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;text-align:right}
 .f{background:#152231cc;border:2px solid var(--line);border-radius:16px;padding:14px 16px;transition:transform .25s,border-color .25s,box-shadow .25s;position:relative;overflow:hidden}
@@ -239,6 +245,7 @@ code{unicode-bidi:isolate;background:#0e1622;border:1px solid #3d5570;border-rad
  <a class="l" href="#demo">شوف البرنامج</a>
  <a class="l" href="#feats">كل اللي في البرنامج</a>
  <a class="l" href="#install">التسطيب</a>
+ <a class="l" href="app/">نسخة الموبايل</a>
  <a class="go" href="#top">تحميل</a>
 </div></nav>
 <div class="w" id="top">
@@ -258,7 +265,8 @@ code{unicode-bidi:isolate;background:#0e1622;border:1px solid #3d5570;border-rad
 
 <div class="pills rv"><span>كل ترانيم مدارس الأحد في مكان واحد</span><span>الترانيم متقسمة موضوعات</span><span>كل ترنيمة ليها آيات وقصة</span><span>الكتاب المقدس</span><span>مجاني ومن غير نت</span></div>
 
-<section id="demo"><h2 class="t rv">شوف البرنامج بيعمل إيه</h2>
+<section id="demo"><a class="mob rv" href="app/"><svg viewBox="0 0 24 24"><rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M11 18h2"/></svg><span><b>للخدام: نسخة الموبايل</b>كل الترانيم بفكرتها وآياتها وقصصها والكتاب المقدس على موبايلك، عشان تحضّر من بيتك. مجانية ومن غير نت.</span><i>افتحها ‹</i></a>
+<h2 class="t rv">شوف البرنامج بيعمل إيه</h2>
 <div class="sub rv">عرض سريع بيتعاد لوحده</div>
 
 <div class="stagewrap rv" id="wrap" aria-label="عرض سريع للبرنامج">
