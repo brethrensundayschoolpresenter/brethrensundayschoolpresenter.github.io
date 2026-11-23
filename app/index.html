@@ -120,14 +120,22 @@ main{padding:12px 14px calc(90px + var(--safe-b))}
 .welcome .err{color:#c62828;font-size:13px;font-weight:700;min-height:18px;margin-top:6px}
 .welcome button{width:100%;margin-top:8px;background:var(--hi);border:2.5px solid #111;border-radius:14px;padding:10px;font-weight:800;font-size:18px}
 .welcome .priv{font-size:12px;color:var(--mut);text-align:center;margin-top:10px}
-.az{position:fixed;left:2px;top:calc(var(--azt,150px));bottom:calc(76px + var(--safe-b));width:26px;z-index:25;display:flex;flex-direction:column;justify-content:space-between;align-items:center;padding:6px 0;border-radius:14px;touch-action:none;user-select:none;-webkit-user-select:none;transition:background .2s}
-.az span{font-weight:800;font-size:min(12px,2.1vh);line-height:1;color:#555;width:22px;text-align:center;padding:1px 0;border-radius:6px}
-.az span.cur{background:var(--hi);color:#111}
-.az.act{background:#0000000f}
-body.has-az main{padding-left:34px}
+.az{position:fixed;left:44px;top:calc(var(--azt,150px) + 6px);bottom:calc(82px + var(--safe-b));width:40px;z-index:26;display:flex;flex-direction:column;justify-content:space-between;align-items:center;padding:8px 0;border-radius:16px;background:#fff;border:2px solid #111;box-shadow:0 10px 30px #0003;opacity:0;transform:translateX(-12px);transition:opacity .15s,transform .15s;pointer-events:none}
+.az.open{opacity:1;transform:none}
+.az span{font-weight:800;font-size:min(14px,2.3vh);line-height:1;color:#555;width:30px;text-align:center;padding:1px 0;border-radius:7px}
+.az span.cur{background:var(--hi);color:#111;transform:scale(1.25)}
+.azh{position:fixed;left:0;top:0;z-index:27;width:40px;height:52px;border-radius:0 14px 14px 0;background:var(--hi);border:2px solid #111;border-left:0;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:18px;box-shadow:0 6px 18px #0003;touch-action:none;user-select:none;-webkit-user-select:none;opacity:.35;transition:opacity .25s}
+.azh::before{content:"";position:absolute;right:5px;top:14px;bottom:14px;width:3px;border-radius:2px;background:#11111140}
+.azh.show,.azh.act{opacity:1}
 .azb{position:fixed;left:50%;top:42%;transform:translate(-50%,-50%) scale(.8);width:92px;height:92px;border-radius:24px;background:#111;color:var(--hi);font-weight:800;font-size:52px;display:flex;align-items:center;justify-content:center;z-index:45;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;box-shadow:0 12px 40px #0005}
 .azb.show{opacity:.92;transform:translate(-50%,-50%) scale(1)}
-.lh{position:sticky;top:calc(var(--azt,150px) - 10px);z-index:5;pointer-events:none}
+.lh{position:sticky;top:calc(var(--azt,150px));z-index:5;pointer-events:none;background:var(--bg);margin:8px -4px 2px;padding:5px 4px 5px}
+.lh .letter{margin:0}
+.sug{display:flex;align-items:center;gap:5px;height:40px;border:2px solid #111;border-radius:12px;padding:0 10px;background:var(--hi);font-weight:800;font-size:14px;white-space:nowrap;flex:none}
+.sug svg{width:19px;height:19px;stroke:#111;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+@media (max-width:370px){.sug span{display:none}.sug{width:40px;padding:0;justify-content:center}}
+.mist{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin:16px 0 4px;border:2px dashed var(--line);border-radius:14px;padding:11px;background:var(--panel);font-weight:800;font-size:15px;color:#333}
+.mist svg{width:20px;height:20px;stroke:#111;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
 .toast{position:fixed;bottom:calc(84px + var(--safe-b));left:50%;transform:translateX(-50%) translateY(20px);background:#111;color:#fff;font-weight:800;font-size:14px;padding:8px 16px;border-radius:12px;opacity:0;transition:.25s;z-index:60;pointer-events:none;white-space:nowrap}
 .toast.show{opacity:1;transform:translateX(-50%)}
 @media (min-width:760px){main{max-width:760px;margin:0 auto}.top .in{max-width:760px;margin:0 auto}}
@@ -145,6 +153,7 @@ body.has-az main{padding-left:34px}
  <a href="#/topics" data-t="topics"><svg viewBox="0 0 24 24"><path d="M4 6h16M4 12h10M4 18h6"/></svg>المواضيع</a>
  <a href="#/bible" data-t="bible"><svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5z"/><path d="M12 7v6M9 10h6"/></svg>الكتاب</a>
  <a href="#/fav" data-t="fav"><svg viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.6z"/></svg>المفضلة</a>
+ <a href="https://m.me/61578584879222" target="_blank" rel="noopener" data-t="sug"><svg viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/><path d="M8.5 11h.01M12 11h.01M15.5 11h.01"/></svg>اقتراح</a>
 </nav>
 <div class="welcome" id="welcome" style="display:none"><form id="wf" novalidate>
  <img src="icon-192.png" alt="">
@@ -157,7 +166,7 @@ body.has-az main{padding-left:34px}
  <button type="submit">ابدأ</button>
  <div class="priv">البيانات دي بتوصل لخدمة مدارس الأحد بس، ومش بتتنشر.</div>
 </form></div>
-<div class="az" id="az" style="display:none"></div><div class="azb" id="azb"></div>
+<div class="az" id="az"></div><div class="azh" id="azh" style="display:none" aria-label="الحروف"></div><div class="azb" id="azb"></div>
 <div class="toast" id="toast"></div>
 <script src="data/hymns.js"></script>
 <script src="data/topics.js"></script>

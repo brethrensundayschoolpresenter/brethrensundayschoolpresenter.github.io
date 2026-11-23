@@ -13,7 +13,8 @@ const IC = {
   back: '<svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg>',
   heart: '<svg viewBox="0 0 24 24"><path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.8 1-1a5.5 5.5 0 0 0 0-7.6z"/></svg>',
   share: '<svg viewBox="0 0 24 24"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7"/><path d="M12 3v12M7 8l5-5 5 5"/></svg>',
-  info: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01"/></svg>'
+  info: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01"/></svg>',
+  chat: '<svg viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/><path d="M8.5 11h.01M12 11h.01M15.5 11h.01"/></svg>'
 };
 function toast(m) { const t = $('toast'); t.textContent = m; t.classList.add('show'); clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove('show'), 2400); }
 let PREF = { fs: 19 };
@@ -85,6 +86,13 @@ function goBack() { if (history.length > 1 && NAV.depth > 0) history.back(); els
 function showSearch(on, ph) { $('sbox').style.display = on ? '' : 'none'; if (ph) $('q').placeholder = ph; }
 function setTab(t) { document.querySelectorAll('#tabs a').forEach(a => a.classList.toggle('on', a.dataset.t === t)); }
 
+// suggestions / mistakes go to the Facebook page messages (same as the desktop app's «ابعت اقتراح»)
+const SUGGEST_URL = 'https://m.me/61578584879222';
+async function suggest(n) {
+  if (n) { try { await navigator.clipboard.writeText('ترنيمة: ' + hName(n) + '\n'); toast('اسم الترنيمة اتنسخ، الزقه في الرسالة'); } catch (e) {} }
+  setTimeout(() => window.open(SUGGEST_URL, '_blank'), n ? 700 : 0);
+}
+
 // ---------- views ----------
 const NAV = { depth: 0, tab: 'hymns', q: { hymns: '', bible: '' }, from: null };
 function vHymns() {
@@ -126,11 +134,12 @@ function vHymn(n) {
     + (d ? `<div class="card"><span class="lb"><span>فكرة الترنيمة</span></span><p>${esc(d.i)}</p></div>` : '')
     + (vs.length ? `<div class="card"><span class="lb"><span>آيات في الترنيمة</span></span><div class="vs">${vs.map(([p, ph], i) => `<button class="vch" data-k="${i}"><div class="q">«${esc(ph)}»</div><div class="r">${esc(refTxt(p))}</div></button>`).join('')}</div></div>` : '')
     + (sp ? `<div class="card story" id="sty"><span class="lb"><span>قصة مقترحة</span></span><b>${esc(d.s[0])}</b><p style="font-weight:500">${esc(d.s[2])}</p><span class="r">${esc(refTxt(sp))} ‹ افتح القصة</span></div>` : '')
-    + `<div class="tools"><button id="fsm">خط أصغر</button><button id="fsp">خط أكبر</button></div><div class="lyr">${lyr}</div>`;
+    + `<div class="tools"><button id="fsm">خط أصغر</button><button id="fsp">خط أكبر</button></div><div class="lyr">${lyr}</div><button class="mist" id="mist">${IC.chat}<span>لقيت غلطة في الترنيمة دي؟ ابعتها لنا</span></button>`;
   $('main').querySelectorAll('.vch').forEach(b => b.onclick = () => openPassage(vs[+b.dataset.k][0], n));
   if ($('sty')) $('sty').onclick = () => openPassage(sp, n);
   $('fv').onclick = () => { const i = FAV.indexOf(n); if (i >= 0) FAV.splice(i, 1); else FAV.unshift(n); saveFav(); $('fv').classList.toggle('on', i < 0); toast(i < 0 ? 'اتضافت للمفضلة' : 'اتشالت من المفضلة'); };
   $('shr').onclick = () => shareHymn(n);
+  $('mist').onclick = () => suggest(n);
   $('fsm').onclick = () => fontStep(-1); $('fsp').onclick = () => fontStep(1);
   scrollTo(0, 0);
 }
@@ -232,47 +241,63 @@ function vAbout() {
 }
 
 
-// ---------- letters index on the side (drag or tap a letter to jump; the letter shows big while you move) ----------
+// ---------- letters: a small handle on the side; hold it and the letters open, slide to jump, let go and they hide ----------
 const AZ = { heads: [], on: false };
+const azLbl = L => L === 'English' ? 'En' : L;
+function topH() { return document.querySelector('.top').getBoundingClientRect().height; }
 function azSetup() {
-  const bar = $('az');
   document.documentElement.style.setProperty('--azt', Math.round(topH()) + 'px');
   AZ.heads = [...document.querySelectorAll('#main .lh')];
   AZ.on = AZ.heads.length > 3;
-  bar.style.display = AZ.on ? '' : 'none'; document.body.classList.toggle('has-az', AZ.on);
+  $('azh').style.display = AZ.on ? '' : 'none';
+  $('az').classList.remove('open');
   if (!AZ.on) return;
-  bar.innerHTML = AZ.heads.map((h, i) => `<span data-i="${i}">${h.dataset.l === 'English' ? 'En' : h.dataset.l}</span>`).join('');
+  $('az').innerHTML = AZ.heads.map((h, i) => `<span data-i="${i}">${azLbl(h.dataset.l)}</span>`).join('');
+  azPlace();
 }
-function topH() { return document.querySelector('.top').getBoundingClientRect().height; }
-function azJump(i, smooth) {
+addEventListener('resize', () => { if (AZ.on) azSetup(); });
+// the handle sits where you are in the list (like a scrollbar thumb) and shows the current letter
+function azCur() { const t = topH() + 12; let cur = AZ.heads[0]; for (const h of AZ.heads) { if (h.getBoundingClientRect().top <= t) cur = h; else break; } return cur; }
+function azPlace() {
+  if (!AZ.on) return;
+  const top = topH() + 6, bot = innerHeight - 82 - 52, max = document.documentElement.scrollHeight - innerHeight;
+  const f = max > 0 ? Math.min(1, scrollY / max) : 0;
+  $('azh').style.top = Math.round(top + f * Math.max(0, bot - top)) + 'px';
+  const c = azCur(); if (c) $('azh').textContent = azLbl(c.dataset.l);
+}
+function azJump(i) {
   const h = AZ.heads[i]; if (!h) return;
-  const y = h.getBoundingClientRect().top + scrollY - topH() - 4;
-  scrollTo({ top: y, behavior: smooth ? 'smooth' : 'auto' });
-  azBubble(h.dataset.l); azLastL = h.dataset.l;
+  scrollTo({ top: h.getBoundingClientRect().top + scrollY - topH() - 4, behavior: 'auto' });
+  azBubble(h.dataset.l);
   document.querySelectorAll('#az span').forEach((s, k) => s.classList.toggle('cur', k === i));
 }
 let azT;
-function azBubble(L) { const b = $('azb'); b.textContent = L === 'English' ? 'En' : L; b.classList.add('show'); clearTimeout(azT); azT = setTimeout(() => b.classList.remove('show'), 650); }
+function azBubble(L) { const b = $('azb'); b.textContent = azLbl(L); b.classList.add('show'); clearTimeout(azT); azT = setTimeout(() => b.classList.remove('show'), 500); }
 function azIndexAt(y) {
   const r = $('az').getBoundingClientRect();
   return Math.max(0, Math.min(AZ.heads.length - 1, Math.floor((y - r.top) / r.height * AZ.heads.length)));
 }
-addEventListener('resize', () => document.documentElement.style.setProperty('--azt', Math.round(topH()) + 'px'));
-let azDrag = false, azLast = -1;
-$('az').addEventListener('pointerdown', e => { if (!AZ.on) return; azDrag = true; $('az').setPointerCapture(e.pointerId); $('az').classList.add('act'); azLast = azIndexAt(e.clientY); azJump(azLast, false); e.preventDefault(); });
-$('az').addEventListener('pointermove', e => { if (!azDrag) return; const i = azIndexAt(e.clientY); if (i !== azLast) { azLast = i; azJump(i, false); if (navigator.vibrate) navigator.vibrate(4); } });
-const azEnd = () => { azDrag = false; $('az').classList.remove('act'); };
-$('az').addEventListener('pointerup', azEnd); $('az').addEventListener('pointercancel', azEnd);
-// while scrolling the list by hand, show which letter you are in
-let azScrollT, azLastL = '';
+let azDrag = false, azLast = -1, azShowT;
+$('azh').addEventListener('pointerdown', e => {
+  if (!AZ.on) return; e.preventDefault();
+  azDrag = true; try { $('azh').setPointerCapture(e.pointerId); } catch (x) {} $('azh').classList.add('act'); $('az').classList.add('open');
+  const c = azCur(); azLast = AZ.heads.indexOf(c);
+  document.querySelectorAll('#az span').forEach((s, k) => s.classList.toggle('cur', k === azLast));
+  azBubble(c.dataset.l);
+});
+addEventListener('pointermove', e => {
+  if (!azDrag) return;
+  const i = azIndexAt(e.clientY);
+  if (i !== azLast) { azLast = i; azJump(i); if (navigator.vibrate) navigator.vibrate(4); }
+  $('azh').style.top = Math.max(topH() + 6, Math.min(innerHeight - 82 - 52, e.clientY - 26)) + 'px';
+  $('azh').textContent = azLbl(AZ.heads[i].dataset.l);
+});
+const azEnd = () => { if (!azDrag) return; azDrag = false; $('azh').classList.remove('act'); $('az').classList.remove('open'); azPlace(); };
+addEventListener('pointerup', azEnd); addEventListener('pointercancel', azEnd);
+// scrolling by hand: the handle lights up and follows, then fades again
 addEventListener('scroll', () => {
   if (!AZ.on || azDrag) return;
-  const t = topH() + 10; let cur = null;
-  for (const h of AZ.heads) { if (h.getBoundingClientRect().top <= t) cur = h; else break; }
-  const L = cur ? cur.dataset.l : AZ.heads[0].dataset.l;
-  document.querySelectorAll('#az span').forEach((s, i) => s.classList.toggle('cur', AZ.heads[i].dataset.l === L));
-  if (L !== azLastL) { azLastL = L; if (Math.abs(scrollY - (azScrollT || 0)) > 0) azBubble(L); }
-  azScrollT = scrollY;
+  azPlace(); $('azh').classList.add('show'); clearTimeout(azShowT); azShowT = setTimeout(() => $('azh').classList.remove('show'), 1200);
 }, { passive: true });
 
 // ---------- router ----------
