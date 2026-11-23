@@ -93,6 +93,20 @@ async function suggest(n) {
   setTimeout(() => window.open(SUGGEST_URL, '_blank'), n ? 700 : 0);
 }
 
+// ---------- «ترانيم جديدة اتضافت»: shown on the home list after an update brings new hymns ----------
+function seenCount() {
+  let n = +(localStorage.getItem('ssw_seen') || 0);
+  if (!n) { n = localStorage.getItem('ssw_reg') === '1' ? Math.min(967, H.length) : H.length; try { localStorage.setItem('ssw_seen', n); } catch (e) {} }   // 967 = before the first new hymn
+  return n;
+}
+function newHymnsHTML() {
+  const n = seenCount(); if (H.length <= n) return '';
+  const nw = H.slice(n);
+  return `<div class="newh" id="newh"><b>${nw.length > 1 ? 'ترانيم جديدة اتضافت' : 'ترنيمة جديدة اتضافت'}</b>`
+    + nw.map(h => `<a href="#/h/${h.num}">«${esc(h.title)}» ‹ افتحها</a>`).join('')
+    + `<button onclick="localStorage.setItem('ssw_seen',${H.length});this.parentNode.remove()">تمام</button></div>`;
+}
+
 // ---------- views ----------
 const NAV = { depth: 0, tab: 'hymns', q: { hymns: '', bible: '' }, from: null };
 function vHymns() {
@@ -102,6 +116,7 @@ function vHymns() {
   if (!q) {
     m.innerHTML = `<div class="hint"><b>رجاء محبة:</b> استخدم البرنامج للمساعدة بس، لأنه مش بديل إنك تاخد وقت قدّام الرب وتطلب إرشاده قبل فرصة الترانيم.</div>`
       + (localStorage.getItem('ssw_hint2') || matchMedia('(display-mode: standalone)').matches || navigator.standalone ? '' : `<div class="hint">عايز تفتحه زي أي برنامج ومن غير نت؟ ضيفه للشاشة الرئيسية (Add to Home Screen) — <a href="../#add" style="color:#1f6fc5;font-weight:800;text-decoration:underline">شوف إزاي بالصور</a>. <button style="color:#1f6fc5;font-weight:800" onclick="localStorage.setItem('ssw_hint2',1);this.parentNode.remove()">تمام</button></div>`)
+      + newHymnsHTML()
       + alphaHTML(H.map(h => h.num));
     return;
   }
@@ -115,6 +130,7 @@ function vHymns() {
   m.innerHTML = out || '<div class="empty">مالقيتش ترنيمة فيها الكلام ده<br>جرّب كلمة تانية</div>';
 }
 function vHymn(n) {
+  if (n > seenCount() && n === H.length) { try { localStorage.setItem('ssw_seen', H.length); } catch (e) {} }
   const h = H[n - 1]; if (!h) { location.hash = '#/'; return; }
   setTab(NAV.tab); showSearch(false);
   const fav = FAV.includes(n);
@@ -432,6 +448,7 @@ async function syncBundled() {
 // ---------- start ----------
 route();
 askReg();
+if (H.length > seenCount() && !sessionStorage.getItem('ssw_newtoast')) { sessionStorage.setItem('ssw_newtoast', '1'); setTimeout(() => toast(H.length - seenCount() > 1 ? 'في ترانيم جديدة اتضافت' : 'ترنيمة جديدة اتضافت: «' + H[H.length - 1].title + '»'), 900); }
 // keep the loading screen until the app font is ready, so the words never jump from another font
 Promise.race([document.fonts ? document.fonts.load('800 16px K').then(() => document.fonts.ready) : Promise.resolve(), new Promise(r => setTimeout(r, 2500))])
   .then(() => { $('load').style.opacity = 0; setTimeout(() => $('load').remove(), 300); });
