@@ -257,7 +257,9 @@ function azSetup() {
 }
 addEventListener('resize', () => { if (AZ.on) azSetup(); });
 // the handle sits where you are in the list (like a scrollbar thumb) and shows the current letter
-function azCur() { const t = topH() + 12; let cur = AZ.heads[0]; for (const h of AZ.heads) { if (h.getBoundingClientRect().top <= t) cur = h; else break; } return cur; }
+// letter headers are sticky, so measure the first hymn under each letter (it never sticks)
+const azFirst = h => h.nextElementSibling || h;
+function azCur() { const t = topH() + 60; let cur = AZ.heads[0]; for (const h of AZ.heads) { if (azFirst(h).getBoundingClientRect().top <= t) cur = h; else break; } return cur; }
 function azPlace() {
   if (!AZ.on) return;
   const top = topH() + 6, bot = innerHeight - 82 - 52, max = document.documentElement.scrollHeight - innerHeight;
@@ -267,7 +269,7 @@ function azPlace() {
 }
 function azJump(i) {
   const h = AZ.heads[i]; if (!h) return;
-  scrollTo({ top: h.getBoundingClientRect().top + scrollY - topH() - 4, behavior: 'auto' });
+  scrollTo({ top: azFirst(h).getBoundingClientRect().top + scrollY - topH() - h.offsetHeight - 10, behavior: 'auto' });
   azBubble(h.dataset.l);
   document.querySelectorAll('#az span').forEach((s, k) => s.classList.toggle('cur', k === i));
 }
@@ -278,22 +280,31 @@ function azIndexAt(y) {
   return Math.max(0, Math.min(AZ.heads.length - 1, Math.floor((y - r.top) / r.height * AZ.heads.length)));
 }
 let azDrag = false, azLast = -1, azShowT;
-$('azh').addEventListener('pointerdown', e => {
-  if (!AZ.on) return; e.preventDefault();
-  azDrag = true; try { $('azh').setPointerCapture(e.pointerId); } catch (x) {} $('azh').classList.add('act'); $('az').classList.add('open');
+function azStart(y) {
+  if (!AZ.on) return false;
+  azDrag = true; $('azh').classList.add('act'); $('az').classList.add('open');
   const c = azCur(); azLast = AZ.heads.indexOf(c);
   document.querySelectorAll('#az span').forEach((s, k) => s.classList.toggle('cur', k === azLast));
   azBubble(c.dataset.l);
-});
-addEventListener('pointermove', e => {
+  return true;
+}
+function azMove(y) {
   if (!azDrag) return;
-  const i = azIndexAt(e.clientY);
+  const i = azIndexAt(y);
   if (i !== azLast) { azLast = i; azJump(i); if (navigator.vibrate) navigator.vibrate(4); }
-  $('azh').style.top = Math.max(topH() + 6, Math.min(innerHeight - 82 - 52, e.clientY - 26)) + 'px';
+  $('azh').style.top = Math.max(topH() + 6, Math.min(innerHeight - 82 - 52, y - 26)) + 'px';
   $('azh').textContent = azLbl(AZ.heads[i].dataset.l);
-});
-const azEnd = () => { if (!azDrag) return; azDrag = false; $('azh').classList.remove('act'); $('az').classList.remove('open'); azPlace(); };
-addEventListener('pointerup', azEnd); addEventListener('pointercancel', azEnd);
+}
+function azEnd() { if (!azDrag) return; azDrag = false; $('azh').classList.remove('act'); $('az').classList.remove('open'); azPlace(); }
+// phones: touch events (work the same up and down, iPhone included)
+$('azh').addEventListener('touchstart', e => { if (azStart(e.touches[0].clientY)) e.preventDefault(); }, { passive: false });
+addEventListener('touchmove', e => { if (!azDrag) return; e.preventDefault(); azMove(e.touches[0].clientY); }, { passive: false });
+addEventListener('touchend', e => { if (azDrag && !e.touches.length) azEnd(); });
+addEventListener('touchcancel', azEnd);
+// computer mouse
+$('azh').addEventListener('mousedown', e => { if (azStart(e.clientY)) e.preventDefault(); });
+addEventListener('mousemove', e => { if (azDrag) azMove(e.clientY); });
+addEventListener('mouseup', azEnd);
 // scrolling by hand: the handle lights up and follows, then fades again
 addEventListener('scroll', () => {
   if (!AZ.on || azDrag) return;
