@@ -117,6 +117,30 @@ mark{background:var(--hi);color:inherit;padding:0 2px;border-radius:3px}
 .sl .lb{position:absolute;top:6px;right:8px;font-size:10px;background:var(--hi);padding:0 5px;line-height:1.5}
 .sl.cue{outline:3px dashed #111;outline-offset:-3px}
 .sl.live{outline:3px solid #e6c800;outline-offset:-3px}
+.planv{top:44px}
+.planv .ph-h{border:2px solid #111;border-radius:10px;background:#fffde6;padding:5px 8px;margin-bottom:7px;font-size:13px}
+.planv .ph-h small{display:block;color:#777;font-weight:700;font-size:11px}
+.planv .pi{display:flex;gap:8px;align-items:flex-start;padding:5px 6px;border-radius:9px;margin-bottom:3px;transition:.3s}
+.planv .pi b{display:block;font-size:14px}.planv .pi small{display:block;font-size:11px;color:#666}
+.planv .pi i{display:inline-block;font-style:normal;font-size:10.5px;background:#fff8c4;color:#7a5b00;border-radius:5px;padding:0 6px;margin-top:2px}
+.planv .pi.sel{background:#fff8c4;outline:2px solid #e6d400}
+.planv .pn{flex:none;width:21px;height:21px;border-radius:6px;background:var(--hi);border:2px solid #111;font-weight:800;font-size:11px;display:flex;align-items:center;justify-content:center}
+.planv .pnote{margin-top:6px;border:2px dashed #ccc;border-radius:9px;padding:5px 8px;font-size:11.5px;background:#fffef3}
+.phn{position:absolute;left:300px;top:40px;width:220px;height:450px;border-radius:30px;border:8px solid #111;background:#111;box-shadow:0 20px 50px #0007;opacity:0;transform:translateY(40px) scale(.95);transition:.5s;z-index:6;overflow:hidden}
+.phn.on{opacity:1;transform:none}
+.pscr{position:absolute;inset:0;background:#fbfaf7;border-radius:22px;padding:10px 10px;font-size:11.5px;text-align:right}
+.ptop{display:inline-block;border:2px solid #111;border-radius:9px;padding:0 8px;font-weight:800;font-size:11px}
+.pt{font-weight:800;font-size:16px;margin-top:8px}.pd{color:#777;font-size:10.5px;font-weight:700;margin-bottom:6px}
+.pit{border:1.5px solid #e6e4df;border-radius:10px;padding:5px 7px;margin-bottom:5px;font-weight:800;font-size:12px;background:#fff}
+.pit span{display:inline-block;background:var(--hi);border:1.5px solid #111;border-radius:5px;width:16px;text-align:center;font-size:10px;margin-left:5px}
+.pit i{display:block;font-style:normal;font-weight:600;font-size:10px;background:#fffef3;border:1px dashed #ddd;border-radius:6px;margin-top:3px;padding:0 5px}
+.ppc{margin-top:8px;border:2px dashed #111;border-radius:10px;padding:5px 7px;background:#fffde6;font-size:10.5px;line-height:1.5;transition:.3s}
+.ppc b{display:block;font-size:12px}.ppc.pulse{background:var(--hi);box-shadow:0 0 0 4px #ffff0066}
+.ptabs{position:absolute;left:0;right:0;bottom:0;display:flex;justify-content:space-around;border-top:2px dashed #ccc;padding:6px 0;font-size:10.5px;font-weight:800;color:#777;background:#fff}
+.ptabs .on{background:var(--hi);color:#111;border-radius:7px;padding:0 6px}
+.wa{position:absolute;left:540px;top:300px;background:#dcf8c6;border-radius:12px;padding:8px 12px;box-shadow:0 8px 24px #0003;font-size:12px;opacity:0;transform:translateX(-20px);transition:.5s;z-index:7;border:1.5px solid #b5e39a}
+.wa b{display:block;font-size:13px}.wa small{color:#4a7a3a;font-weight:700}
+.wa.on{opacity:1;transform:none}
 /* bible view inside the main panel */
 .bv{position:absolute;inset:8px;background:#fff;border-radius:10px;opacity:0;transform:translateX(-30px);transition:.45s;pointer-events:none;padding:4px 6px}
 .bv.on{opacity:1;transform:none}
@@ -329,10 +353,16 @@ code{unicode-bidi:isolate;background:#0e1622;border:1px solid #3d5570;border-rad
   </div>
   <div class="cols">
    <div class="panel list">
-    <div class="tabs"><span class="on" id="tH">الترانيم</span><span id="tB">الكتاب</span><span id="tT">المواضيع</span><span>السجل</span></div>
+    <div class="tabs"><span class="on" id="tH">الترانيم</span><span id="tB">الكتاب</span><span id="tT">المواضيع</span><span id="tF">فرصي</span><span>النهارده</span></div>
     <div class="search" id="sb"><span id="q"></span><span class="caret"></span><span class="ph" id="ph">اكتب أي كلمة…</span></div>
     <div class="res" id="res"></div>
     <div class="topv" id="topv"><div class="sec">سلوكي</div><div class="tp">الطاعة وإكرام الوالدين <i>٢٧</i></div><div class="tp">محبة الآخرين والتسامح <i>٥١</i></div><div class="tp on">السلوك المسيحي والقدوة <i>١١٧</i></div><div class="tl">ربى أنت عارف جميع طلباتى</div><div class="tl cur">ربي ساعدني أكون شبهك</div><div class="tl">ربي ساعدني علشان اكبر</div><div class="tl">ربي عايز أعيش حياتك</div><div class="tl">ربي يسوع علمني أكون رقيق زيك</div><div class="tp">العطاء والخدمة <i>٣٢</i></div><div class="tp">الشهادة — أنتم نور العالم <i>٧٠</i></div></div>
+    <div class="topv planv" id="planv"><div class="ph-h"><span class="sec">الفرصة اللي اتحضّرت</span> <b>اجتماع الجمعة</b><small>٢٧ نوفمبر · كنيسة الإخوة</small></div>
+     <div class="pi" id="pi1"><span class="pn">١</span><div><b>ربي ساعدني أكون شبهك</b><i>هبدأ بيها وأنا واقف</i></div></div>
+     <div class="pi" id="pi2"><span class="pn">٢</span><div><b>يوحنا ٣: ١٦</b><small>لأنه هكذا أحب الله العالم…</small></div></div>
+     <div class="pi"><span class="pn">٣</span><div><b>أبرع جمالا</b></div></div>
+     <div class="pnote"><b>ملاحظاتك:</b> الفكرة: محبة الرب يسوع</div></div>
+
    </div>
    <div class="panel main" id="main">
     <div class="empty" id="empty">اختار ترنيمة</div>
@@ -361,6 +391,11 @@ code{unicode-bidi:isolate;background:#0e1622;border:1px solid #3d5570;border-rad
      <div class="vl hit"><b>٥٩</b>فَكَانُوا يَرْجُمُونَ اسْتِفَانُوسَ وَهُوَ يَدْعُو وَيَقُولُ: «أَيُّهَا الرَّبُّ يَسُوعُ، اقْبَلْ رُوحِي».</div>
      <div class="vl hit"><b>٦٠</b>ثُمَّ جَثَا عَلَى رُكْبَتَيْهِ وَصَرَخَ بِصَوْتٍ عَظِيمٍ: «يَارَبُّ، لَا تُقِمْ لَهُمْ هَذِهِ الْخَطِيَّةَ». وَإِذْ قَالَ هَذَا رَقَدَ.</div>
     </div>
+    <div class="bv" id="bvJ"><div class="bh"><div class="htitle"><span>يوحنا ٣</span></div></div>
+     <div class="vl"><b>١٥</b>لِكَيْ لَا يَهْلِكَ كُلُّ مَنْ يُؤْمِنُ بِهِ، بَلْ تَكُونُ لَهُ الْحَيَاةُ الْأَبَدِيَّةُ.</div>
+     <div class="vl hit"><b>١٦</b>لِأَنَّهُ هَكَذَا أَحَبَّ اللهُ الْعَالَمَ حَتَّى بَذَلَ ابْنَهُ الْوَحِيدَ، لِكَيْ لَا يَهْلِكَ كُلُّ مَنْ يُؤْمِنُ بِهِ، بَلْ تَكُونُ لَهُ الْحَيَاةُ الْأَبَدِيَّةُ.</div>
+     <div class="vl"><b>١٧</b>لِأَنَّهُ لَمْ يُرْسِلِ اللهُ ابْنَهُ إِلَى الْعَالَمِ لِيَدِينَ الْعَالَمَ، بَلْ لِيَخْلُصَ بِهِ الْعَالَمُ.</div>
+    </div>
     <div class="bv" id="bvK"><div class="bh"><div class="htitle"><span>كورنثوس الأولى ١٣</span></div></div>
      <div class="vl"><b>٣</b>وَإِنْ أَطْعَمْتُ كُلَّ أَمْوَالِي، وَإِنْ سَلَّمْتُ جَسَدِي حَتَّى أَحْتَرِقَ، وَلَكِنْ لَيْسَ لِي مَحَبَّةٌ، فَلَا أَنْتَفِعُ شَيْئًا.</div>
      <div class="vl hit"><b>٤</b>الْمَحَبَّةُ تَتَأَنَّى وَتَرْفُقُ. الْمَحَبَّةُ لَا تَحْسِدُ. الْمَحَبَّةُ لَا تَتَفَاخَرُ، وَلَا تَنْتَفِخُ،</div>
@@ -369,6 +404,10 @@ code{unicode-bidi:isolate;background:#0e1622;border:1px solid #3d5570;border-rad
     </div>
    </div>
   </div>
+  <div class="phn" id="phn"><div class="pscr"><div class="ptop">‹ فرصي</div><div class="pt">اجتماع الجمعة</div><div class="pd">الجمعة ٢٧ نوفمبر · كنيسة الإخوة</div>
+    <div class="pit"><span>١</span>ربي ساعدني أكون شبهك<i>هبدأ بيها وأنا واقف</i></div><div class="pit"><span>٢</span>يوحنا ٣: ١٦</div><div class="pit"><span>٣</span>أبرع جمالا</div>
+    <div class="ppc" id="ppc"><b>هتعرضها على الكمبيوتر؟</b> ابعتها لنفسك واتساب</div><div class="ptabs"><span>الترانيم</span><span>الكتاب</span><span class="on">فرصي</span></div></div></div>
+  <div class="wa" id="wa"><b>فرصة-اجتماع الجمعة.json</b><small>اتبعت لنفسك على واتساب</small></div>
   <div class="dim" id="dim"></div>
   <div class="proj" id="proj"><div class="scr" id="scr"></div><div class="leg"></div><div class="cap">شاشة البروجكتور</div></div>
   <div class="keys" id="keys"><span class="kc" id="kD">↓</span><span class="kc" id="kE">Enter</span></div>
@@ -379,7 +418,7 @@ code{unicode-bidi:isolate;background:#0e1622;border:1px solid #3d5570;border-rad
 </div>
 <div class="mcap" id="mcap">ترانيم مدارس الأحد</div>
 </section>
-<div class="steps" id="steps"><span>البحث</span><span>حتى لو غلط</span><span>المواضيع</span><span>فكرة الترنيمة</span><span>الآيات</span><span>القصة</span><span>البروجكتور</span><span>الكتاب المقدس</span></div>
+<div class="steps" id="steps"><span>البحث</span><span>حتى لو غلط</span><span>المواضيع</span><span>فكرة الترنيمة</span><span>الآيات</span><span>القصة</span><span>البروجكتور</span><span>فرصي</span><span>الكتاب المقدس</span></div>
 
 <h2 class="t rv" id="feats">كل اللي في البرنامج</h2>
 <div class="sub rv">ومع كل تحديث بيزيد</div>
@@ -547,11 +586,11 @@ function results(list, hl) {
   $('res').innerHTML = list.map(h => `<div class="it"><div class="t">${hl ? h.t.replace(hl, '<mark>$&</mark>') : h.t}</div><div class="s">${hl ? h.s.replace(hl, '<mark>$&</mark>') : h.s}</div></div>`).join('');
   [...$('res').children].forEach((e, i) => setTimeout(() => e.classList.add('on'), 90 * i));
 }
-function tab(id) { ['tH', 'tB', 'tT'].forEach(t => $(t).classList.toggle('on', t === id)); }
+function tab(id) { ['tH', 'tB', 'tT', 'tF'].forEach(t => $(t).classList.toggle('on', t === id)); }
 function proj(html, bib) { $('scr').innerHTML = html; $('scr').classList.toggle('bib', !!bib); }
 function reset() {
   clearQ(); $('hy').classList.remove('on'); $('empty').style.opacity = 1; tab('tH');
-  ['bvC', 'bvA', 'bvK', 'proj', 'dim', 'topv', 'keys'].forEach(i => $(i).classList.remove('on'));
+  ['bvC', 'bvA', 'bvK', 'bvJ', 'proj', 'dim', 'topv', 'keys', 'planv', 'phn', 'wa'].forEach(i => $(i).classList.remove('on')); document.querySelectorAll('.pi.sel').forEach(e => e.classList.remove('sel'));
   document.querySelectorAll('.pulse').forEach(e => e.classList.remove('pulse')); $('s1').classList.remove('live');
 }
 async function loop() {
@@ -570,8 +609,8 @@ async function loop() {
     tab('tT'); $('topv').classList.add('on'); await wait(2400);
     $('c1').classList.remove('pulse'); $('topv').classList.remove('on'); tab('tH'); await wait(300);
     step(3); cap('<b>فكرة الترنيمة</b> تحت كل ترنيمة'); $('idea').classList.add('pulse'); cursorTo($('idea'), 0.5, 0.5); await wait(2200); $('idea').classList.remove('pulse');
-    step(4); cap('و<b>الآيات</b> اللي كلامها مأخوذ منها… دوس تفتح'); await click($('v2')); $('v2').classList.add('pulse'); await wait(300);
-    $('hy').classList.remove('on'); $('bvC').classList.add('on'); tab('tB'); $('v2').classList.remove('pulse'); await wait(2300);
+    step(4); cap('و<b>الآيات</b> اللي بيعكسها كلام الترنيمة… دوس تفتح'); await click($('v2')); $('v2').classList.add('pulse'); await wait(300);
+    $('hy').classList.remove('on'); $('bvC').classList.add('on'); tab('tB'); $('v2').classList.remove('pulse'); cap('الآية بتفتح <b>متعلّم عليها بالأصفر</b>'); await wait(2300);
     cap('<b>رجوع للترنيمة</b>… ترجع مكانك'); $('bkC').classList.add('pulse'); await click($('bkC')); $('bkC').classList.remove('pulse');
     $('bvC').classList.remove('on'); tab('tH'); $('hy').classList.add('on'); await wait(900);
     step(5); cap('<b>قصة مقترحة</b> مناسبة لكل ترنيمة'); $('story').classList.add('pulse'); cursorTo($('story'), 0.5, 0.6); await wait(1800);
@@ -582,7 +621,14 @@ async function loop() {
     step(6); cap('دوس على الشريحة… تطلع على <b>البروجكتور</b>'); await click($('s1')); $('s1').classList.add('live');
     proj(SLIDE1); $('dim').classList.add('on'); $('proj').classList.add('on'); await wait(2600);
     $('dim').classList.remove('on'); $('proj').classList.remove('on'); await wait(400);
-    step(7); clearQ(); tab('tB'); $('hy').classList.remove('on'); $('empty').style.opacity = 1;
+    step(7); cap('حضّر الفرصة من بيتك على الموبايل في <b>«فرصي»</b>'); $('dim').classList.add('on'); $('phn').classList.add('on'); await wait(2400);
+    cap('<b>هتعرضها على الكمبيوتر؟</b> ابعتها لنفسك واتساب'); $('ppc').classList.add('pulse'); await wait(1200); $('wa').classList.add('on'); await wait(1800);
+    $('ppc').classList.remove('pulse'); $('phn').classList.remove('on'); $('wa').classList.remove('on'); $('dim').classList.remove('on'); await wait(400);
+    clearQ(); $('hy').classList.remove('on'); $('empty').style.opacity = 1; tab('tF'); $('planv').classList.add('on');
+    cap('وفي الكنيسة افتحها في <b>«فرصي»</b> على الكمبيوتر… جاهزة بالترتيب'); await wait(2200);
+    await click($('pi2'), 0.6, 0.3); $('pi2').classList.add('sel'); $('empty').style.opacity = 0; $('bvJ').classList.add('on'); cap('دوس على أي حاجة… تفتح على طول'); await wait(2400);
+    $('bvJ').classList.remove('on'); $('planv').classList.remove('on'); await wait(300);
+    step(8); clearQ(); tab('tB'); $('hy').classList.remove('on'); $('empty').style.opacity = 1;
     cap('الكتاب المقدس: اكتب الشاهد <b>مختصر</b>'); cursorTo($('sb'), 0.3, 0.6); await wait(700);
     await type('1كو 13 4'); await wait(300);
     results([{ t: 'كورنثوس الأولى ١٣: ٤', s: 'الْمَحَبَّةُ تَتَأَنَّى وَتَرْفُقُ…' }]); await wait(700);
