@@ -99,12 +99,16 @@ function seenCount() {
   if (!n) { n = localStorage.getItem('ssw_reg') === '1' ? Math.min(967, H.length) : H.length; try { localStorage.setItem('ssw_seen', n); } catch (e) {} }   // 967 = before the first new hymn
   return n;
 }
+function saveNotes(v, notes) { try { localStorage.setItem('ssw_notes', JSON.stringify({ v, notes })); } catch (e) {} }
 function newHymnsHTML() {
-  const n = seenCount(); if (H.length <= n) return '';
-  const nw = H.slice(n);
-  return `<div class="newh" id="newh"><b>${nw.length > 1 ? 'ترانيم جديدة اتضافت' : 'ترنيمة جديدة اتضافت'}</b>`
+  const n = seenCount(), nw = H.length > n ? H.slice(n) : [];
+  let N = null; try { N = JSON.parse(localStorage.getItem('ssw_notes') || 'null'); } catch (e) {}
+  const notes = N && !(+localStorage.getItem('ssw_notes_seen') >= N.v) ? N.notes : [];
+  if (!nw.length && !notes.length) return '';
+  return `<div class="newh" id="newh"><b>${nw.length ? (nw.length > 1 ? 'ترانيم جديدة اتضافت' : 'ترنيمة جديدة اتضافت') : 'الجديد في الترانيم'}</b>`
     + nw.map(h => `<a href="#/h/${h.num}">«${esc(h.title)}» ‹ افتحها</a>`).join('')
-    + `<button onclick="localStorage.setItem('ssw_seen',${H.length});this.parentNode.remove()">تمام</button></div>`;
+    + notes.filter(t => !nw.some(h => t.includes(h.title))).map(t => `<span class="nn">• ${esc(t)}</span>`).join('')
+    + `<button onclick="localStorage.setItem('ssw_seen',${H.length});localStorage.setItem('ssw_notes_seen',${N ? N.v : 0});this.parentNode.remove()">تمام</button></div>`;
 }
 
 // ---------- views ----------
@@ -393,6 +397,7 @@ async function checkUpdates() {
     const cache = await caches.open('ssw-data');
     for (const f in got) await cache.put(new URL('data/' + f, location.href).href, new Response(got[f], { headers: { 'Content-Type': 'text/javascript; charset=utf-8' } }));
     localStorage.setItem('ssw_dv', c.dataVersion);
+    if (c.notes && c.notes.length) saveNotes(c.dataVersion, c.notes);
     const el = document.createElement('button');
     el.className = 'toast show'; el.style.pointerEvents = 'auto'; el.style.background = '#ffff00'; el.style.color = '#111'; el.style.border = '2px solid #111';
     el.textContent = 'في ترانيم جديدة — دوس هنا تشوفها'; el.onclick = () => location.reload();
@@ -430,6 +435,8 @@ async function syncBundled() {
     if (!('caches' in window) || !navigator.onLine) return;
     const have = +(localStorage.getItem('ssw_dv') || 0);
     if (have >= DATA_VERSION) return;
+    let notes = [];
+    try { notes = (await (await fetch('%64ata/content.json?fresh=' + DATA_VERSION, { cache: 'no-cache' })).json()).notes || []; } catch (e) {}
     const got = {};
     for (const f of ['hymns.js', 'topics.js', 'stories.js']) {
       // '%64ata' = 'data': an older offline worker on the phone doesn't recognise this path, so it can't answer with its old copy
@@ -440,6 +447,7 @@ async function syncBundled() {
     const cache = await caches.open('ssw-data');
     for (const f in got) await cache.put(new URL('data/' + f, location.href).href, new Response(got[f], { headers: { 'Content-Type': 'text/javascript; charset=utf-8' } }));
     localStorage.setItem('ssw_dv', DATA_VERSION);
+    if (have && notes.length) saveNotes(DATA_VERSION, notes);
     const n = (got['hymns.js'].match(/"num":/g) || []).length;
     if (n && n !== H.length && !sessionStorage.getItem('ssw_rl')) { sessionStorage.setItem('ssw_rl', '1'); location.reload(); }
   } catch (e) {}
@@ -448,7 +456,7 @@ async function syncBundled() {
 // ---------- start ----------
 route();
 askReg();
-if (H.length > seenCount() && !sessionStorage.getItem('ssw_newtoast')) { sessionStorage.setItem('ssw_newtoast', '1'); setTimeout(() => toast(H.length - seenCount() > 1 ? 'في ترانيم جديدة اتضافت' : 'ترنيمة جديدة اتضافت: «' + H[H.length - 1].title + '»'), 900); }
+if ((H.length > seenCount() || newHymnsHTML()) && !sessionStorage.getItem('ssw_newtoast')) { sessionStorage.setItem('ssw_newtoast', '1'); setTimeout(() => toast(H.length - seenCount() > 1 ? 'في ترانيم جديدة اتضافت' : H.length > seenCount() ? 'ترنيمة جديدة اتضافت: «' + H[H.length - 1].title + '»' : 'الترانيم اتحدّثت'), 900); }
 // keep the loading screen until the app font is ready, so the words never jump from another font
 Promise.race([document.fonts ? document.fonts.load('800 16px K').then(() => document.fonts.ready) : Promise.resolve(), new Promise(r => setTimeout(r, 2500))])
   .then(() => { $('load').style.opacity = 0; setTimeout(() => $('load').remove(), 300); });
