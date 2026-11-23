@@ -120,6 +120,14 @@ main{padding:12px 14px calc(90px + var(--safe-b))}
 .welcome .err{color:#c62828;font-size:13px;font-weight:700;min-height:18px;margin-top:6px}
 .welcome button{width:100%;margin-top:8px;background:var(--hi);border:2.5px solid #111;border-radius:14px;padding:10px;font-weight:800;font-size:18px}
 .welcome .priv{font-size:12px;color:var(--mut);text-align:center;margin-top:10px}
+.az{position:fixed;left:2px;top:calc(var(--azt,150px));bottom:calc(76px + var(--safe-b));width:26px;z-index:25;display:flex;flex-direction:column;justify-content:space-between;align-items:center;padding:6px 0;border-radius:14px;touch-action:none;user-select:none;-webkit-user-select:none;transition:background .2s}
+.az span{font-weight:800;font-size:min(12px,2.1vh);line-height:1;color:#555;width:22px;text-align:center;padding:1px 0;border-radius:6px}
+.az span.cur{background:var(--hi);color:#111}
+.az.act{background:#0000000f}
+body.has-az main{padding-left:34px}
+.azb{position:fixed;left:50%;top:42%;transform:translate(-50%,-50%) scale(.8);width:92px;height:92px;border-radius:24px;background:#111;color:var(--hi);font-weight:800;font-size:52px;display:flex;align-items:center;justify-content:center;z-index:45;opacity:0;pointer-events:none;transition:opacity .2s,transform .2s;box-shadow:0 12px 40px #0005}
+.azb.show{opacity:.92;transform:translate(-50%,-50%) scale(1)}
+.lh{position:sticky;top:calc(var(--azt,150px) - 10px);z-index:5;pointer-events:none}
 .toast{position:fixed;bottom:calc(84px + var(--safe-b));left:50%;transform:translateX(-50%) translateY(20px);background:#111;color:#fff;font-weight:800;font-size:14px;padding:8px 16px;border-radius:12px;opacity:0;transition:.25s;z-index:60;pointer-events:none;white-space:nowrap}
 .toast.show{opacity:1;transform:translateX(-50%)}
 @media (min-width:760px){main{max-width:760px;margin:0 auto}.top .in{max-width:760px;margin:0 auto}}
@@ -149,6 +157,7 @@ main{padding:12px 14px calc(90px + var(--safe-b))}
  <button type="submit">ابدأ</button>
  <div class="priv">البيانات دي بتوصل لخدمة مدارس الأحد بس، ومش بتتنشر.</div>
 </form></div>
+<div class="az" id="az" style="display:none"></div><div class="azb" id="azb"></div>
 <div class="toast" id="toast"></div>
 <script src="data/hymns.js"></script>
 <script src="data/topics.js"></script>

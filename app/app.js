@@ -69,7 +69,7 @@ function alphaHTML(nums) {
   const sorted = nums.slice().sort((a, b) => a - b), order = [...new Set(sorted.map(L0))];
   sorted.sort((a, b) => order.indexOf(L0(a)) - order.indexOf(L0(b)) || (D0(b) > D0(a) ? 1 : D0(b) < D0(a) ? -1 : a - b));
   let cur = null, out = '';
-  sorted.forEach(n => { const L = L0(n); if (L !== cur) { cur = L; out += `<div><span class="letter">${esc(L)}</span></div>`; } out += hymnItem(n); });
+  sorted.forEach(n => { const L = L0(n); if (L !== cur) { cur = L; out += `<div class="lh" data-l="${esc(L)}"><span class="letter">${esc(L)}</span></div>`; } out += hymnItem(n); });
   return out;
 }
 function hymnItem(n, sub) {
@@ -231,6 +231,50 @@ function vAbout() {
   $('dv').textContent = 'نسخة الترانيم ' + arD(localStorage.getItem('ssw_dv') || DATA_VERSION);
 }
 
+
+// ---------- letters index on the side (drag or tap a letter to jump; the letter shows big while you move) ----------
+const AZ = { heads: [], on: false };
+function azSetup() {
+  const bar = $('az');
+  document.documentElement.style.setProperty('--azt', Math.round(topH()) + 'px');
+  AZ.heads = [...document.querySelectorAll('#main .lh')];
+  AZ.on = AZ.heads.length > 3;
+  bar.style.display = AZ.on ? '' : 'none'; document.body.classList.toggle('has-az', AZ.on);
+  if (!AZ.on) return;
+  bar.innerHTML = AZ.heads.map((h, i) => `<span data-i="${i}">${h.dataset.l === 'English' ? 'En' : h.dataset.l}</span>`).join('');
+}
+function topH() { return document.querySelector('.top').getBoundingClientRect().height; }
+function azJump(i, smooth) {
+  const h = AZ.heads[i]; if (!h) return;
+  const y = h.getBoundingClientRect().top + scrollY - topH() - 4;
+  scrollTo({ top: y, behavior: smooth ? 'smooth' : 'auto' });
+  azBubble(h.dataset.l); azLastL = h.dataset.l;
+  document.querySelectorAll('#az span').forEach((s, k) => s.classList.toggle('cur', k === i));
+}
+let azT;
+function azBubble(L) { const b = $('azb'); b.textContent = L === 'English' ? 'En' : L; b.classList.add('show'); clearTimeout(azT); azT = setTimeout(() => b.classList.remove('show'), 650); }
+function azIndexAt(y) {
+  const r = $('az').getBoundingClientRect();
+  return Math.max(0, Math.min(AZ.heads.length - 1, Math.floor((y - r.top) / r.height * AZ.heads.length)));
+}
+addEventListener('resize', () => document.documentElement.style.setProperty('--azt', Math.round(topH()) + 'px'));
+let azDrag = false, azLast = -1;
+$('az').addEventListener('pointerdown', e => { if (!AZ.on) return; azDrag = true; $('az').setPointerCapture(e.pointerId); $('az').classList.add('act'); azLast = azIndexAt(e.clientY); azJump(azLast, false); e.preventDefault(); });
+$('az').addEventListener('pointermove', e => { if (!azDrag) return; const i = azIndexAt(e.clientY); if (i !== azLast) { azLast = i; azJump(i, false); if (navigator.vibrate) navigator.vibrate(4); } });
+const azEnd = () => { azDrag = false; $('az').classList.remove('act'); };
+$('az').addEventListener('pointerup', azEnd); $('az').addEventListener('pointercancel', azEnd);
+// while scrolling the list by hand, show which letter you are in
+let azScrollT, azLastL = '';
+addEventListener('scroll', () => {
+  if (!AZ.on || azDrag) return;
+  const t = topH() + 10; let cur = null;
+  for (const h of AZ.heads) { if (h.getBoundingClientRect().top <= t) cur = h; else break; }
+  const L = cur ? cur.dataset.l : AZ.heads[0].dataset.l;
+  document.querySelectorAll('#az span').forEach((s, i) => s.classList.toggle('cur', AZ.heads[i].dataset.l === L));
+  if (L !== azLastL) { azLastL = L; if (Math.abs(scrollY - (azScrollT || 0)) > 0) azBubble(L); }
+  azScrollT = scrollY;
+}, { passive: true });
+
 // ---------- router ----------
 let lastHash = '';
 function route() {
@@ -249,6 +293,7 @@ function route() {
   else if (p[0] === 'fav') { NAV.tab = 'fav'; vFav(); }
   else if (p[0] === 'about') vAbout();
   else vHymns();
+  azSetup();
 }
 addEventListener('hashchange', route);
 // search box
@@ -256,13 +301,13 @@ function sboxState() { $('sbox').classList.toggle('has', !!$('q').value); }
 let qt;
 $('q').addEventListener('input', () => {
   sboxState(); clearTimeout(qt);
-  qt = setTimeout(() => { const tab = location.hash.startsWith('#/bible') ? 'bible' : 'hymns'; NAV.q[tab] = $('q').value; if (tab === 'bible') vBible(); else vHymns(); }, 180);
+  qt = setTimeout(() => { const tab = location.hash.startsWith('#/bible') ? 'bible' : 'hymns'; NAV.q[tab] = $('q').value; if (tab === 'bible') vBible(); else vHymns(); azSetup(); }, 180);
 });
 $('q').addEventListener('keydown', e => { if (e.key === 'Enter') $('q').blur(); });
 $('qx').onclick = () => { $('q').value = ''; $('q').dispatchEvent(new Event('input')); $('q').focus(); };
 // tabs: tapping the current tab goes back to its start
 document.querySelectorAll('#tabs a').forEach(a => a.addEventListener('click', e => {
-  if (a.dataset.t === 'hymns' && location.hash === '#/' && NAV.q.hymns) { NAV.q.hymns = ''; vHymns(); }
+  if (a.dataset.t === 'hymns' && location.hash === '#/' && NAV.q.hymns) { NAV.q.hymns = ''; vHymns(); azSetup(); }
 }));
 
 // ---------- Bible loading (after the hymns are on screen) ----------
