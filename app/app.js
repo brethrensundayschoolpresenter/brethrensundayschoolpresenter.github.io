@@ -86,12 +86,9 @@ function goBack() { if (history.length > 1 && NAV.depth > 0) history.back(); els
 function showSearch(on, ph) { $('sbox').style.display = on ? '' : 'none'; if (ph) $('q').placeholder = ph; }
 function setTab(t) { document.querySelectorAll('#tabs a').forEach(a => a.classList.toggle('on', a.dataset.t === t)); }
 
-// suggestions / mistakes go to the Facebook page messages (same as the desktop app's «ابعت اقتراح»)
-const SUGGEST_URL = 'https://m.me/61578584879222';
-async function suggest(n) {
-  if (n) { try { await navigator.clipboard.writeText('ترنيمة: ' + hName(n) + '\n'); toast('اسم الترنيمة اتنسخ، الزقه في الرسالة'); } catch (e) {} }
-  setTimeout(() => window.open(SUGGEST_URL, '_blank'), n ? 700 : 0);
-}
+// suggestions / mistakes / a hymn to add go to WhatsApp (the hymn's name is written in the message)
+const WA = 'https://wa.me/201227120955';
+function suggest(n) { window.open(WA + '?text=' + encodeURIComponent(n ? 'ترنيمة: ' + hName(n) + '\n' : 'برنامج ترانيم مدارس الأحد:\n'), '_blank'); }
 
 // ---------- «ترانيم جديدة اتضافت»: shown on the home list after an update brings new hymns ----------
 function seenCount() {
@@ -280,7 +277,7 @@ function vAbout() {
   <div class="card"><span class="lb"><span>رجاء محبة</span></span><p style="font-weight:500">استخدم البرنامج للمساعدة بس، لأنه مش بديل إنك تاخد وقت قدّام الرب وتطلب إرشاده قبل فرصة الترانيم.</p></div>
   <div class="card"><span class="lb"><span>ضيفه للشاشة الرئيسية</span></span><p style="font-weight:500"><a href="../#add" style="color:#1f6fc5;font-weight:800;text-decoration:underline">شوف الخطوات بالصور</a><br><b>آيفون:</b> من Safari دوس زرار المشاركة وبعدين «Add to Home Screen».<br><b>أندرويد:</b> من Chrome دوس النقط التلاتة وبعدين «Add to Home screen» أو «Install app».</p></div>
   <div class="card"><span class="lb"><span>للعرض على البروجكتور</span></span><p style="font-weight:500">نزّل برنامج الكمبيوتر من <a href="../" style="color:#1f6fc5;text-decoration:underline">هنا</a>.</p></div>
-  <div class="card"><span class="lb"><span>لقيت غلطة؟</span></span><p style="font-weight:500">ابعتها لنا في <a href="https://m.me/61578584879222" style="color:#1f6fc5;text-decoration:underline">رسالة على الصفحة</a>.</p></div>
+  <div class="card"><span class="lb"><span>لقيت غلطة أو عندك ترنيمة ناقصة؟</span></span><p style="font-weight:500">ابعتها لنا <a href="https://wa.me/201227120955" target="_blank" rel="noopener" style="color:#1f6fc5;text-decoration:underline">واتساب</a> (ولو ترنيمة جديدة ابعت ملف الـ PowerPoint بتاعها)، ولما تتراجع بتنزل للكل.</p></div>
   <p style="text-align:center;color:var(--mut);font-size:13px" id="dv"></p>`;
   $('dv').textContent = 'نسخة الترانيم ' + arD(localStorage.getItem('ssw_dv') || DATA_VERSION);
 }
@@ -481,13 +478,20 @@ function hymnSug(n) {
   return `<div class="fsug">${vs.map(([p, ph]) => row(p, 'آية', '«' + esc(ph) + '»')).join('')}${sp ? row(sp, 'قصة', esc(d.s[0])) : ''}</div>`;
 }
 // backup: one small file with all the فرص (send it to yourself on WhatsApp); restore = pick that file
+// hymn titles go in the file too, so the computer finds the right hymn even if its numbers differ
+const withTitles = list => list.map(f => Object.assign({}, f, { items: f.items.map(it => it.t === 'h' && H[it.n - 1] ? Object.assign({}, it, { title: H[it.n - 1].title }) : it) }));
+async function sendFile(list, name, title) {
+  const txt = JSON.stringify({ app: 'ssw-forsa', v: 1, saved: todayStr(), forsas: withTitles(list) });
+  const file = new File([txt], name, { type: 'application/json' });
+  try { if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title }); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
+  const a = document.createElement('a'); a.href = URL.createObjectURL(file); a.download = name; document.body.appendChild(a); a.click(); a.remove();
+  toast('الملف اتحفظ في التحميلات');
+}
+const fileSafe = t => String(t).replace(/[\\/:*?"<>|]+/g, ' ').trim().slice(0, 40);
+function sendForsaToPC(f) { sendFile([f], 'فرصة-' + fileSafe(fName(f)) + '-' + f.date + '.json', fName(f)); }
 async function backupForsas() {
   const name = 'فرصي-' + todayStr() + '.json';
-  const txt = JSON.stringify({ app: 'ssw-forsa', v: 1, saved: todayStr(), forsas: FR });
-  const file = new File([txt], name, { type: 'application/json' });
-  try { if (navigator.canShare && navigator.canShare({ files: [file] })) { await navigator.share({ files: [file], title: 'نسخة من فرصي' }); return; } } catch (e) { if (e && e.name === 'AbortError') return; }
-  const a = document.createElement('a'); a.href = URL.createObjectURL(file); a.download = name; document.body.appendChild(a); a.click(); a.remove();
-  toast('النسخة اتحفظت في التحميلات');
+  return sendFile(FR, name, 'نسخة من فرصي');
 }
 async function restoreForsas(file) {
   try {
