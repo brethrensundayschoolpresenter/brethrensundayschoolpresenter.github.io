@@ -101,7 +101,7 @@ function saveNotes(v, notes) { try { localStorage.setItem('ssw_notes', JSON.stri
 //  new hymns -> «ترنيمة جديدة اتضافت» + the names (tap = open it); only fixes -> «الترانيم اتحدّثت» + the notes
 // «البرنامج اتحدّث»: bump APPV + APP_NEWS when the web app itself gets something new
 const APPV = 2;
-const APP_NEWS = ['«فرصي»: حضّر الفرصة بتاعتك — الترانيم والشواهد وملاحظاتك، وكل الفرص بتفضل متسجلة بتاريخها.', 'هتعرض الفرصة على البروجكتور؟ من جوه الفرصة دوس «هتعرضها على الكمبيوتر؟» وابعتها لنفسك واتساب، وافتحها في برنامج الكمبيوتر من «النهارده».', 'الفرص بتتحفظ على الموبايل ده بس، فخد منها نسخة من آخر «فرصي» وابعتها لنفسك واتساب.', '«اقتراح» بقى بيفتح واتساب: ابعت أي غلطة، أو لو عايز تضيف ترنيمة ابعتها لنا مكتوبة تكست أو باوربوينت.'];
+const APP_NEWS = ['«فرصي»: حضّر الفرصة بتاعتك — الترانيم والشواهد وملاحظاتك، وكل الفرص بتفضل متسجلة بتاريخها.', 'هتعرض الفرصة على البروجكتور؟ من جوه الفرصة دوس «هتعرضها على الكمبيوتر؟» وابعتها لنفسك واتساب، وافتحها في برنامج الكمبيوتر من «فرصي».', 'الفرص بتتحفظ على الموبايل ده بس، فخد منها نسخة من آخر «فرصي» وابعتها لنفسك واتساب.', '«اقتراح» بقى بيفتح واتساب: ابعت أي غلطة، أو لو عايز تضيف ترنيمة ابعتها لنا مكتوبة تكست أو باوربوينت.'];
 const appNewsDue = () => +(localStorage.getItem('ssw_appv') || 0) < APPV;
 function newHymnsHTML() {
   const n = seenCount(), nw = H.length > n ? H.slice(n) : [];
@@ -433,7 +433,7 @@ function vForsa(id) {
     <div class="fref-h">أو افتح «الكتاب» ودوس على الآية وبعدين «ضيف للفرصة».</div>
     <div class="sec">ملاحظاتك على الفرصة</div>
     <textarea class="fnotes" id="fN" placeholder="اكتب أي حاجة: ترتيب الفرصة، الفكرة، حاجة عايز تقولها…">${esc(f.note)}</textarea>
-    <button class="fpc" id="fPC"><b>هتعرضها على الكمبيوتر؟</b> ابعت الفرصة دي ملف لنفسك واتساب، وافتحه في برنامج الكمبيوتر من «النهارده».</button>
+    <button class="fpc" id="fPC"><b>هتعرضها على الكمبيوتر؟</b> ابعت الفرصة دي ملف لنفسك واتساب، وافتحه في برنامج الكمبيوتر من «فرصي».</button>
     <button class="fdel" id="fX">امسح الفرصة دي</button>`;
   const grow = el => { el.style.height = 'auto'; el.style.height = el.scrollHeight + 2 + 'px'; };
   document.querySelectorAll('#main textarea').forEach(grow);
