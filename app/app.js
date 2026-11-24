@@ -244,7 +244,7 @@ function vTopic(id) {
   document.querySelectorAll('#kbar').forEach(x => x.remove());
   if (t.nums.some(n => KY[n])) {   // only when some hymn in this topic has an approved Key
     const kb = document.createElement('div'); kb.id = 'kbar';
-    const set = () => { kb.innerHTML = `<button class="${NAV.byKey ? 'on' : ''}">${NAV.byKey ? 'ترتيب أبجدي' : 'ترتيب حسب الـKey'}</button>`; kb.firstChild.onclick = () => { NAV.byKey = !NAV.byKey; set(); draw(); scrollTo(0, 0); }; };
+    const set = () => { kb.innerHTML = `<button class="${NAV.byKey ? 'on' : ''}">${NAV.byKey ? 'خلّي الترتيب أبجدي' : 'خلّي الترتيب حسب الـKey'}</button>`; kb.firstChild.onclick = () => { NAV.byKey = !NAV.byKey; set(); draw(); scrollTo(0, 0); }; };
     set(); document.querySelector('header.top .in').appendChild(kb);
   }
   draw();
