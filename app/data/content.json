@@ -1,13 +1,13 @@
 {
- "dataVersion": 11,
+ "dataVersion": 12,
  "minApp": "1.0.7",
  "files": {
-  "hymns.js": "8aabe9e692eb3e3cd7148f9105a6ae85d1ddc3dcfa00d71c5660000cf5b7001a",
-  "topics.js": "4d50874f5f35a433e2b3036d692f7b00bf740b16066509ec989ff91c86bcd144",
-  "stories.js": "688c581fe82667da51ef72c9ecb50a864301d146c9bebb49476e51bdf2a59d75"
+  "hymns.js": "06fa4939bf680e9928a1c45a5d6f06c43d26e515e7c48bdc298c73bf93ca81f7",
+  "topics.js": "499378f04c0e1a182dea2052f526db9af88b4ec3e7abdf2d2085878b2143c3ed",
+  "stories.js": "d18ce47693ce66713d2657b9d219be701cec225eb282199e15639bbff6c77330"
  },
  "notes": [
-  "ترنيمة جديدة: «ماكنتش أتحمل»"
+  "ترنيمة جديدة: «هاقول لك خبر حلو»"
  ],
  "history": {
   "7": [
@@ -22,6 +22,9 @@
   "10": [],
   "11": [
    "ترنيمة جديدة: «ماكنتش أتحمل»"
+  ],
+  "12": [
+   "ترنيمة جديدة: «هاقول لك خبر حلو»"
   ]
  }
 }
