@@ -189,8 +189,9 @@ function vHymn(n) {
   const sp = d ? deepRef(d.s[1]) : null;
   // the words: every verse/chorus once, in order
   const seen = new Set(); let k = 0, lyr = '', prevLab = null;
+  const asis = h.slides.every(s => !s.label);   // no ق/1 labels = keep every slide exactly like the ppt (repeats too)
   h.slides.forEach(s => {
-    const key = s.lines.join('\n'); if (seen.has(key)) return; seen.add(key);
+    const key = s.lines.join('\n'); if (!asis && seen.has(key)) return; seen.add(key);
     const cont = s.part || (s.label && s.label === prevLab); prevLab = s.label;   // 2nd slide of the same verse/chorus: no new tag
     const tag = cont ? '' : s.label === 'ق' ? 'القرار' : s.label ? 'العدد ' + arD(s.label) : '';
     lyr += `<div class="vb ${(cont ? k - 1 : k++) % 2 ? 'bl' : 'w'}">${tag ? `<div><span class="tag">${tag}</span></div>` : ''}${s.lines.map(esc).join('<br>')}</div>`;
@@ -217,7 +218,8 @@ function vHymn(n) {
 function fontStep(d) { PREF.fs = Math.max(15, Math.min(30, PREF.fs + d * 2)); savePref(); document.documentElement.style.setProperty('--fs', PREF.fs + 'px'); }
 async function shareHymn(n) {
   const h = H[n - 1], d = HD[n], seen = new Set();
-  const words = h.slides.filter(s => { const k = s.lines.join('\n'); if (seen.has(k)) return false; seen.add(k); return true; }).map(s => s.lines.join('\n')).join('\n\n');
+  const asis = h.slides.every(s => !s.label);
+  const words = h.slides.filter(s => { const k = s.lines.join('\n'); if (!asis && seen.has(k)) return false; seen.add(k); return true; }).map(s => s.lines.join('\n')).join('\n\n');
   const txt = `${h.title}\n\n${words}` + (d ? `\n\nفكرة الترنيمة: ${d.i}\nقصة مقترحة: ${d.s[0]}` : '');
   try { if (navigator.share) { await navigator.share({ title: h.title, text: txt }); return; } } catch (e) { return; }
   try { await navigator.clipboard.writeText(txt); toast('الترنيمة اتنسخت'); } catch (e) { toast('مش قادر أنسخ هنا'); }
