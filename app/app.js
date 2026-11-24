@@ -117,9 +117,9 @@ function pendingNotes() {
 // popup after an update (opens by itself, once):
 //  new hymns -> «ترنيمة جديدة اتضافت» + the names (tap = open it); only fixes -> «الترانيم اتحدّثت» + the notes
 // «البرنامج اتحدّث»: bump APPV + APP_NEWS when the web app itself gets something new
-const APPV = 5;
-const APP_NEWS = ['في «فرصي» بقى فيه زرار أصفر ثابت فوق «اعرضها على الكمبيوتر»: بيبعت الفرصة ملف لنفسك واتساب، وتفتحه في برنامج الكمبيوتر من «فرصي».', 'وجنبه «شير الفرصة كتابة»: تبعتها كلام يتقري على الموبايل.'];
-const APP_LINK = ['#/f', 'افتح «فرصي»'];
+const APPV = 6;
+const APP_NEWS = ['جديد (تجريبي): بقينا نكتب الـKey بتاع الترنيمة. هتلاقي زرار أصفر «Key» جنب «كلمات الترنيمة»، وسطر الـKey فوق الكلام.', 'وفي أي موضوع تقدر ترتّب الترانيم حسب الـKey. الموضوع لسه في أوله، وكل أسبوع بيتضاف Keys جديدة.'];
+const APP_LINK = ['#/h/968', 'شوف ترنيمة فيها Key'];
 const appNewsDue = () => +(localStorage.getItem('ssw_appv') || 0) < APPV;
 function newHymnsHTML() {
   const n = seenCount(), nw = H.length > n ? H.slice(n) : [];
