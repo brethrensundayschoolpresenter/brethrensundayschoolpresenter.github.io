@@ -1,13 +1,13 @@
 {
- "dataVersion": 12,
+ "dataVersion": 13,
  "minApp": "1.0.7",
  "files": {
-  "hymns.js": "06fa4939bf680e9928a1c45a5d6f06c43d26e515e7c48bdc298c73bf93ca81f7",
+  "hymns.js": "c5a9c361dd74de1282b888d315650d51c68e42aa80b70de9a7936f53f2a639ef",
   "topics.js": "499378f04c0e1a182dea2052f526db9af88b4ec3e7abdf2d2085878b2143c3ed",
   "stories.js": "d18ce47693ce66713d2657b9d219be701cec225eb282199e15639bbff6c77330"
  },
  "notes": [
-  "ترنيمة جديدة: «هاقول لك خبر حلو»"
+  "«هاقول لك خبر حلو» بقت زي الباوربوينت بالظبط"
  ],
  "history": {
   "7": [
@@ -25,6 +25,7 @@
   ],
   "12": [
    "ترنيمة جديدة: «هاقول لك خبر حلو»"
-  ]
+  ],
+  "13": []
  }
 }
