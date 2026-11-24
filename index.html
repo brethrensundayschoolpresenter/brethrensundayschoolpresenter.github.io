@@ -8,12 +8,12 @@
 <meta property="og:type" content="website">
 <meta property="og:title" content="Brethren Sunday School Presenter - ترانيم مدارس الأحد">
 <meta property="og:description" content="برنامج لعرض ترانيم مدارس الأحد والكتاب المقدس على البروجكتور — نزّل آخر نسخة لويندوز">
-<meta property="og:image" content="https://brethrensundayschoolpresenter.github.io/preview.png?v=10">
+<meta property="og:image" content="https://brethrensundayschoolpresenter.github.io/preview.png?v=11">
 <meta property="og:image:width" content="1280">
 <meta property="og:image:height" content="640">
 <meta property="og:url" content="https://brethrensundayschoolpresenter.github.io/">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:image" content="https://brethrensundayschoolpresenter.github.io/preview.png?v=10">
+<meta name="twitter:image" content="https://brethrensundayschoolpresenter.github.io/preview.png?v=11">
 <link rel="icon" href="icon.png">
 <style>
 @font-face{font-family:B;src:url(fonts/BalooBhaijaan2-VF.ttf);font-weight:400 800;font-display:swap}
@@ -406,7 +406,7 @@ code{unicode-bidi:isolate;background:#0e1622;border:1px solid #3d5570;border-rad
   </div>
   <div class="phn" id="phn"><div class="pscr"><div class="ptop">‹ فرصي</div><div class="pt">اجتماع الجمعة</div><div class="pd">الجمعة ٢٧ نوفمبر · كنيسة الإخوة</div>
     <div class="pit"><span>١</span>ربي ساعدني أكون شبهك<i>هبدأ بيها وأنا واقف</i></div><div class="pit"><span>٢</span>يوحنا ٣: ١٦</div><div class="pit"><span>٣</span>أبرع جمالا</div>
-    <div class="ppc" id="ppc"><b>هتعرضها على الكمبيوتر؟</b> ابعتها لنفسك واتساب</div><div class="ptabs"><span>الترانيم</span><span>الكتاب</span><span class="on">فرصي</span></div></div></div>
+    <div class="ppc" id="ppc"><b>اعرضها على الكمبيوتر</b> ابعت الملف لنفسك واتساب</div><div class="ptabs"><span>الترانيم</span><span>الكتاب</span><span class="on">فرصي</span></div></div></div>
   <div class="wa" id="wa"><b>فرصة-اجتماع الجمعة.json</b><small>اتبعت لنفسك على واتساب</small></div>
   <div class="dim" id="dim"></div>
   <div class="proj" id="proj"><div class="scr" id="scr"></div><div class="leg"></div><div class="cap">شاشة البروجكتور</div></div>
@@ -622,7 +622,7 @@ async function loop() {
     proj(SLIDE1); $('dim').classList.add('on'); $('proj').classList.add('on'); await wait(2600);
     $('dim').classList.remove('on'); $('proj').classList.remove('on'); await wait(400);
     step(7); cap('حضّر الفرصة من بيتك على الموبايل في <b>«فرصي»</b>'); $('dim').classList.add('on'); $('phn').classList.add('on'); await wait(2400);
-    cap('<b>هتعرضها على الكمبيوتر؟</b> ابعتها لنفسك واتساب'); $('ppc').classList.add('pulse'); await wait(1200); $('wa').classList.add('on'); await wait(1800);
+    cap('<b>اعرضها على الكمبيوتر</b> ابعت الملف لنفسك واتساب'); $('ppc').classList.add('pulse'); await wait(1200); $('wa').classList.add('on'); await wait(1800);
     $('ppc').classList.remove('pulse'); $('phn').classList.remove('on'); $('wa').classList.remove('on'); $('dim').classList.remove('on'); await wait(400);
     clearQ(); $('hy').classList.remove('on'); $('empty').style.opacity = 1; tab('tF'); $('planv').classList.add('on');
     cap('وفي الكنيسة افتحها في <b>«فرصي»</b> على الكمبيوتر… جاهزة بالترتيب'); await wait(2200);
