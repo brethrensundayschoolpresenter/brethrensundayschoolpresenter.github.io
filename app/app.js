@@ -118,7 +118,7 @@ function pendingNotes() {
 //  new hymns -> «ترنيمة جديدة اتضافت» + the names (tap = open it); only fixes -> «الترانيم اتحدّثت» + the notes
 // «البرنامج اتحدّث»: bump APPV + APP_NEWS when the web app itself gets something new
 const APPV = 5;
-const APP_NEWS = ['في «فرصي» بقى فيه زرار أصفر ثابت تحت «اعرضها على الكمبيوتر»: بيبعت الفرصة ملف لنفسك واتساب، وتفتحه في برنامج الكمبيوتر من «فرصي».', 'وجنبه «شير الفرصة كتابة»: تبعتها كلام يتقري على الموبايل.'];
+const APP_NEWS = ['في «فرصي» بقى فيه زرار أصفر ثابت فوق «اعرضها على الكمبيوتر»: بيبعت الفرصة ملف لنفسك واتساب، وتفتحه في برنامج الكمبيوتر من «فرصي».', 'وجنبه «شير الفرصة كتابة»: تبعتها كلام يتقري على الموبايل.'];
 const APP_LINK = ['#/f', 'افتح «فرصي»'];
 const appNewsDue = () => +(localStorage.getItem('ssw_appv') || 0) < APPV;
 function newHymnsHTML() {
@@ -464,7 +464,6 @@ function vForsa(id) {
     <div class="fref-h">أو افتح «الكتاب» ودوس على الآية وبعدين «ضيف للفرصة».</div>
     <div class="sec">ملاحظاتك على الفرصة</div>
     <textarea class="fnotes" id="fN" placeholder="اكتب أي حاجة: ترتيب الفرصة، الفكرة، حاجة عايز تقولها…">${esc(f.note)}</textarea>
-    <div class="fpc"><b>هتعرضها على كمبيوتر الكنيسة؟</b> دوس «اعرضها على الكمبيوتر» تحت، وابعت الملف لنفسك واتساب، وافتحه في برنامج الكمبيوتر من «فرصي».</div>
     <button class="fdel" id="fX">امسح الفرصة دي</button>`;
   const grow = el => { el.style.height = 'auto'; el.style.height = el.scrollHeight + 2 + 'px'; };
   document.querySelectorAll('#main textarea').forEach(grow);
@@ -494,10 +493,10 @@ function vForsa(id) {
   });
   $('fRb').onclick = addRef;
   $('fRi').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); addRef(); } });
-  // two fixed buttons above the bottom bar, always visible while scrolling
+  // two buttons fixed at the top (inside the sticky header), always visible while scrolling
   const fb = document.createElement('div'); fb.id = 'fbar';
   fb.innerHTML = `<button id="fPC"><b>اعرضها على الكمبيوتر</b><small>ابعت الملف لنفسك واتساب</small></button><button id="fsh"><b>شير الفرصة كتابة</b><small>تتقري على الموبايل</small></button>`;
-  document.body.appendChild(fb); document.body.classList.add('hasfbar');
+  document.querySelector('header.top .in').appendChild(fb); document.body.classList.add('hasfbar');
   $('fsh').onclick = () => shareForsa(f);
   $('fPC').onclick = () => sendForsaToPC(f);
   $('fX').onclick = () => {
