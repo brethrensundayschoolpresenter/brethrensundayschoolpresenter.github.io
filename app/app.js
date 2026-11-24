@@ -188,11 +188,12 @@ function vHymn(n) {
   const vs = d ? d.v.map(([r, ph]) => [deepRef(r), ph]).filter(x => x[0]) : [];
   const sp = d ? deepRef(d.s[1]) : null;
   // the words: every verse/chorus once, in order
-  const seen = new Set(); let k = 0, lyr = '';
+  const seen = new Set(); let k = 0, lyr = '', prevLab = null;
   h.slides.forEach(s => {
     const key = s.lines.join('\n'); if (seen.has(key)) return; seen.add(key);
-    const tag = s.label === 'ق' ? 'القرار' : s.label ? 'العدد ' + arD(s.label) : '';
-    lyr += `<div class="vb ${k++ % 2 ? 'bl' : 'w'}">${tag ? `<div><span class="tag">${tag}</span></div>` : ''}${s.lines.map(esc).join('<br>')}</div>`;
+    const cont = s.part || (s.label && s.label === prevLab); prevLab = s.label;   // 2nd slide of the same verse/chorus: no new tag
+    const tag = cont ? '' : s.label === 'ق' ? 'القرار' : s.label ? 'العدد ' + arD(s.label) : '';
+    lyr += `<div class="vb ${(cont ? k - 1 : k++) % 2 ? 'bl' : 'w'}">${tag ? `<div><span class="tag">${tag}</span></div>` : ''}${s.lines.map(esc).join('<br>')}</div>`;
   });
   $('main').innerHTML = `<div class="ht"><span class="hl">${esc(h.title)}</span></div>`
     + (tps.length ? `<div class="chips">${tps.map(t => `<a class="chip" href="#/t/${t.id}">${esc(t.name)}</a>`).join('')}</div>` : '')
@@ -442,7 +443,7 @@ function vForsa(id) {
   const f = fById(id); if (!f) { location.hash = '#/f'; return; }
   try { localStorage.setItem('ssw_flast', f.id); } catch (e) {}
   setTab('forsa'); showSearch(false);
-  backBar('فرصي', `<button class="ib" id="fsh" aria-label="ابعتها">${IC.share}</button>`);
+  backBar('فرصي');
   const save = () => { saveFR(); };
   let st; const later = () => { clearTimeout(st); st = setTimeout(save, 300); };
   const items = f.items.map((it, i) => {
@@ -463,7 +464,7 @@ function vForsa(id) {
     <div class="fref-h">أو افتح «الكتاب» ودوس على الآية وبعدين «ضيف للفرصة».</div>
     <div class="sec">ملاحظاتك على الفرصة</div>
     <textarea class="fnotes" id="fN" placeholder="اكتب أي حاجة: ترتيب الفرصة، الفكرة، حاجة عايز تقولها…">${esc(f.note)}</textarea>
-    <button class="fpc" id="fPC"><b>هتعرضها على الكمبيوتر؟</b> ابعت الفرصة دي ملف لنفسك واتساب، وافتحه في برنامج الكمبيوتر من «فرصي».</button>
+    <div class="fpc"><b>هتعرضها على كمبيوتر الكنيسة؟</b> دوس «اعرضها على الكمبيوتر» تحت، وابعت الملف لنفسك واتساب، وافتحه في برنامج الكمبيوتر من «فرصي».</div>
     <button class="fdel" id="fX">امسح الفرصة دي</button>`;
   const grow = el => { el.style.height = 'auto'; el.style.height = el.scrollHeight + 2 + 'px'; };
   document.querySelectorAll('#main textarea').forEach(grow);
@@ -493,6 +494,10 @@ function vForsa(id) {
   });
   $('fRb').onclick = addRef;
   $('fRi').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); addRef(); } });
+  // two fixed buttons above the bottom bar, always visible while scrolling
+  const fb = document.createElement('div'); fb.id = 'fbar';
+  fb.innerHTML = `<button id="fPC"><b>اعرضها على الكمبيوتر</b><small>ابعت الملف لنفسك واتساب</small></button><button id="fsh"><b>شير الفرصة كتابة</b><small>تتقري على الموبايل</small></button>`;
+  document.body.appendChild(fb); document.body.classList.add('hasfbar');
   $('fsh').onclick = () => shareForsa(f);
   $('fPC').onclick = () => sendForsaToPC(f);
   $('fX').onclick = () => {
@@ -627,6 +632,7 @@ addEventListener('hashchange', () => { const v = $('vsel'); if (v) v.remove(); c
 let lastHash = '';
 function route() {
   const h = location.hash || '#/', p = h.slice(2).split('/');
+  { const fb = $('fbar'); if (fb) fb.remove(); document.body.classList.remove('hasfbar'); }
   if (lastHash && h !== lastHash) NAV.depth++;
   lastHash = h;
   if (p[0] === '' ) { NAV.tab = 'hymns'; NAV.from = null; vHymns(); }
@@ -672,7 +678,7 @@ function loadBible() {
 }
 
 // ---------- updates: same hymn data the desktop app gets (content.json on GitHub) ----------
-const DATA_VERSION = 9;
+const DATA_VERSION = 10;
 const RAW = 'https://raw.githubusercontent.com/brethrensundayschoolpresenter/brethren-sunday-school-presenter/main/renderer/data/';
 async function sha256(t) { const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(t)); return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join(''); }
 let lastCheck = 0;
