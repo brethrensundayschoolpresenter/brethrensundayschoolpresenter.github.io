@@ -494,6 +494,7 @@ function vForsa(id) {
   $('fRb').onclick = addRef;
   $('fRi').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); addRef(); } });
   // two buttons fixed at the top (inside the sticky header), always visible while scrolling
+  document.querySelectorAll('#fbar').forEach(x => x.remove());   // vForsa re-renders itself: never two bars
   const fb = document.createElement('div'); fb.id = 'fbar';
   fb.innerHTML = `<button id="fPC"><b>اعرضها على الكمبيوتر</b><small>ابعت الملف لنفسك واتساب</small></button><button id="fsh"><b>شير الفرصة كتابة</b><small>تتقري على الموبايل</small></button>`;
   document.querySelector('header.top .in').appendChild(fb); document.body.classList.add('hasfbar');
@@ -631,7 +632,7 @@ addEventListener('hashchange', () => { const v = $('vsel'); if (v) v.remove(); c
 let lastHash = '';
 function route() {
   const h = location.hash || '#/', p = h.slice(2).split('/');
-  { const fb = $('fbar'); if (fb) fb.remove(); document.body.classList.remove('hasfbar'); }
+  document.querySelectorAll('#fbar').forEach(x => x.remove()); document.body.classList.remove('hasfbar');
   if (lastHash && h !== lastHash) NAV.depth++;
   lastHash = h;
   if (p[0] === '' ) { NAV.tab = 'hymns'; NAV.from = null; vHymns(); }
