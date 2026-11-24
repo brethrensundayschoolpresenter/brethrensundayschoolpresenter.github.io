@@ -120,21 +120,31 @@ function pendingNotes() {
 const APPV = 6;
 const APP_NEWS = ['جديد (تجريبي): بقينا نكتب الـKey بتاع الترنيمة. هتلاقي زرار أصفر «Key» جنب «كلمات الترنيمة»، وسطر الـKey فوق الكلام.', 'وفي أي موضوع تقدر ترتّب الترانيم حسب الـKey. الموضوع لسه في أوله، وكل أسبوع بيتضاف Keys جديدة.'];
 const APP_LINK = ['#/h/968', 'شوف ترنيمة فيها Key'];
+// new Keys since the last popup («Keys جديدة اتضافت»); first run just remembers what's there
+function newKeys() {
+  let seen = null; try { seen = JSON.parse(localStorage.getItem('ssw_keys_seen') || 'null'); } catch (e) {}
+  const cur = Object.keys(KY);
+  if (!seen) { try { localStorage.setItem('ssw_keys_seen', JSON.stringify(cur)); } catch (e) {} return []; }
+  const S = new Set(seen);
+  return cur.filter(n => !S.has(n)).map(n => H.find(h => String(h.num) === n)).filter(Boolean);
+}
 const appNewsDue = () => +(localStorage.getItem('ssw_appv') || 0) < APPV;
 function newHymnsHTML() {
   const n = seenCount(), nw = H.length > n ? H.slice(n) : [];
   const app = appNewsDue() ? APP_NEWS : [];
+  const nk = newKeys();
   const notes = pendingNotes().filter(t => !nw.some(h => t.includes(h.title)) && !(app.length && app.some(x => x.includes('اللسان والكلام')) && t.includes('اللسان والكلام')));
-  if (!nw.length && !notes.length && !app.length) return '';
-  const title = nw.length ? (nw.length > 1 ? 'ترانيم جديدة اتضافت' : 'ترنيمة جديدة اتضافت') : app.length ? 'البرنامج اتحدّث' : 'الترانيم اتحدّثت';
+  if (!nw.length && !notes.length && !app.length && !nk.length) return '';
+  const title = nw.length ? (nw.length > 1 ? 'ترانيم جديدة اتضافت' : 'ترنيمة جديدة اتضافت') : app.length ? 'البرنامج اتحدّث' : notes.length ? 'الترانيم اتحدّثت' : 'Keys جديدة اتضافت';
   return `<div class="upd-card"><div class="upd-ic">✨</div><h3>${title}</h3>`
     + nw.map(h => `<a class="upd-h" href="#/h/${h.num}" onclick="closeNews()">«${esc(h.title)}» <span>افتحها ‹</span></a>`).join('')
     + (notes.length ? `<ul>${notes.map(t => `<li>${esc(t)}</li>`).join('')}</ul>` : '')
+    + (nk.length ? `${nw.length || notes.length ? '<b>Keys جديدة اتضافت:</b>' : ''}${nk.slice(0, 8).map(h => `<a class="upd-h" href="#/h/${h.num}" onclick="closeNews()">«${esc(h.title)}» <span dir="ltr">Key: ${esc(KY[h.num][0])}</span></a>`).join('')}${nk.length > 8 ? `<ul><li>و ${nk.length - 8} ترانيم تانية</li></ul>` : ''}` : '')
     + (app.length ? `${nw.length || notes.length ? '<b>جديد في البرنامج:</b>' : ''}<ul>${app.map(t => `<li>${esc(t)}</li>`).join('')}</ul><a class="upd-h" href="${APP_LINK[0]}" onclick="closeNews()">${APP_LINK[1]} <span>‹</span></a>` : '')
     + `<button class="upd-ok" onclick="closeNews()">تمام</button></div>`;
 }
 function markNewsSeen() {
-  try { localStorage.setItem('ssw_appv', APPV); localStorage.setItem('ssw_seen', H.length); const N = JSON.parse(localStorage.getItem('ssw_notes') || 'null'); if (N) localStorage.setItem('ssw_notes_seen', N.v); } catch (e) {}
+  try { localStorage.setItem('ssw_appv', APPV); localStorage.setItem('ssw_seen', H.length); localStorage.setItem('ssw_keys_seen', JSON.stringify(Object.keys(KY))); const N = JSON.parse(localStorage.getItem('ssw_notes') || 'null'); if (N) localStorage.setItem('ssw_notes_seen', N.v); } catch (e) {}
 }
 function closeNews() { markNewsSeen(); const p = $('updPop'); if (p) p.remove(); }
 let reloading = false;
