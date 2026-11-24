@@ -188,10 +188,12 @@
 
   // ---- start ----
   // sync.js loads before app.js (so the first «فرصي» page already has the card); start once app.js has run
-  if (ON()) setTimeout(() => {
+  const boot = () => {
     track();
     start();
     addEventListener('online', () => sync());
     document.addEventListener('visibilitychange', () => { if (!document.hidden && Date.now() - lastPull > 30000) sync(); });
-  }, 0);
+  };
+  // DOMContentLoaded comes after every script on the page has run (app.js may still be downloading right after this file)
+  if (ON()) { if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot(); }
 })();
