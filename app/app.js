@@ -117,9 +117,9 @@ function pendingNotes() {
 // popup after an update (opens by itself, once):
 //  new hymns -> «ترنيمة جديدة اتضافت» + the names (tap = open it); only fixes -> «الترانيم اتحدّثت» + the notes
 // «البرنامج اتحدّث»: bump APPV + APP_NEWS when the web app itself gets something new
-const APPV = 4;
-const APP_NEWS = ['زرار «كلمات الترنيمة ↓» بقى فوق في صفحة كل ترنيمة: دوس عليه ينزلك على كلام الترنيمة على طول، والآيات والقصة فوقه.', 'موضوع جديد في «المواضيع»: «اللسان والكلام» — ٣٣ ترنيمة عن اللسان والكلام.'];
-const APP_LINK = ['#/t/36', 'افتح «اللسان والكلام»'];
+const APPV = 5;
+const APP_NEWS = ['في «فرصي» بقى فيه زرار أصفر ثابت تحت «اعرضها على الكمبيوتر»: بيبعت الفرصة ملف لنفسك واتساب، وتفتحه في برنامج الكمبيوتر من «فرصي».', 'وجنبه «شير الفرصة كتابة»: تبعتها كلام يتقري على الموبايل.'];
+const APP_LINK = ['#/f', 'افتح «فرصي»'];
 const appNewsDue = () => +(localStorage.getItem('ssw_appv') || 0) < APPV;
 function newHymnsHTML() {
   const n = seenCount(), nw = H.length > n ? H.slice(n) : [];
