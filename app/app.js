@@ -23,7 +23,7 @@ const savePref = () => { try { localStorage.setItem('ssw_pref', JSON.stringify(P
 document.documentElement.style.setProperty('--fs', PREF.fs + 'px');
 let FAV = [];
 try { FAV = JSON.parse(localStorage.getItem('ssw_fav') || '[]'); } catch (e) {}
-const saveFav = () => { try { localStorage.setItem('ssw_fav', JSON.stringify(FAV)); } catch (e) {} };
+const saveFav = () => { try { localStorage.setItem('ssw_fav', JSON.stringify(FAV)); } catch (e) {} if (window.cloudDirty) cloudDirty(); };
 
 // Bible book abbreviations (same as the desktop app)
 const ABBR = { 'تك':0,'خر':1,'لا':2,'عد':3,'تث':4,'يش':5,'قض':6,'را':7,'1صم':8,'2صم':9,'1مل':10,'2مل':11,'1اخ':12,'2اخ':13,'عز':14,'نح':15,'اس':16,'اي':17,'مز':18,'ام':19,'جا':20,'نش':21,'اش':22,'ار':23,'مرا':24,'حز':25,'دا':26,'هو':27,'يوء':28,'يوئ':28,'عا':29,'عو':30,'يون':31,'مي':32,'نا':33,'حب':34,'صف':35,'حج':36,'زك':37,'مل':38,
@@ -443,7 +443,7 @@ addEventListener('scroll', () => {
 // ---------- «فرصي»: the servant prepares a فرصة (hymns + verses + notes); kept on this phone only ----------
 let FR = [];
 try { FR = JSON.parse(localStorage.getItem('ssw_forsa') || '[]'); } catch (e) {}
-const saveFR = () => { try { localStorage.setItem('ssw_forsa', JSON.stringify(FR)); } catch (e) { toast('مش قادر أحفظ على الموبايل ده'); } };
+const saveFR = () => { try { localStorage.setItem('ssw_forsa', JSON.stringify(FR)); } catch (e) { toast('مش قادر أحفظ على الموبايل ده'); } if (window.cloudDirty) cloudDirty(); };
 const ymd = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
 const todayStr = () => ymd(new Date());
 const MON = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
@@ -486,12 +486,14 @@ function vForsaList() {
     + (FR.length ? '' : `<div class="hint">اعمل فرصة، وضيف ليها الترانيم والشواهد اللي هتستخدمها، واكتب ملاحظاتك. الفرص كلها بتفضل متسجلة هنا بتاريخها.</div>`)
     + (up.length ? `<div class="sec">الفرص الجاية</div>${up.map(row).join('')}` : '')
     + (past.length ? `<div class="sec">الفرص اللي فاتت</div>${past.map(row).join('')}` : '')
-    + `<div class="hint fbk"><b>الفرص متسجلة على الموبايل ده بس</b> (جوه المتصفح). لو هتغيّر الموبايل أو تمسح بيانات المتصفح، خد نسخة وابعتها لنفسك واتساب، وعلى الموبايل الجديد دوس «رجّع نسخة» واختار الملف.
+    + (window.cloudCardHTML ? cloudCardHTML() : '')
+    + `<div class="hint fbk">${window.cloudSignedIn && cloudSignedIn() ? 'وتقدر برضو تاخد نسخة ملف من فرصك وتبعتها لنفسك واتساب.' : '<b>الفرص متسجلة على الموبايل ده بس</b> (جوه المتصفح). لو هتغيّر الموبايل أو تمسح بيانات المتصفح، خد نسخة وابعتها لنفسك واتساب، وعلى الموبايل الجديد دوس «رجّع نسخة» واختار الملف.'}
       <div class="fbk-b">${FR.length ? '<button id="bkS">خد نسخة</button>' : ''}<button id="bkR">رجّع نسخة</button></div><input type="file" id="bkF" accept=".json,application/json,text/plain" hidden></div>`;
   $('nf').onclick = () => { const f = newForsa(); location.hash = '#/f/' + f.id; };
   if ($('bkS')) $('bkS').onclick = backupForsas;
   $('bkR').onclick = () => $('bkF').click();
   $('bkF').onchange = () => { const f = $('bkF').files[0]; if (f) restoreForsas(f); };
+  if (window.cloudBind) cloudBind();
 }
 
 // one فرصة
