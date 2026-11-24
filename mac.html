@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>نسخة الماك — Brethren Sunday School Presenter - ترانيم مدارس الأحد</title>
+<meta name="description" content="نزّل برنامج ترانيم مدارس الأحد للماك (Apple Silicon و Intel) وخطوات التسطيب والتحديث">
+<meta property="og:title" content="نسخة الماك — ترانيم مدارس الأحد">
+<meta property="og:image" content="https://brethrensundayschoolpresenter.github.io/preview.png?v=11">
+<link rel="icon" href="icon.png">
+<style>
+@font-face{font-family:B;src:url(fonts/BalooBhaijaan2-VF.ttf);font-weight:400 800;font-display:swap}
+*{box-sizing:border-box}
+body{margin:0;font-family:B,-apple-system,"Segoe UI",Tahoma,sans-serif;background:#0a1019;color:#eef3f8;text-align:center}
+.bg{position:fixed;inset:0;z-index:-1;background:radial-gradient(1400px 700px at 50% -15%,#1b3149 0%,rgba(27,49,73,0) 70%),linear-gradient(180deg,#111d2c 0%,#0b121c 100%)}
+.w{max-width:760px;margin:0 auto;padding:18px 16px 50px}
+.back{display:inline-block;color:#9fc6ff;font-weight:700;text-decoration:none;margin-bottom:6px;font-size:15px}
+.hero img{width:92px;height:92px;border-radius:22px;box-shadow:0 10px 30px #0009}
+h1{margin:8px 0 0;font-size:30px}
+.en{color:#9fb0c2;font-weight:700;font-size:15px}
+.sub{color:#b7c6d6;font-size:16px;margin:6px 0 0}
+.dl{display:inline-block;margin:16px 0 4px;background:#ffff00;color:#111;font-weight:800;font-size:21px;padding:12px 30px;border-radius:14px;border:3px solid #111;text-decoration:none;box-shadow:0 8px 0 #8a8a00}
+.ver{color:#9fb0c2;font-size:13.5px;min-height:20px}
+h2{font-size:22px;margin:30px 0 10px;text-align:right}
+.st{background:#152231cc;border:2px solid #2c4258;border-radius:16px;padding:14px 16px;margin:12px 0;text-align:right}
+.st h3{margin:0 0 6px;font-size:18px;display:flex;align-items:center;gap:10px}
+.st h3 .n{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:50%;background:#ffff00;color:#111;font-size:16px;flex:none}
+.st p{margin:0 0 10px;color:#cdd8e3;font-size:15.5px;line-height:1.75}
+bdi{font-weight:700}
+.pic{direction:ltr;text-align:left;font-family:-apple-system,"Segoe UI",Helvetica,sans-serif;border-radius:12px;overflow:hidden;font-size:13px;line-height:1.45;box-shadow:0 10px 30px #0008;background:#ececec;color:#111}
+.hl{outline:3px solid #ffcc00;outline-offset:2px;border-radius:6px}
+.dmg{display:flex;align-items:center;justify-content:space-around;padding:26px 10px;background:linear-gradient(#f6f6f6,#e4e4e4)}
+.dmg .ic{display:flex;flex-direction:column;align-items:center;gap:6px;font-size:12px;width:120px;text-align:center}
+.dmg .ic img{width:64px;height:64px;border-radius:15px}
+.dmg .fold{width:64px;height:52px;background:#5aa9f0;border-radius:6px 6px 8px 8px;position:relative}
+.dmg .fold:after{content:"A";position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;font-weight:800;font-size:22px}
+.dmg .arr{font-size:30px;color:#555}
+.alert{width:270px;margin:18px auto;background:#f2f2f2;border-radius:14px;padding:16px;text-align:center;box-shadow:0 8px 30px #0003}
+.alert img{width:54px;height:54px;border-radius:12px}
+.alert b{display:block;margin:8px 0 4px;font-size:13.5px}
+.alert .bt{display:block;margin-top:8px;padding:6px;border-radius:7px;background:#e0e0e0;font-weight:600}
+.alert .bt.p{background:#2f7cf6;color:#fff}
+.ss{display:flex;min-height:170px}
+.ss .sb{width:150px;background:#e3e3e3;padding:10px 8px;font-size:12px}
+.ss .sb div{padding:4px 8px;border-radius:6px}
+.ss .sb .on{background:#2f7cf6;color:#fff}
+.ss .main{flex:1;background:#f7f7f7;padding:12px 14px}
+.ss .main h5{margin:0 0 10px;font-size:14px}
+.ss .row{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#fff;border-radius:8px;padding:9px 10px;font-size:12px}
+.ss .btn{border:1px solid #bbb;border-radius:6px;padding:3px 10px;background:#fff;white-space:nowrap;font-weight:600}
+.note{background:#ffff0014;border:2px solid #ffff0055;border-radius:14px;padding:12px 14px;color:#f3f3c0;font-size:15px;text-align:right;line-height:1.7;margin-top:14px}
+.ub{display:inline-block;background:#ffff00;color:#111;font-weight:800;border:2px solid #111;border-radius:9px;padding:1px 9px;font-size:14px}
+.wa{display:inline-flex;align-items:center;gap:10px;margin-top:26px;background:#25d366;color:#fff;font-weight:800;text-decoration:none;border-radius:14px;padding:10px 18px}
+.reg{position:fixed;inset:0;background:#000b;display:none;align-items:center;justify-content:center;z-index:100;padding:16px}
+.reg.open{display:flex}
+.reg form{background:#152231;border:2px solid #3d5570;border-radius:18px;padding:22px 22px 18px;width:min(440px,100%);text-align:right}
+.reg h3{margin:0 0 4px;font-size:22px}.reg .s{font-size:14px;color:#9fb0c2;margin-bottom:12px}
+.reg label{display:block;font-weight:800;font-size:15px;margin:10px 0 4px}
+.reg input{width:100%;font:inherit;font-size:17px;padding:9px 12px;border-radius:10px;border:2px solid #3d5570;background:#0e1622;color:#fff;outline:none}
+.reg .err{color:#ff8a8a;font-size:13px;min-height:18px;margin-top:6px}
+.reg .row{display:flex;gap:10px;margin-top:10px}
+.reg button{font:inherit;font-weight:800;font-size:18px;border-radius:12px;padding:9px 18px;cursor:pointer;border:2.5px solid #111}
+.reg button.go{flex:1;background:#ffff00;color:#111}.reg button.x{background:transparent;color:#9fb0c2;border-color:#3d5570}
+.reg .priv{font-size:12px;color:#7f93a8;margin-top:10px}
+</style>
+</head>
+<body><div class="bg"></div>
+<div class="w">
+<a class="back" href="./">‹ الصفحة الرئيسية</a>
+<div class="hero">
+ <img src="icon.png" alt="">
+ <h1>نسخة الماك</h1>
+ <div class="en">Brethren Sunday School Presenter — Mac</div>
+ <p class="sub">بتشتغل على أي ماك <bdi>Apple Silicon (M1, M2, M3, M4…)</bdi> أو <bdi>Intel</bdi>، بنظام <bdi>macOS 11</bdi> أو أحدث.</p>
+ <a class="dl" id="dlm" href="https://github.com/brethrensundayschoolpresenter/brethren-sunday-school-presenter/releases/latest">⬇️ نزّل نسخة الماك</a>
+ <div class="ver" id="ver">&nbsp;</div>
+</div>
+
+<h2>التسطيب خطوة بخطوة</h2>
+
+<div class="st"><h3><span class="n">١</span>افتح الملف واسحب البرنامج على Applications</h3>
+ <p>افتح الملف اللي نزل (<bdi dir="ltr">.dmg</bdi>)، وهيفتح شباك فيه أيقونة البرنامج وفولدر <bdi>Applications</bdi>. اسحب الأيقونة على الفولدر.</p>
+ <div class="pic"><div class="dmg"><div class="ic"><img src="icon.png" alt="">Brethren Sunday School Presenter</div><div class="arr">→</div><div class="ic hl"><div class="fold"></div>Applications</div></div></div>
+</div>
+
+<div class="st"><h3><span class="n">٢</span>افتح البرنامج من Applications</h3>
+ <p>أول مرة بس، الماك هيقول إنه مش قادر يتأكد من البرنامج (ده بيحصل مع أي برنامج مش من الـ <bdi>App Store</bdi>، والبرنامج سليم). دوس <bdi>Done</bdi>.</p>
+ <div class="pic"><div class="alert"><img src="icon.png" alt=""><b>“Brethren Sunday School Presenter” Not Opened</b>Apple could not verify “Brethren Sunday School Presenter” is free of malware…<span class="bt p hl">Done</span><span class="bt">Move to Trash</span></div></div>
+</div>
+
+<div class="st"><h3><span class="n">٣</span>اسمح بالبرنامج من <bdi>Privacy &amp; Security</bdi></h3>
+ <p>افتح <bdi dir="ltr">System Settings › Privacy &amp; Security</bdi>، وانزل لتحت لحد ما تلاقي اسم البرنامج، ودوس <bdi>Open Anyway</bdi>. وبعدين دوس <bdi>Open Anyway</bdi> تاني واكتب باسورد الماك.</p>
+ <div class="pic"><div class="ss"><div class="sb"><div>Wi‑Fi</div><div>Bluetooth</div><div>General</div><div>Displays</div><div class="on">Privacy &amp; Security</div></div><div class="main"><h5>Security</h5><div class="row"><span>“Brethren Sunday School Presenter” was blocked to protect your Mac.</span><span class="btn hl">Open Anyway</span></div></div></div></div>
+ <p style="margin-top:10px">وبس! بعد كده البرنامج بيفتح عادي من <bdi>Applications</bdi> أو من الـ <bdi>Dock</bdi>.</p>
+</div>
+
+<div class="st"><h3><span class="n">٤</span>البروجكتور</h3>
+ <p>وصّل البروجكتور، وافتح <bdi dir="ltr">System Settings › Displays</bdi> وخلّي البروجكتور شاشة ممتدة (<bdi>Extend</bdi>) مش <bdi>Mirror</bdi>. شاشة العرض بتفتح عليه لوحدها.</p>
+</div>
+
+<h2>التحديثات</h2>
+<div class="st">
+ <p><b>الترانيم الجديدة بتوصل لوحدها</b> أول ما تفتح البرنامج والنت شغال: هيظهرلك فوق زرار <span class="ub">✨ ترانيم جديدة — اعرضها</span>.</p>
+ <p><b>لو نزلت نسخة جديدة من البرنامج نفسه</b> هيظهرلك فوق زرار <span class="ub">نسخة جديدة — نزّلها</span>. دوس عليه، هيفتح الصفحة دي:</p>
+ <p>نزّل النسخة الجديدة، وافتح الملف، واسحب البرنامج على <bdi>Applications</bdi>، ولما يسألك دوس <bdi>Replace</bdi>. فرصك وإعداداتك مش هتضيع.</p>
+</div>
+
+<div class="note">نسخة الماك مش بتحدّث نفسها لوحدها زي ويندوز، لأنها مش متسجلة عند <bdi>Apple</bdi> — عشان كده البرنامج بيقولك لما يكون في نسخة جديدة وانت بتنزّلها من هنا.</div>
+
+<a class="wa" href="https://wa.me/201227120955" target="_blank" rel="noopener">واجهتك مشكلة؟ ابعتلنا واتساب</a>
+</div>
+
+<div class="reg" id="reg"><form id="regf" novalidate>
+ <h3>قبل التحميل 👋</h3>
+ <div class="s">عرّفنا بيك وبالاجتماع اللي بتخدم فيه، وبعدها التحميل هيبدأ على طول.</div>
+ <label for="rN">الاسم</label><input id="rN" autocomplete="name" required>
+ <label for="rM">الاجتماع / الكنيسة</label><input id="rM" required>
+ <div class="err" id="rE"></div>
+ <div class="row"><button class="go" type="submit">⬇️ حفظ وتنزيل</button><button class="x" type="button" id="rX">إلغاء</button></div>
+ <div class="priv">البيانات دي بتوصل لخدمة مدارس الأحد بس، ومش بتتنشر.</div>
+</form></div>
+<script>
+fetch('https://api.github.com/repos/brethrensundayschoolpresenter/brethren-sunday-school-presenter/releases/latest')
+ .then(r => r.json()).then(r => {
+   const m = (r.assets || []).find(x => /-Mac-[\d.]+\.dmg$/.test(x.name));
+   if (m) { document.getElementById('dlm').href = m.browser_download_url; document.getElementById('ver').innerHTML = 'النسخة <bdi dir="ltr">' + r.tag_name.replace(/^v/, '') + '</bdi> — حجمها حوالي ' + Math.round(m.size / 1048576) + ' ميجا'; }
+ }).catch(() => {});
+const FORM = 'https://docs.google.com/forms/d/e/1FAIpQLSeOKyMpyAyBKAhD9_Fheqym-wyP91tAttS_a4M0oACJL7mzXg/formResponse';
+let pending = '';
+function registered() { try { return localStorage.getItem('bssp_reg') === '1'; } catch (e) { return false; } }
+document.getElementById('dlm').addEventListener('click', e => { if (registered()) return; e.preventDefault(); pending = e.currentTarget.href; document.getElementById('reg').classList.add('open'); document.getElementById('rN').focus(); });
+document.getElementById('rX').onclick = () => document.getElementById('reg').classList.remove('open');
+document.getElementById('regf').addEventListener('submit', async e => {
+  e.preventDefault();
+  const n = document.getElementById('rN').value.trim(), m = document.getElementById('rM').value.trim(), err = document.getElementById('rE');
+  if (n.length < 2) { err.textContent = 'اكتب اسمك'; return; }
+  if (m.length < 2) { err.textContent = 'اكتب اسم الاجتماع أو الكنيسة'; return; }
+  const fd = new FormData(); fd.append('entry.1735689864', n); fd.append('entry.520013336', m + ' (ماك)');
+  try { await fetch(FORM, { method: 'POST', mode: 'no-cors', body: fd }); } catch (x) {}
+  try { localStorage.setItem('bssp_reg', '1'); } catch (x) {}
+  document.getElementById('reg').classList.remove('open'); location.href = pending;
+});
+</script>
+</body></html>
