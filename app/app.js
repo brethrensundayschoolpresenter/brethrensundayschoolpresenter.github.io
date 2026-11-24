@@ -1,5 +1,5 @@
 // ترانيم مدارس الأحد — web app for the servants (no projector): hymns + idea + verses + story, topics, Bible, favourites
-const H = window.HYMNS, BK = window.BOOKS, T = window.TOPICS || [], HD = window.HDEEP || {};
+const H = window.HYMNS, BK = window.BOOKS, T = window.TOPICS || [], HD = window.HDEEP || {}, KY = window.KEYS || {};
 let B = null;                       // Bible arrives later (bible.js is big)
 KE.build(H, [], BK);
 const $ = id => document.getElementById(id);
@@ -73,9 +73,9 @@ function alphaHTML(nums) {
   sorted.forEach(n => { const L = L0(n); if (L !== cur) { cur = L; out += `<div class="lh" data-l="${esc(L)}"><span class="letter">${esc(L)}</span></div>`; } out += hymnItem(n); });
   return out;
 }
-function hymnItem(n, sub) {
+function hymnItem(n, sub, key) {
   const d = HD[n];
-  return `<a class="it" href="#/h/${n}"><div class="t">${esc(hName(n))}</div><div class="s">${sub != null ? sub : d ? esc(d.i.length > 90 ? d.i.slice(0, 88) + '…' : d.i) : ''}</div></a>`;
+  return `<a class="it" href="#/h/${n}"><div class="t">${key ? `<span class="ik">${esc(key[0])}</span>` : ''}${esc(hName(n))}</div><div class="s">${sub != null ? sub : d ? esc(d.i.length > 90 ? d.i.slice(0, 88) + '…' : d.i) : ''}</div></a>`;
 }
 
 // ---------- top bar ----------
@@ -198,14 +198,15 @@ function vHymn(n) {
   });
   $('main').innerHTML = `<div class="ht"><span class="hl">${esc(h.title)}</span></div>`
     + (tps.length ? `<div class="chips">${tps.map(t => `<a class="chip" href="#/t/${t.id}">${esc(t.name)}</a>`).join('')}</div>` : '')
-    + `<div class="hbtns"><button class="addf" id="adf">${ICF.plus} ضيفها لفرصة</button>${d ? '<button class="golyr" id="glr">كلمات الترنيمة ↓</button>' : ''}</div>`
+    + `<div class="hbtns${KY[n] ? ' hk' : ''}"><button class="addf" id="adf">${ICF.plus} ضيفها لفرصة</button>${d ? '<button class="golyr" id="glr">كلمات الترنيمة ↓</button>' : ''}${KY[n] ? `<button class="golyr gkey" id="gky">Key: ${esc(KY[n][0])}${KY[n][1] ? ` <small>${KY[n][1] > 0 ? '+' : ''}${KY[n][1]}</small>` : ''}</button>` : ''}</div>`
     + (d ? `<div class="card"><span class="lb"><span>فكرة الترنيمة</span></span><p>${esc(d.i)}</p></div>` : '')
     + (vs.length ? `<div class="card"><span class="lb"><span>آيات في الترنيمة</span></span><div class="vs">${vs.map(([p, ph], i) => `<div class="vrow"><button class="vch" data-k="${i}"><div class="q">«${esc(ph)}»</div><div class="r">${esc(refTxt(p))}</div></button><button class="vplus" data-vk="${i}" aria-label="ضيف الشاهد لفرصة">+</button></div>`).join('')}</div></div>` : '')
     + (sp ? `<div class="card story" id="sty"><span class="lb"><span>قصة مقترحة</span></span><b>${esc(d.s[0])}</b><p style="font-weight:500">${esc(d.s[2])}</p><span class="r">${esc(refTxt(sp))} ‹ افتح القصة</span><br><button class="addf story-add" id="ads">${ICF.plus} ضيف القصة لفرصة</button></div>` : '')
-    + `<div class="tools" id="lyrT"><button id="fsm">خط أصغر</button><button id="fsp">خط أكبر</button></div><div class="lyr">${lyr}</div><button class="mist" id="mist">${IC.chat}<span>لقيت غلطة في الترنيمة دي؟ ابعتها لنا</span></button>`;
+    + `<div class="tools" id="lyrT"><button id="fsm">خط أصغر</button><button id="fsp">خط أكبر</button></div>${keyLine(n)}<div class="lyr">${lyr}</div><button class="mist" id="mist">${IC.chat}<span>لقيت غلطة في الترنيمة دي؟ ابعتها لنا</span></button>`;
   $('main').querySelectorAll('.vch').forEach(b => b.onclick = () => openPassage(vs[+b.dataset.k][0], n));
   if ($('sty')) $('sty').onclick = e => { if (!e.target.closest('#ads')) openPassage(sp, n); };
   $('adf').onclick = () => addToForsa({ t: 'h', n, note: '' }, 'الترنيمة');
+  if ($('gky')) $('gky').onclick = () => { const y = $('lyrT').getBoundingClientRect().top + scrollY - 70; scrollTo({ top: y, behavior: 'smooth' }); };
   if ($('glr')) $('glr').onclick = () => { const y = $('lyrT').getBoundingClientRect().top + scrollY - 70; scrollTo({ top: y, behavior: 'smooth' }); };
   $('main').querySelectorAll('.vplus').forEach(b => b.onclick = () => { const p = vs[+b.dataset.vk][0]; withBible(() => addToForsa({ t: 'v', b: p.b, c: p.c, v: p.v, v2: p.v2, note: '' }, 'الشاهد')); });
   if ($('ads')) $('ads').onclick = () => withBible(() => addToForsa({ t: 'v', b: sp.b, c: sp.c, v: sp.v, v2: sp.v2, note: '' }, 'القصة'));
@@ -238,8 +239,51 @@ function vTopics() {
 function vTopic(id) {
   const t = T.find(x => x.id === id); if (!t) { location.hash = '#/topics'; return; }
   setTab('topics'); backBar('المواضيع'); showSearch(false);
-  $('main').innerHTML = `<div class="ht"><span class="hl">${esc(t.name)}</span></div><div class="s" style="color:var(--mut);font-weight:700;margin-bottom:6px">${arD(t.nums.length)} ترنيمة</div>` + alphaHTML(t.nums);
+  const head = `<div class="ht"><span class="hl">${esc(t.name)}</span></div><div class="s" style="color:var(--mut);font-weight:700;margin-bottom:6px">${arD(t.nums.length)} ترنيمة</div>`;
+  const draw = () => { $('main').innerHTML = head + (NAV.byKey ? keyHTML(t.nums) : alphaHTML(t.nums)); };
+  document.querySelectorAll('#kbar').forEach(x => x.remove());
+  if (t.nums.some(n => KY[n])) {   // only when some hymn in this topic has an approved Key
+    const kb = document.createElement('div'); kb.id = 'kbar';
+    const set = () => { kb.innerHTML = `<button class="${NAV.byKey ? 'on' : ''}">${NAV.byKey ? 'ترتيب أبجدي' : 'ترتيب حسب الـKey'}</button>`; kb.firstChild.onclick = () => { NAV.byKey = !NAV.byKey; set(); draw(); scrollTo(0, 0); }; };
+    set(); document.querySelector('header.top .in').appendChild(kb);
+  }
+  draw();
   scrollTo(0, 0);
+}
+// ---------- Keys (approved by the musicians' reviewers, from the keys sheet) ----------
+const KROOT = { C: 0, 'C#': 1, Db: 1, D: 2, 'D#': 3, Eb: 3, E: 4, F: 5, 'F#': 6, Gb: 6, G: 7, 'G#': 8, Ab: 8, A: 9, 'A#': 10, Bb: 10, B: 11 };
+const KNAME = ['C', 'Db', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'];
+function keyMajor(k) {   // the major of a key's family: Am -> C (same notes)
+  const m = /^([A-G](?:#|b)?)(m?)/.exec(k || ''); if (!m || KROOT[m[1]] == null) return null;
+  return (KROOT[m[1]] + (m[2] ? 3 : 0)) % 12;
+}
+function keyLine(n) {
+  const k = KY[n]; if (!k) return '';
+  return `<div class="keyl">Key: ${esc(k[0])}${k[1] ? `<span>Transpose ${k[1] > 0 ? '+' : ''}${k[1]}</span>` : ''}</div>`;
+}
+function keyHTML(nums) {
+  // Shady: C, Cm, D, Dm, E, Em … (each key a group, major before its minor), then the hymns with no Key
+  const grp = {}, none = [];
+  nums.forEach(n => { const k = KY[n] && KY[n][0]; if (!k || keyRank(k) == null) none.push(n); else (grp[k] = grp[k] || []).push(n); });
+  const ks = Object.keys(grp); if (!ks.length) return alphaHTML(nums);
+  ks.sort((a, b) => keyRank(a) - keyRank(b));
+  const alpha = alphaOrder(nums);
+  let out = '';
+  ks.forEach(k => {
+    out += `<div class="lh"><span class="letter" style="direction:ltr">${esc(k)}</span></div>`;
+    grp[k].sort((a, b) => alpha.indexOf(a) - alpha.indexOf(b)).forEach(n => out += hymnItem(n, null, KY[n]));
+  });
+  if (none.length) out += `<div class="lh"><span class="letter">من غير Key</span></div>` + none.sort((a, b) => alpha.indexOf(a) - alpha.indexOf(b)).map(n => hymnItem(n)).join('');
+  return out;
+}
+function keyRank(k) {   // C=0 … B=11, minor right after its major (C, Cm, C#, C#m, D, Dm …)
+  const m = /^([A-G](?:#|b)?)(m?)$/.exec(String(k).trim()); if (!m || KROOT[m[1]] == null) return null;
+  return KROOT[m[1]] * 2 + (m[2] ? 1 : 0);
+}
+function alphaOrder(nums) {
+  const L0 = n => firstLetter(H[n - 1].title), D0 = n => H[n - 1].d || '';
+  const sorted = nums.slice().sort((a, b) => a - b), order = [...new Set(sorted.map(L0))];
+  return sorted.sort((a, b) => order.indexOf(L0(a)) - order.indexOf(L0(b)) || (D0(b) > D0(a) ? 1 : D0(b) < D0(a) ? -1 : a - b));
 }
 
 // ---------- Bible ----------
@@ -634,7 +678,7 @@ addEventListener('hashchange', () => { const v = $('vsel'); if (v) v.remove(); c
 let lastHash = '';
 function route() {
   const h = location.hash || '#/', p = h.slice(2).split('/');
-  document.querySelectorAll('#fbar').forEach(x => x.remove()); document.body.classList.remove('hasfbar');
+  document.querySelectorAll('#fbar,#kbar').forEach(x => x.remove()); document.body.classList.remove('hasfbar');
   if (lastHash && h !== lastHash) NAV.depth++;
   lastHash = h;
   if (p[0] === '' ) { NAV.tab = 'hymns'; NAV.from = null; vHymns(); }

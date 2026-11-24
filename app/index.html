@@ -102,6 +102,11 @@ main{padding:12px 14px calc(90px + var(--safe-b))}
 .tp .n{font-size:12.5px;color:var(--mut);font-weight:700;white-space:nowrap}
 /* tabs */
 body.typing .tabs{display:none}
+#kbar{margin-top:8px}#kbar button{width:100%;border:2.5px solid #111;border-radius:14px;padding:8px 6px;background:#fff;color:#111;font-family:inherit;font-size:15px;font-weight:800;box-shadow:0 3px 0 #111}
+#kbar button.on{background:#ffff00}
+.keyl{display:inline-block;margin:4px 0 10px;font-weight:800;font-size:16px;background:#ffff00;border:2px solid #111;border-radius:10px;padding:3px 12px;direction:ltr}
+.keyl span{font-weight:700;color:#444;margin-left:8px}
+.ik{float:left;direction:ltr;font-weight:800;font-size:12.5px;background:#fff7b0;border:1.5px solid #e2d36a;border-radius:7px;padding:0 6px;margin-top:2px}
 #fbar{display:flex;gap:8px;margin-top:8px}
 #fbar button{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;border:2.5px solid #111;border-radius:14px;padding:7px 6px;background:#ffff00;color:#111;font-family:inherit;box-shadow:0 3px 0 #111;line-height:1.3}
 #fbar button b{font-size:15px;font-weight:800}#fbar button small{font-size:11.5px;font-weight:600}
@@ -202,7 +207,9 @@ body.typing #fbar{display:none}
 .fdel{display:block;margin:22px auto 6px;color:#c62828;font-weight:800;font-size:14px;border:2px solid #f1c4c4;border-radius:12px;padding:6px 16px;background:#fff}
 .fdel.sure{background:#c62828;color:#fff;border-color:#c62828}
 .hbtns{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.hbtns .addf{margin-top:10px}
+.hbtns.hk{flex-wrap:nowrap;gap:6px}.hbtns.hk .addf,.hbtns.hk .golyr{padding-left:9px;padding-right:9px;font-size:14px;white-space:nowrap}
 .golyr{display:inline-flex;align-items:center;gap:6px;margin:10px 0 0;border:2.5px solid #111;border-radius:12px;padding:5px 14px;font-weight:800;font-size:15px;background:#fff;box-shadow:0 2px 0 #111;font-family:inherit;color:#111}
+.golyr.gkey{background:#ffff00;direction:ltr;gap:4px}.golyr.gkey small{font-size:12.5px;font-weight:700;color:#444}
 .addf{display:inline-flex;align-items:center;gap:6px;margin:10px 0 0;border:2.5px solid #111;border-radius:12px;padding:5px 14px;font-weight:800;font-size:15px;background:var(--hi);box-shadow:0 2px 0 #111}
 .addf svg{width:17px;height:17px;stroke:#111;fill:none;stroke-width:2.4;stroke-linecap:round}
 .vrow{display:flex;gap:6px;align-items:stretch}
@@ -271,6 +278,7 @@ body.typing #fbar{display:none}
 <script src="data/hymns.js"></script>
 <script src="data/topics.js"></script>
 <script src="data/stories.js"></script>
+<script src="data/keys.js"></script>
 <script src="books.js"></script>
 <script src="engine.js"></script>
 <script src="app.js"></script>
