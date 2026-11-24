@@ -130,6 +130,7 @@ let pending = '';
 function registered() { try { return localStorage.getItem('bssp_reg') === '1'; } catch (e) { return false; } }
 document.getElementById('dlm').addEventListener('click', e => { if (registered()) return; e.preventDefault(); pending = e.currentTarget.href; document.getElementById('reg').classList.add('open'); document.getElementById('rN').focus(); });
 document.getElementById('rX').onclick = () => document.getElementById('reg').classList.remove('open');
+document.getElementById('reg').addEventListener('click', e => { if (e.target.id === 'reg') e.currentTarget.classList.remove('open'); });
 document.getElementById('regf').addEventListener('submit', async e => {
   e.preventDefault();
   const n = document.getElementById('rN').value.trim(), m = document.getElementById('rM').value.trim(), err = document.getElementById('rE');
