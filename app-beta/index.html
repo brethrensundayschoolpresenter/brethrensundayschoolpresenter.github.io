@@ -85,7 +85,7 @@ a{color:inherit;text-decoration:none}
 .hl{background:linear-gradient(transparent 18%,var(--hi) 18%,var(--hi) 88%,transparent 88%);padding:0 6px}
 mark{background:var(--hi);color:inherit;border-radius:3px;padding:0 1px}
 /* top */
-.top{position:sticky;top:0;z-index:20;background:var(--panel);border-bottom:2px dashed var(--line);padding:calc(env(safe-area-inset-top,0px) + 8px) 14px 8px}
+.top{position:sticky;top:0;z-index:20;transform:translateZ(0);-webkit-transform:translateZ(0);backface-visibility:hidden;-webkit-backface-visibility:hidden;background:var(--panel);border-bottom:2px dashed var(--line);padding:calc(env(safe-area-inset-top,0px) + 8px) 14px 8px}
 .bar{display:flex;align-items:center;gap:10px;min-height:40px}
 .bar img{width:34px;height:34px;border-radius:9px}
 .brand{font-weight:800;font-size:18px;line-height:1.1;white-space:nowrap}
