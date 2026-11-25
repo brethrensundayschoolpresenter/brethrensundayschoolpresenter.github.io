@@ -1,12 +1,14 @@
 {
- "dataVersion": 23,
+ "dataVersion": 24,
  "minApp": "1.0.7",
  "files": {
-  "hymns.js": "b4b0adff64ff934657aa9f32304a7f2eb22f3d178f83d68c5d3eb661906f8506",
-  "topics.js": "8edada15599731c58cf4cf3a4025e6a6ae72693ef50d4967e59c48d293431ad9",
-  "stories.js": "95fdb00199a0eb002d01d879854bfeb5d662d9bf69da55c1228044763c99e0c2"
+  "hymns.js": "075c2dae3821c31765be5e6b377c45ec21772f887efab308b8d58d4f2a0881a0",
+  "topics.js": "59ffd390479f71a1796426d7f3f8e1826e32bd1e3b6a3b2deaeea9924e1e1eeb",
+  "stories.js": "75f8797c7696fb3551ea372fe031497d3f8fb4da292e6dc5ddeed72cc779ab2d"
  },
- "notes": [],
+ "notes": [
+  "ترنيمة جديدة: «علبة ألواني بتعلمني»."
+ ],
  "history": {
   "7": [
    "ترنيمة جديدة: «ماكنتش أتخيل»."
@@ -48,6 +50,9 @@
   ],
   "21": [],
   "22": [],
-  "23": []
+  "23": [],
+  "24": [
+   "ترنيمة جديدة: «علبة ألواني بتعلمني»."
+  ]
  }
 }
