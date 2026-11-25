@@ -141,12 +141,24 @@
       L.del('ssw_login_redir');
       fb.onAuthStateChanged(auth, u => {
         user = u || null;
-        if (user) { st.name = user.displayName || user.email || ''; L.set('ssw_cloud', { uid: user.uid, name: st.name }); setState('wait'); sync(); }
+        if (user) { st.name = user.displayName || user.email || ''; L.set('ssw_cloud', { uid: user.uid, name: st.name }); setState('wait'); sync(); logSignIn(user); }
         else { L.del('ssw_cloud'); setState('out'); }
       });
     } catch (e) { fb = null; st.err = 'sdk'; setState(L.get('ssw_cloud', null) ? 'offline' : 'out'); }
   }
+  // every new Google sign-in (button pressed on this phone) -> one row in the owner's sheet «BSSP Google Sign-in»
+  function logSignIn(u) {
+    if (!L.get('ssw_log_next', 0)) return; L.del('ssw_log_next');
+    try {
+      const ua = navigator.userAgent, dev = (/iPhone|iPad/.test(ua) ? 'iPhone' : /Android/.test(ua) ? 'Android' : /Mac/.test(ua) ? 'Mac' : /Windows/.test(ua) ? 'Windows' : 'other')
+        + ((navigator.standalone || matchMedia('(display-mode: standalone)').matches) ? ' (app)' : ' (browser)');
+      const fd = new URLSearchParams();
+      fd.append('entry.773757589', u.email || ''); fd.append('entry.1009634404', u.displayName || ''); fd.append('entry.1662615946', dev);
+      fetch('https://docs.google.com/forms/d/e/1FAIpQLSe6Ft1OyFp3l87WfJluMF_Dpbx-2tktk91v5656U1XLsksKJA/formResponse', { method: 'POST', mode: 'no-cors', body: fd }).catch(() => {});
+    } catch (e) {}
+  }
   async function login() {
+    L.set('ssw_log_next', Date.now());
     // came back from Google's page in the home-screen app but this screen didn't notice yet: reload to pick up the login
     if (!user && navigator.onLine && Date.now() - (+L.get('ssw_login_redir', 0) || 0) < 10 * 60000) { location.reload(); return; }
     try {
