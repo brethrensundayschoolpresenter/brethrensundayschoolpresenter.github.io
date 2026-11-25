@@ -19,7 +19,7 @@
     const q = new URLSearchParams(location.search).get('beta');
     if (q === '1') L.set('ssw_beta', 1); else if (q === '0') L.del('ssw_beta');
   } catch (e) {}
-  const ON = () => !!L.get('ssw_beta', 0) || !!L.get('ssw_cloud', null);
+  const ON = () => true;   // public since 2026-11-25 (was: ?beta=1 only)
 
   let tries = 0, started = false, fb = null, auth = null, user = null, timer = null, busy = false, again = false, lastPull = 0;
   const st = { state: L.get('ssw_cloud', null) ? 'wait' : 'out', name: (L.get('ssw_cloud', null) || {}).name || '', at: L.get('ssw_cloud_at', 0), err: '' };
@@ -150,7 +150,7 @@
       if (!fb) { setState('login'); await loadSdk(); }   // normally already loaded when the card shows, so the popup opens straight from the tap (iPhone blocks late popups)
       const p = new fb.GoogleAuthProvider(); p.setCustomParameters({ prompt: 'select_account' });
       const pop = fb.signInWithPopup(auth, p); setState('login');
-      try { await pop; }
+      try { await pop; if (!started) start(); }
       catch (e) {
         const c = e && e.code || '';
         if (/popup-blocked|operation-not-supported|web-storage-unsupported/.test(c)) { await fb.signInWithRedirect(auth, p); return; }
@@ -172,17 +172,18 @@
   function cardHTML() {
     if (!ON()) return '';
     const s = st.state;
-    if (s === 'out' || s === 'login') return `<div class="cloud" id="cloudBox"><div class="cl-t">☁️ احفظ فرصك على حسابك <span class="cl-b">تجريبي</span></div>
+    if (s === 'out' || s === 'login') return `<div class="cloud" id="cloudBox"><div class="cl-t">☁️ احفظ فرصك على حسابك</div>
       <div class="cl-s">سجّل دخول بحساب جوجل، وفرصك والمفضلة تتحفظ وتلاقيها على أي موبايل تاني. كل واحد بيشوف فرصه هو بس.</div>
       <button class="cl-go" id="clIn"${s === 'login' ? ' disabled' : ''}>${s === 'login' ? 'استنى…' : 'سجّل دخول بجوجل'}</button></div>`;
     const line = s === 'sync' || s === 'wait' ? 'بيتزامن…' : s === 'offline' ? 'من غير نت دلوقتي — هيتزامن أول ما النت يرجع' : s === 'err' ? 'حصلت مشكلة في المزامنة — هيحاول تاني' : 'متزامن ' + ago(st.at);
-    return `<div class="cloud on" id="cloudBox"><div class="cl-t">☁️ فرصك محفوظة على حسابك <span class="cl-b">تجريبي</span></div>
+    return `<div class="cloud on" id="cloudBox"><div class="cl-t">☁️ فرصك محفوظة على حسابك</div>
       <div class="cl-s">${st.name ? esc(st.name) + ' · ' : ''}${line}</div>
       <div class="cl-row"><button id="clNow">زامن دلوقتي</button><button id="clOut">خروج</button></div></div>`;
   }
   function bind() {
     const a = document.getElementById('clIn'), b = document.getElementById('clNow'), c = document.getElementById('clOut');
     if (a) a.onclick = login; if (b) b.onclick = () => sync(); if (c) c.onclick = logout;
+    if (a && !fb && navigator.onLine) loadSdk().catch(() => {});   // ready before the tap, so the Google window opens straight away (iPhone blocks late popups)
   }
   window.cloudCardHTML = cardHTML;
   window.cloudSignedIn = () => ON() && !!L.get('ssw_cloud', null);
@@ -192,9 +193,9 @@
   // sync.js loads before app.js (so the first «فرصي» page already has the card); start once app.js has run
   const boot = () => {
     track();
-    start();
+    if (L.get('ssw_cloud', null)) start();   // signed in on this phone: restore the session + sync; others load the login library only when «فرصي» shows the card
     // opened with no internet: the login library couldn't load yet -> start again when the internet comes back
-    const wake = () => { if (!fb) start(); else sync(); };
+    const wake = () => { if (!L.get('ssw_cloud', null) && !user) return; if (!started) start(); else sync(); };
     addEventListener('online', wake);
     document.addEventListener('visibilitychange', () => { if (!document.hidden && Date.now() - lastPull > 30000) wake(); });
   };

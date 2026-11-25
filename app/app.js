@@ -117,9 +117,9 @@ function pendingNotes() {
 // popup after an update (opens by itself, once):
 //  new hymns -> «ترنيمة جديدة اتضافت» + the names (tap = open it); only fixes -> «الترانيم اتحدّثت» + the notes
 // «البرنامج اتحدّث»: bump APPV + APP_NEWS when the web app itself gets something new
-const APPV = 6;
-const APP_NEWS = ['جديد (تجريبي): بقينا نكتب الـKey بتاع الترنيمة. هتلاقي زرار أصفر «Key» جنب «كلمات الترنيمة»، وسطر الـKey فوق الكلام.', 'وفي أي موضوع تقدر ترتّب الترانيم حسب الـKey. الموضوع لسه في أوله، وكل أسبوع بيتضاف Keys جديدة.'];
-const APP_LINK = ['#/h/968', 'شوف ترنيمة فيها Key'];
+const APPV = 7;
+const APP_NEWS = ['جديد: تقدر تحفظ فرصك والمفضلة على حسابك. من «فرصي» دوس «سجّل دخول بجوجل»، وهتلاقيها على أي موبايل تاني تفتح منه.', 'التسجيل اختياري، والبرنامج شغال عادي من غيره، وكل واحد بيشوف فرصه هو بس.'];
+const APP_LINK = ['#/f', 'افتح «فرصي»'];
 // new Keys since the last popup («Keys جديدة اتضافت»); first run just remembers what's there
 function newKeys() {
   let seen = null; try { seen = JSON.parse(localStorage.getItem('ssw_keys_seen') || 'null'); } catch (e) {}
