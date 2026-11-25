@@ -258,7 +258,7 @@ function vHymn(n) {
     + (d ? `<div class="card"><span class="lb"><span>فكرة الترنيمة</span></span><p>${esc(d.i)}</p></div>` : '')
     + (vs.length ? `<div class="card"><span class="lb"><span>آيات في الترنيمة</span></span><div class="vs">${vs.map(([p, ph], i) => `<div class="vrow"><button class="vch" data-k="${i}"><div class="q">«${esc(ph)}»</div><div class="r">${esc(refTxt(p))}</div></button><button class="vplus" data-vk="${i}" aria-label="ضيف الشاهد لفرصة">+</button></div>`).join('')}</div></div>` : '')
     + (sp ? `<div class="card story" id="sty"><span class="lb"><span>قصة مقترحة</span></span><b>${esc(d.s[0])}</b><p style="font-weight:500">${esc(d.s[2])}</p><span class="r">${esc(refTxt(sp))} ‹ افتح القصة</span><br><button class="addf story-add" id="ads">${ICF.plus} ضيف القصة لفرصة</button></div>` : '')
-    + `<div class="tools tsz" id="lyrT"><button id="fsm" aria-label="خط أصغر">أ<sub>−</sub></button><button id="fsp" aria-label="خط أكبر" class="big">أ<sub>+</sub></button></div>${keyLine(n)}<div class="lyr">${lyr}</div><button class="mist" id="mist">${IC.chat}<span>لقيت غلطة في الترنيمة دي؟ ابعتها لنا</span></button>`;
+    + `<div class="tools" id="lyrT"><button id="fsm">خط أصغر</button><button id="fsp">خط أكبر</button></div>${keyLine(n)}<div class="lyr">${lyr}</div><button class="mist" id="mist">${IC.chat}<span>لقيت غلطة في الترنيمة دي؟ ابعتها لنا</span></button>`;
   $('main').querySelectorAll('.vch').forEach(b => b.onclick = () => openPassage(vs[+b.dataset.k][0], n));
   if ($('sty')) $('sty').onclick = e => { if (!e.target.closest('#ads')) openPassage(sp, n); };
   $('adf').onclick = () => addToForsa({ t: 'h', n, note: '' }, 'الترنيمة');
@@ -392,7 +392,7 @@ function vChapter(b, c, v1, v2) {
   needBible(() => {
     const ch = B[b] && B[b].chapters[c]; if (!ch) { location.hash = '#/bible'; return; }
     const hit = i => v1 != null && i >= v1 && i <= v2;
-    $('main').innerHTML = `<div class="ht"><span class="hl">${esc(bookName(b))} ${arD(c + 1)}</span></div><div class="tools tsz"><button id="fsm" aria-label="خط أصغر">أ<sub>−</sub></button><button id="fsp" aria-label="خط أكبر" class="big">أ<sub>+</sub></button></div>`
+    $('main').innerHTML = `<div class="ht"><span class="hl">${esc(bookName(b))} ${arD(c + 1)}</span></div><div class="tools"><button id="fsm">خط أصغر</button><button id="fsp">خط أكبر</button></div>`
       + ch.map((t, i) => `<div class="vl${hit(i) ? ' hit' : ''}" id="v${i}"><b>${arD(i + 1)}</b>${esc(t)}</div>`).join('')
       + `<div class="cnav">${c > 0 ? `<button id="pc">‹ الأصحاح ${arD(c)}</button>` : '<span></span>'}${c < B[b].chapters.length - 1 ? `<button id="nc">الأصحاح ${arD(c + 2)} ›</button>` : ''}</div>`;
     $('fsm').onclick = () => fontStep(-1); $('fsp').onclick = () => fontStep(1);
