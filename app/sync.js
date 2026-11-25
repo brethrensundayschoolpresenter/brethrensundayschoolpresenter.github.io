@@ -21,7 +21,7 @@
   } catch (e) {}
   const ON = () => !!L.get('ssw_beta', 0) || !!L.get('ssw_cloud', null);
 
-  let fb = null, auth = null, user = null, timer = null, busy = false, again = false, lastPull = 0;
+  let tries = 0, started = false, fb = null, auth = null, user = null, timer = null, busy = false, again = false, lastPull = 0;
   const st = { state: L.get('ssw_cloud', null) ? 'wait' : 'out', name: (L.get('ssw_cloud', null) || {}).name || '', at: L.get('ssw_cloud_at', 0), err: '' };
 
   // ---- local change tracking: which فرصة changed, and when ----
@@ -127,21 +127,23 @@
   // ---- login ----
   async function loadSdk() {
     if (fb) return fb;
-    const app = await import(SDK + 'firebase-app.js'), a = await import(SDK + 'firebase-auth.js');
-    const inst = app.initializeApp(CFG);
+    const q = tries++ ? '?r=' + tries : '';   // a failed import may be remembered by the browser: retry with a new address
+    const app = await import(SDK + 'firebase-app.js' + q), a = await import(SDK + 'firebase-auth.js' + q);
+    const inst = app.getApps && app.getApps().length ? app.getApp() : app.initializeApp(CFG);
     auth = a.getAuth(inst); auth.languageCode = 'ar';
     fb = a; return fb;
   }
   async function start() {
     try {
       await loadSdk();
+      if (started) return; started = true;
       try { await fb.getRedirectResult(auth); } catch (e) {}
       fb.onAuthStateChanged(auth, u => {
         user = u || null;
         if (user) { st.name = user.displayName || user.email || ''; L.set('ssw_cloud', { uid: user.uid, name: st.name }); setState('wait'); sync(); }
         else { L.del('ssw_cloud'); setState('out'); }
       });
-    } catch (e) { st.err = 'sdk'; setState(L.get('ssw_cloud', null) ? 'offline' : 'out'); }
+    } catch (e) { fb = null; st.err = 'sdk'; setState(L.get('ssw_cloud', null) ? 'offline' : 'out'); }
   }
   async function login() {
     try {
@@ -191,8 +193,10 @@
   const boot = () => {
     track();
     start();
-    addEventListener('online', () => sync());
-    document.addEventListener('visibilitychange', () => { if (!document.hidden && Date.now() - lastPull > 30000) sync(); });
+    // opened with no internet: the login library couldn't load yet -> start again when the internet comes back
+    const wake = () => { if (!fb) start(); else sync(); };
+    addEventListener('online', wake);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden && Date.now() - lastPull > 30000) wake(); });
   };
   // DOMContentLoaded comes after every script on the page has run (app.js may still be downloading right after this file)
   if (ON()) { if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot(); }
