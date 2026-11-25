@@ -587,7 +587,7 @@ function vForsaList() {
     + (up.length ? `<div class="sec">الفرص الجاية</div>${up.map(row).join('')}` : '')
     + (past.length ? `<div class="sec">الفرص اللي فاتت</div>${past.map(row).join('')}` : '')
     + (window.cloudCardHTML ? cloudCardHTML() : '')
-    + (window.cloudSignedIn && cloudSignedIn() ? '' : `<div class="hint fbk"><b>الفرص متسجلة على الموبايل ده بس</b> (جوه المتصفح). لو هتغيّر الموبايل أو تمسح بيانات المتصفح، خد نسخة وابعتها لنفسك واتساب، وعلى الموبايل الجديد دوس «رجّع نسخة» واختار الملف.
+    + (window.cloudSignedIn && cloudSignedIn() ? '' : `<div class="hint fbk"><b>فرصك بتتحفظ على الموبايل ده بس.</b> لو عايز تحافظ عليها وتلاقيها لو غيّرت الموبايل أو بتستخدم أكتر من موبايل، سجّل دخول بجوجل.
       <div class="fbk-b">${FR.length ? '<button id="bkS">خد نسخة</button>' : ''}<button id="bkR">رجّع نسخة</button></div><input type="file" id="bkF" accept=".json,application/json,text/plain" hidden></div>`);   // signed in: the account keeps them, so no file backup box
   $('nf').onclick = () => { const f = newForsa(); location.hash = '#/f/' + f.id; };
   if ($('bkS')) $('bkS').onclick = backupForsas;
