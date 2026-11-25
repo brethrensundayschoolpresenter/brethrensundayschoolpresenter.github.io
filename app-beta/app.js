@@ -150,7 +150,7 @@ function newHymnsHTML() {
   return `<div class="upd-card"><div class="upd-ic">✨</div><h3>${title}</h3>`
     + nw.map(h => `<a class="upd-h" href="#/h/${h.num}" onclick="closeNews()">«${esc(h.title)}» <span>افتحها ‹</span></a>`).join('')
     + (notes.length ? `<ul>${notes.map(t => `<li>${esc(t)}</li>`).join('')}</ul>` : '')
-    + (nk.length ? `${nw.length || notes.length ? '<b>Keys جديدة اتضافت:</b>' : ''}${nk.slice(0, 8).map(h => `<a class="upd-h" href="#/h/${h.num}" onclick="closeNews()">«${esc(h.title)}» <span dir="ltr">Key: ${esc(KY[h.num][0])}</span></a>`).join('')}${nk.length > 8 ? `<ul><li>و ${nk.length - 8} ترانيم تانية</li></ul>` : ''}` : '')
+    + (nk.length || app.length ? `<div class="upd-k">${nk.length ? `اتضاف الـ<bdi>Key</bdi> لـ ${arD(nk.length)} ترنيمة جديدة، وبقى عندنا ${arD(Object.keys(KY).length)} ترنيمة ليها <bdi>Key</bdi>.` : `بقى عندنا ${arD(Object.keys(KY).length)} ترنيمة ليها <bdi>Key</bdi>.`}<br><span>بنشكر الرب لأجل الشباب اللي تعبوا في تحضيرهم.</span></div>` : '')
     + (app.length ? `${nw.length || notes.length ? '<b>جديد في البرنامج:</b>' : ''}<ul>${app.map(t => `<li>${esc(t)}</li>`).join('')}</ul><a class="upd-h" href="${APP_LINK[0]}" onclick="closeNews()">${APP_LINK[1]} <span>‹</span></a>` : '')
     + `<button class="upd-ok" onclick="closeNews()">تمام</button></div>`;
 }

@@ -1,6 +1,6 @@
 // ترانيم مدارس الأحد — offline: app files network-first (so fixes arrive), hymn/Bible data cache-first
 // (new hymn data is written into the 'ssw-data' cache by app.js after checking content.json on GitHub)
-const SHELL = 'sswb-shell-v10';   // BETA (only Shady): own cache, shares the live app's data
+const SHELL = 'sswb-shell-v11';   // BETA (only Shady): own cache, shares the live app's data
 const FILES = ['./', 'index.html', 'app.js', 'sync.js', 'engine.js', 'books.js', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png', 'apple-touch-icon.png', '../fonts/BalooBhaijaan2-VF.ttf', '../fonts/NotoNaskh.ttf', '../app/data/keys.js'];   // keys.js = approved Keys, network-first like the app files so every publish arrives at once
 const DATA = ['../app/data/hymns.js', '../app/data/topics.js', '../app/data/stories.js', '../app/data/bible.js'];
 self.addEventListener('install', e => {

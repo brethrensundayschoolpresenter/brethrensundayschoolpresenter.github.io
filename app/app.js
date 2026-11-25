@@ -128,7 +128,7 @@ function pendingNotes() {
 // popup after an update (opens by itself, once):
 //  new hymns -> «ترنيمة جديدة اتضافت» + the names (tap = open it); only fixes -> «الترانيم اتحدّثت» + the notes
 // «البرنامج اتحدّث»: bump APPV + APP_NEWS when the web app itself gets something new
-const APPV = 8;
+const APPV = 9;   // 9 = same news as 8, shown again to everyone (Shady) with the Keys count + thanks
 const APP_NEWS = ['شكل جديد: وضع غامق بيمشي مع الموبايل، وتقدر تغيّره من زرار القمر/الشمس فوق.', 'الكتاب المقدس: اختار «العهد القديم» أو «العهد الجديد» من فوق على طول.', 'في «فرصي»: اسحب أي فرصة لليسار عشان تعمل منها نسخة أو تمسحها (ولو مسحت بالغلط دوس «تراجع»).', 'المفضلة: رتّبهم زي ما تحب، واسحب أي ترنيمة لليسار عشان تشيلها.', 'وآخر حاجات دوّرت عليها بتظهر فوق قايمة الترانيم.'];
 const APP_LINK = ['#/f', 'افتح «فرصي»'];
 // new Keys since the last popup («Keys جديدة اتضافت»); first run just remembers what's there
@@ -150,7 +150,7 @@ function newHymnsHTML() {
   return `<div class="upd-card"><div class="upd-ic">✨</div><h3>${title}</h3>`
     + nw.map(h => `<a class="upd-h" href="#/h/${h.num}" onclick="closeNews()">«${esc(h.title)}» <span>افتحها ‹</span></a>`).join('')
     + (notes.length ? `<ul>${notes.map(t => `<li>${esc(t)}</li>`).join('')}</ul>` : '')
-    + (nk.length ? `${nw.length || notes.length ? '<b>Keys جديدة اتضافت:</b>' : ''}${nk.slice(0, 8).map(h => `<a class="upd-h" href="#/h/${h.num}" onclick="closeNews()">«${esc(h.title)}» <span dir="ltr">Key: ${esc(KY[h.num][0])}</span></a>`).join('')}${nk.length > 8 ? `<ul><li>و ${nk.length - 8} ترانيم تانية</li></ul>` : ''}` : '')
+    + (nk.length || app.length ? `<div class="upd-k">${nk.length ? `اتضاف الـ<bdi>Key</bdi> لـ ${arD(nk.length)} ترنيمة جديدة، وبقى عندنا ${arD(Object.keys(KY).length)} ترنيمة ليها <bdi>Key</bdi>.` : `بقى عندنا ${arD(Object.keys(KY).length)} ترنيمة ليها <bdi>Key</bdi>.`}<br><span>بنشكر الرب لأجل الشباب اللي تعبوا في تحضيرهم.</span></div>` : '')
     + (app.length ? `${nw.length || notes.length ? '<b>جديد في البرنامج:</b>' : ''}<ul>${app.map(t => `<li>${esc(t)}</li>`).join('')}</ul><a class="upd-h" href="${APP_LINK[0]}" onclick="closeNews()">${APP_LINK[1]} <span>‹</span></a>` : '')
     + `<button class="upd-ok" onclick="closeNews()">تمام</button></div>`;
 }
