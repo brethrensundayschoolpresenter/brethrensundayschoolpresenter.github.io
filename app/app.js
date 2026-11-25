@@ -725,8 +725,8 @@ function route() {
   lastHash = h;
   if (p[0] === '' ) { NAV.tab = 'hymns'; NAV.from = null; vHymns(); }
   else if (p[0] === 'h') { vHymn(+p[1]); }
-  else if (p[0] === 'topics') { NAV.tab = 'topics'; vTopics(); }
-  else if (p[0] === 't') { NAV.tab = 'topics'; vTopic(+p[1]); }
+  else if (p[0] === 'topics') { NAV.tab = 'topics'; vTopics(); scrollTo(0, 0); }   // topics always open at the top
+  else if (p[0] === 't') { NAV.tab = 'topics'; vTopic(+p[1]); scrollTo(0, 0); }
   else if (p[0] === 'bible') { NAV.tab = 'bible'; NAV.from = null; vBible(); }
   else if (p[0] === 'b') {
     if (p[2] == null) { NAV.tab = 'bible'; NAV.from = null; vBook(+p[1]); }

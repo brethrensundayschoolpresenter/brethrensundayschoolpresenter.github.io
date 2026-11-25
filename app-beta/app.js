@@ -746,8 +746,8 @@ function route() {
   lastHash = h;
   if (p[0] === '' ) { NAV.tab = 'hymns'; NAV.from = null; vHymns(); }
   else if (p[0] === 'h') { vHymn(+p[1]); }
-  else if (p[0] === 'topics') { NAV.tab = 'topics'; vTopics(); }
-  else if (p[0] === 't') { NAV.tab = 'topics'; vTopic(+p[1]); }
+  else if (p[0] === 'topics') { NAV.tab = 'topics'; vTopics(); scrollTo(0, 0); }   // topics always open at the top
+  else if (p[0] === 't') { NAV.tab = 'topics'; vTopic(+p[1]); scrollTo(0, 0); }
   else if (p[0] === 'bible') { NAV.tab = 'bible'; NAV.from = null; vBible(); }
   else if (p[0] === 'b') {
     if (p[2] == null) { NAV.tab = 'bible'; NAV.from = null; vBook(+p[1]); }
@@ -886,4 +886,12 @@ document.addEventListener('visibilitychange', () => { if (!document.hidden && Da
 addEventListener('online', sendReg);
 
 // ---------- beta: splash ----------
-(function () { const sp = document.getElementById('splash'); if (!sp) return; const out = () => { sp.classList.add('out'); setTimeout(() => sp.remove(), 400); }; if (matchMedia('(prefers-reduced-motion: reduce)').matches) out(); else setTimeout(out, 650); })();
+(function () {
+  const sp = document.getElementById('splash'); if (!sp) return;
+  let done = false; const out = () => { if (done) return; done = true; sp.classList.add('out'); setTimeout(() => sp.remove(), 400); };
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return out();
+  // the name under the logo uses the app font: wait until it is ready, then keep the splash ~0.7 s so the name is always seen
+  const t0 = Date.now(), ready = (document.fonts && document.fonts.load) ? document.fonts.load('800 24px K') : Promise.resolve();
+  ready.catch(() => {}).then(() => setTimeout(out, Math.max(700, 900 - (Date.now() - t0))));
+  setTimeout(out, 3000);   // never longer than 3 s
+})();
