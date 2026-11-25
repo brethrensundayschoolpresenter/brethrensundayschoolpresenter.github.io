@@ -16,6 +16,7 @@ const IC = {
   info: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01"/></svg>',
   chat: '<svg viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/><path d="M8.5 11h.01M12 11h.01M15.5 11h.01"/></svg>'
 };
+const buzz = () => { try { if (navigator.vibrate) navigator.vibrate(12); } catch (e) {} };
 function toast(m) { const t = $('toast'); t.textContent = m; t.classList.add('show'); clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove('show'), 2400); }
 let PREF = { fs: 19 };
 try { Object.assign(PREF, JSON.parse(localStorage.getItem('ssw_pref') || '{}')); } catch (e) {}
@@ -80,7 +81,17 @@ function hymnItem(n, sub, key) {
 
 // ---------- top bar ----------
 function bar(html) { $('bar').innerHTML = html; }
-function homeBar(sub) { bar(`<img src="icon-192.png" alt=""><div class="brand">ترانيم مدارس الأحد<small>${sub || 'Brethren Sunday School Presenter'}</small></div><span class="sp"></span><a class="ib" href="#/about" aria-label="عن البرنامج">${IC.info}</a>`); }
+// ---------- light / dark (follows the phone unless chosen) ----------
+const THEME = {
+  get() { try { return localStorage.getItem('ssw_theme') || 'auto'; } catch (e) { return 'auto'; } },
+  dark() { const t = THEME.get(); return t === 'dark' || (t === 'auto' && matchMedia('(prefers-color-scheme: dark)').matches); },
+  apply() { const d = THEME.dark(); document.documentElement.toggleAttribute('data-theme', d); if (d) document.documentElement.setAttribute('data-theme', 'dark'); const m = document.querySelector('meta[name=theme-color]'); if (m) m.content = d ? '#0f141a' : '#fbfaf7'; const b = document.getElementById('thm'); if (b) b.innerHTML = d ? IC.sun : IC.moon; },
+  set(t) { try { localStorage.setItem('ssw_theme', t); } catch (e) {} THEME.apply(); }
+};
+IC.moon = '<svg viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg>';
+IC.sun = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6l1.4 1.4M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4L6 18M18 6l1.4-1.4"/></svg>';
+try { matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => { if (THEME.get() === 'auto') THEME.apply(); }); } catch (e) {}
+function homeBar(sub) { bar(`<img src="icon-192.png" alt=""><div class="brand">ترانيم مدارس الأحد<small>${sub || 'Brethren Sunday School Presenter'}</small></div><span class="sp"></span><button class="ib" id="thm" aria-label="فاتح / غامق">${THEME.dark() ? IC.sun : IC.moon}</button><a class="ib" href="#/about" aria-label="عن البرنامج">${IC.info}</a>`); $('thm').onclick = () => THEME.set(THEME.dark() ? 'light' : 'dark'); }
 function backBar(label, extra, y) { bar(`<button class="back${y ? ' y' : ''}" id="bk">${IC.back}<span>${esc(label)}</span></button><span class="sp"></span>${extra || ''}`); $('bk').onclick = goBack; }
 function goBack() { if (history.length > 1 && NAV.depth > 0) history.back(); else location.hash = '#/'; }
 function showSearch(on, ph) { $('sbox').style.display = on ? '' : 'none'; if (ph) $('q').placeholder = ph; }
@@ -117,8 +128,8 @@ function pendingNotes() {
 // popup after an update (opens by itself, once):
 //  new hymns -> «ترنيمة جديدة اتضافت» + the names (tap = open it); only fixes -> «الترانيم اتحدّثت» + the notes
 // «البرنامج اتحدّث»: bump APPV + APP_NEWS when the web app itself gets something new
-const APPV = 7;
-const APP_NEWS = ['جديد: تقدر تحفظ فرصك والمفضلة على حسابك. من «فرصي» دوس «سجّل دخول بجوجل»، وهتلاقيها على أي موبايل تاني تفتح منه.', 'التسجيل اختياري، والبرنامج شغال عادي من غيره، وكل واحد بيشوف فرصه هو بس.'];
+const APPV = 8;
+const APP_NEWS = ['شكل جديد: وضع غامق بيمشي مع الموبايل، وتقدر تغيّره من زرار القمر/الشمس فوق.', 'الكتاب المقدس: اختار «العهد القديم» أو «العهد الجديد» من فوق على طول.', 'في «فرصي»: اسحب أي فرصة لليسار عشان تعمل منها نسخة أو تمسحها (ولو مسحت بالغلط دوس «تراجع»).', 'المفضلة: رتّبهم زي ما تحب، واسحب أي ترنيمة لليسار عشان تشيلها.', 'وآخر حاجات دوّرت عليها بتظهر فوق قايمة الترانيم.'];
 const APP_LINK = ['#/f', 'افتح «فرصي»'];
 // new Keys since the last popup («Keys جديدة اتضافت»); first run just remembers what's there
 function newKeys() {
@@ -194,14 +205,24 @@ function dataArrived(v) {
 
 // ---------- views ----------
 const NAV = { depth: 0, tab: 'hymns', q: { hymns: '', bible: '' }, from: null };
+// last searches (hymns), shown as small chips above the list when the search is empty
+const RECENT = { get() { try { return JSON.parse(localStorage.getItem('ssw_recent') || '[]'); } catch (e) { return []; } } };
+function recentAdd(q) { if (NAV.q.hymns.trim() !== q && latinDigits(NAV.q.hymns.trim()) !== q) return; const r = RECENT.get().filter(x => x !== q); r.unshift(q); try { localStorage.setItem('ssw_recent', JSON.stringify(r.slice(0, 5))); } catch (e) {} }
+function recentHTML() { const r = RECENT.get(); return r.length ? `<div class="recent"><span class="rl">آخر بحث</span>${r.map(x => `<button data-q="${esc(x)}">${esc(x)}</button>`).join('')}<button class="rx" aria-label="امسح آخر بحث">×</button></div>` : ''; }
+function recentBind() {
+  document.querySelectorAll('.recent [data-q]').forEach(b => b.onclick = () => { $('q').value = b.dataset.q; $('q').dispatchEvent(new Event('input')); });
+  const x = document.querySelector('.recent .rx'); if (x) x.onclick = () => { try { localStorage.removeItem('ssw_recent'); } catch (e) {} const r = document.querySelector('.recent'); if (r) r.remove(); azSetup(); };
+}
 function vHymns() {
   setTab('hymns'); homeBar(); showSearch(true, 'اسم الترنيمة أو أي كلمة منها…');
   $('q').value = NAV.q.hymns; sboxState();
   const q = latinDigits(NAV.q.hymns.trim()), m = $('main');
+  if (q.length > 1) { clearTimeout(vHymns.rt); vHymns.rt = setTimeout(() => recentAdd(q), 1500); }
   if (!q) {
-    m.innerHTML = `<div class="hint"><b>رجاء محبة:</b> استخدم البرنامج للمساعدة بس، لأنه مش بديل إنك تاخد وقت قدّام الرب وتطلب إرشاده قبل فرصة الترانيم.</div>`
-      + (localStorage.getItem('ssw_hint2') || matchMedia('(display-mode: standalone)').matches || navigator.standalone ? '' : `<div class="hint">عايز تفتحه زي أي برنامج ومن غير نت؟ ضيفه للشاشة الرئيسية (Add to Home Screen) — <a href="../#add" style="color:#1f6fc5;font-weight:800;text-decoration:underline">شوف إزاي بالصور</a>. <button style="color:#1f6fc5;font-weight:800" onclick="localStorage.setItem('ssw_hint2',1);this.parentNode.remove()">تمام</button></div>`)
+    m.innerHTML = recentHTML() + `<div class="hint"><b>رجاء محبة:</b> استخدم البرنامج للمساعدة بس، لأنه مش بديل إنك تاخد وقت قدّام الرب وتطلب إرشاده قبل فرصة الترانيم.</div>`
+      + (localStorage.getItem('ssw_hint2') || matchMedia('(display-mode: standalone)').matches || navigator.standalone ? '' : `<div class="hint">عايز تفتحه زي أي برنامج ومن غير نت؟ ضيفه للشاشة الرئيسية (Add to Home Screen) — <a href="../#add" style="color:var(--link);font-weight:800;text-decoration:underline">شوف إزاي بالصور</a>. <button style="color:var(--link);font-weight:800" onclick="localStorage.setItem('ssw_hint2',1);this.parentNode.remove()">تمام</button></div>`)
       + alphaHTML(H.map(h => h.num));
+    recentBind();
     return;
   }
   const seen = new Set(), tit = KE.searchTitles(q, 15), frag = KE.searchFragments(q, 60), res = KE.searchHymnText(q, 60);
@@ -245,7 +266,7 @@ function vHymn(n) {
   if ($('glr')) $('glr').onclick = () => { const y = $('lyrT').getBoundingClientRect().top + scrollY - 70; scrollTo({ top: y, behavior: 'smooth' }); };
   $('main').querySelectorAll('.vplus').forEach(b => b.onclick = () => { const p = vs[+b.dataset.vk][0]; withBible(() => addToForsa({ t: 'v', b: p.b, c: p.c, v: p.v, v2: p.v2, note: '' }, 'الشاهد')); });
   if ($('ads')) $('ads').onclick = () => withBible(() => addToForsa({ t: 'v', b: sp.b, c: sp.c, v: sp.v, v2: sp.v2, note: '' }, 'القصة'));
-  $('fv').onclick = () => { const i = FAV.indexOf(n); if (i >= 0) FAV.splice(i, 1); else FAV.unshift(n); saveFav(); $('fv').classList.toggle('on', i < 0); toast(i < 0 ? 'اتضافت للمفضلة' : 'اتشالت من المفضلة'); };
+  $('fv').onclick = () => { const i = FAV.indexOf(n); if (i >= 0) FAV.splice(i, 1); else FAV.unshift(n); saveFav(); buzz(); $('fv').classList.toggle('on', i < 0); toast(i < 0 ? 'اتضافت للمفضلة' : 'اتشالت من المفضلة'); };
   $('shr').onclick = () => shareHymn(n);
   $('mist').onclick = () => suggest(n);
   $('fsm').onclick = () => fontStep(-1); $('fsp').onclick = () => fontStep(1);
@@ -333,9 +354,16 @@ function vBible() {
   $('q').value = NAV.q.bible; sboxState();
   const q = latinDigits(NAV.q.bible.trim());
   if (!q) {
+    // two buttons at the top (العهد القديم | العهد الجديد) — only the chosen one shows, no long scroll to reach the New Testament
     const btn = (i) => `<button data-b="${i}">${esc(bookName(i))}</button>`;
-    $('main').innerHTML = `<div class="sec">العهد القديم</div><div class="grid">${BK.slice(0, 39).map((_, i) => btn(i)).join('')}</div><div class="sec">العهد الجديد</div><div class="grid">${BK.slice(39).map((_, i) => btn(i + 39)).join('')}</div>`;
-    $('main').querySelectorAll('[data-b]').forEach(b => b.onclick = () => { location.hash = '#/b/' + b.dataset.b; });
+    let t = localStorage.getItem('ssw_testament') === 'nt' ? 'nt' : 'ot';
+    const draw = () => {
+      const list = t === 'nt' ? BK.slice(39).map((_, i) => i + 39) : BK.slice(0, 39).map((_, i) => i);
+      $('main').innerHTML = `<div class="seg" role="tablist"><button data-t="ot" class="${t === 'ot' ? 'on' : ''}">العهد القديم</button><button data-t="nt" class="${t === 'nt' ? 'on' : ''}">العهد الجديد</button></div><div class="grid fadein">${list.map(btn).join('')}</div>`;
+      $('main').querySelectorAll('[data-b]').forEach(b => b.onclick = () => { location.hash = '#/b/' + b.dataset.b; });
+      $('main').querySelectorAll('.seg [data-t]').forEach(b => b.onclick = () => { if (t === b.dataset.t) return; t = b.dataset.t; try { localStorage.setItem('ssw_testament', t); } catch (e) {} draw(); });
+    };
+    draw();
     return;
   }
   needBible(() => {
@@ -378,8 +406,12 @@ function vChapter(b, c, v1, v2) {
 }
 function vFav() {
   setTab('fav'); homeBar('الترانيم اللي علّمت عليها'); showSearch(false);
-  $('main').innerHTML = FAV.length ? `<div class="hint">علّم على ترانيم الدرس اللي جاي بالقلب ♡ من صفحة الترنيمة، وتلاقيها هنا على طول.</div>` + FAV.map(n => H[n - 1] ? hymnItem(n) : '').join('')
+  const ord = !!vFav.ord;
+  $('main').innerHTML = FAV.length ? `<div class="hint">علّم على ترانيم الدرس اللي جاي بالقلب ♡ من صفحة الترنيمة، وتلاقيها هنا على طول. اسحب أي ترنيمة لليسار عشان تشيلها.</div><div class="tools"><button id="ford" class="${ord ? 'on' : ''}">${ord ? 'خلصت الترتيب' : 'رتّبهم'}</button></div>` + FAV.map((n, i) => H[n - 1] ? (ord ? `<div class="ordr"><div class="ob"><button data-mv="${i}" data-d="-1" ${i ? '' : 'disabled'} aria-label="لفوق">${ICF.up}</button><button data-mv="${i}" data-d="1" ${i < FAV.length - 1 ? '' : 'disabled'} aria-label="لتحت">${ICF.down}</button></div>${hymnItem(n)}</div>` : swRow(hymnItem(n), [['rm', 'شيل', n]])) : '').join('')
     : '<div class="empty">لسه ماعلّمتش على ترانيم<br>افتح أي ترنيمة ودوس على القلب ♡</div>';
+  if ($('ford')) $('ford').onclick = () => { vFav.ord = !vFav.ord; const y = scrollY; vFav(); scrollTo(0, y); };
+  $('main').querySelectorAll('[data-mv]').forEach(b => b.onclick = () => { const i = +b.dataset.mv, j = i + +b.dataset.d; if (j < 0 || j >= FAV.length) return; [FAV[i], FAV[j]] = [FAV[j], FAV[i]]; saveFav(); const y = scrollY; vFav(); scrollTo(0, y); });
+  swipeBind($('main'), (act, n, row) => { n = +n; row.classList.add('gone'); undoBar('اتشالت من المفضلة', () => { row.classList.remove('gone'); swClose(row); }, () => { FAV = FAV.filter(x => x !== n); saveFav(); if (location.hash === '#/fav') { const y = scrollY; vFav(); scrollTo(0, y); } }); });
 }
 function vAbout() {
   setTab(''); backBar('رجوع'); showSearch(false);
@@ -387,11 +419,15 @@ function vAbout() {
   <div class="card"><p>تدوّر على أي ترنيمة، وتشوف فكرتها والآيات اللي كلامها مأخوذ منها وقصة مناسبة ليها، وتقرا في الكتاب المقدس. بيشتغل من غير نت، وبيتحدّث لوحده لما تنزل ترانيم جديدة.</p></div>
   <div class="card"><span class="lb"><span>فرصي</span></span><p style="font-weight:500">حضّر الفرصة: ضيف الترانيم والشواهد واكتب ملاحظاتك، وكل الفرص بتفضل متسجلة بتاريخها. بتتحفظ على الموبايل ده بس، فخد منها نسخة من «فرصي» (زرار «خد نسخة») وابعتها لنفسك واتساب، وعلى أي موبايل تاني رجّعها بـ«رجّع نسخة».</p></div>
   <div class="card"><span class="lb"><span>رجاء محبة</span></span><p style="font-weight:500">استخدم البرنامج للمساعدة بس، لأنه مش بديل إنك تاخد وقت قدّام الرب وتطلب إرشاده قبل فرصة الترانيم.</p></div>
-  <div class="card"><span class="lb"><span>ضيفه للشاشة الرئيسية</span></span><p style="font-weight:500"><a href="../#add" style="color:#1f6fc5;font-weight:800;text-decoration:underline">شوف الخطوات بالصور</a><br><b>آيفون:</b> من Safari دوس زرار المشاركة وبعدين «Add to Home Screen».<br><b>أندرويد:</b> من Chrome دوس النقط التلاتة وبعدين «Add to Home screen» أو «Install app».</p></div>
-  <div class="card"><span class="lb"><span>للعرض على البروجكتور</span></span><p style="font-weight:500">نزّل برنامج الكمبيوتر من <a href="../" style="color:#1f6fc5;text-decoration:underline">هنا</a>.</p></div>
-  <div class="card"><span class="lb"><span>لقيت غلطة أو عندك ترنيمة ناقصة؟</span></span><p style="font-weight:500">ابعتها لنا <a href="https://wa.me/201227120955" target="_blank" rel="noopener" style="color:#1f6fc5;text-decoration:underline">واتساب</a> (ولو ترنيمة جديدة ابعت كلامها مكتوب أو ملف PowerPoint)، ولما تتراجع بتنزل للكل.</p></div>
+  <div class="card"><span class="lb"><span>ضيفه للشاشة الرئيسية</span></span><p style="font-weight:500"><a href="../#add" style="color:var(--link);font-weight:800;text-decoration:underline">شوف الخطوات بالصور</a><br><b>آيفون:</b> من Safari دوس زرار المشاركة وبعدين «Add to Home Screen».<br><b>أندرويد:</b> من Chrome دوس النقط التلاتة وبعدين «Add to Home screen» أو «Install app».</p></div>
+  <div class="card"><span class="lb"><span>للعرض على البروجكتور</span></span><p style="font-weight:500">نزّل برنامج الكمبيوتر من <a href="../" style="color:var(--link);text-decoration:underline">هنا</a>.</p></div>
+  <div class="card"><span class="lb"><span>لقيت غلطة أو عندك ترنيمة ناقصة؟</span></span><p style="font-weight:500">ابعتها لنا <a href="https://wa.me/201227120955" target="_blank" rel="noopener" style="color:var(--link);text-decoration:underline">واتساب</a> (ولو ترنيمة جديدة ابعت كلامها مكتوب أو ملف PowerPoint)، ولما تتراجع بتنزل للكل.</p></div>
   <p style="text-align:center;color:var(--mut);font-size:13px" id="dv"></p>`;
   $('dv').textContent = 'نسخة الترانيم ' + arD(localStorage.getItem('ssw_dv') || DATA_VERSION);
+  const tc = document.createElement('div'); tc.className = 'card'; tc.innerHTML = `<span class="lb"><span>الشكل</span></span><div class="seg" style="position:static;margin:8px 0 0"><button data-m="auto">زي الموبايل</button><button data-m="light">فاتح</button><button data-m="dark">غامق</button></div>`;
+  $('main').insertBefore(tc, $('main').children[2] || null);
+  const mark = () => tc.querySelectorAll('[data-m]').forEach(b => b.classList.toggle('on', b.dataset.m === THEME.get()));
+  tc.querySelectorAll('[data-m]').forEach(b => b.onclick = () => { THEME.set(b.dataset.m); mark(); }); mark();
 }
 
 
@@ -511,7 +547,7 @@ const ICF = {
 function vForsaList() {
   setTab('forsa'); homeBar('حضّر فرصتك: ترانيم وشواهد وملاحظات'); showSearch(false);
   const t = todayStr(), all = fSort(), up = all.filter(f => f.date >= t).reverse(), past = all.filter(f => f.date < t);
-  const row = f => { const w = whenTxt(f.date); return `<a class="it fl" href="#/f/${f.id}"><div class="t">${esc(fName(f))}${w ? `<span class="badge">${w}</span>` : ''}</div><div class="s">${esc(fDate(f.date))}${f.place ? ' · ' + esc(f.place) : ''} · ${countTxt(f)}</div></a>`; };
+  const row = f => { const w = whenTxt(f.date); return swRow(`<a class="it fl" href="#/f/${f.id}"><div class="t">${esc(fName(f))}${w ? `<span class="badge">${w}</span>` : ''}</div><div class="s">${esc(fDate(f.date))}${f.place ? ' · ' + esc(f.place) : ''} · ${countTxt(f)}</div></a>`, [['dup', 'نسخة', f.id], ['del', 'امسح', f.id]]); };
   $('main').innerHTML = `<button class="newf" id="nf">${ICF.plus.replace('<svg', '<svg style="width:22px;height:22px;stroke:#111;fill:none;stroke-width:2.6;stroke-linecap:round"')} فرصة جديدة</button>`
     + (FR.length ? '' : `<div class="hint">اعمل فرصة، وضيف ليها الترانيم والشواهد اللي هتستخدمها، واكتب ملاحظاتك. الفرص كلها بتفضل متسجلة هنا بتاريخها.</div>`)
     + (up.length ? `<div class="sec">الفرص الجاية</div>${up.map(row).join('')}` : '')
@@ -524,6 +560,48 @@ function vForsaList() {
   if ($('bkR')) $('bkR').onclick = () => $('bkF').click();
   if ($('bkF')) $('bkF').onchange = () => { const f = $('bkF').files[0]; if (f) restoreForsas(f); };
   if (window.cloudBind) cloudBind();
+  swipeBind($('main'), (act, id, row) => {
+    const f = fById(id); if (!f) return;
+    if (act === 'dup') {
+      const c = JSON.parse(JSON.stringify(f)); c.id = Date.now().toString(36); c.date = todayStr(); c.title = fName(f) + ' (نسخة)'; delete c.u;
+      FR.unshift(c); saveFR(); buzz(); toast('اتعملت نسخة: «' + c.title + '»'); vForsaList(); return;
+    }
+    row.classList.add('gone');   // really deleted only after 5 s, so «تراجع» puts it back as it was
+    undoBar('الفرصة اتمسحت', () => { row.classList.remove('gone'); swClose(row); }, () => { FR = FR.filter(x => x.id !== id); saveFR(); if (location.hash === '#/f') vForsaList(); });
+  });
+}
+// ---------- swipe a row to the left to show its buttons ----------
+function swRow(inner, acts) {
+  return `<div class="swr"><div class="swa">${acts.map(([a, t, v]) => `<button data-sw="${a}" data-v="${esc(String(v))}" class="sw-${a}">${t}</button>`).join('')}</div><div class="swc">${inner}</div></div>`;
+}
+function swClose(r) { const c = r && r.querySelector('.swc'); if (c) { c.style.transform = ''; r.classList.remove('open'); } }
+function swipeBind(root, onAct) {
+  root.querySelectorAll('.swr').forEach(r => {
+    const c = r.querySelector('.swc'), W = () => r.querySelector('.swa').offsetWidth;
+    let x0 = 0, y0 = 0, dx = 0, mode = '', base = 0;
+    c.addEventListener('touchstart', e => { const t = e.touches[0]; x0 = t.clientX; y0 = t.clientY; dx = 0; mode = ''; base = r.classList.contains('open') ? -W() : 0; c.style.transition = 'none'; }, { passive: true });
+    c.addEventListener('touchmove', e => {
+      const t = e.touches[0], ddx = t.clientX - x0, ddy = t.clientY - y0;
+      if (!mode) { if (Math.abs(ddx) < 8 && Math.abs(ddy) < 8) return; mode = Math.abs(ddx) > Math.abs(ddy) * 1.3 ? 'x' : 'y'; if (mode === 'x') root.querySelectorAll('.swr.open').forEach(o => { if (o !== r) swClose(o); }); }
+      if (mode !== 'x') return;
+      e.preventDefault(); dx = ddx; c.style.transform = `translateX(${Math.max(-W() - 20, Math.min(0, base + dx))}px)`;
+    }, { passive: false });
+    c.addEventListener('touchend', () => {
+      c.style.transition = '';
+      if (mode !== 'x') return;
+      const open = base + dx < -W() / 2; c.style.transform = open ? `translateX(${-W()}px)` : ''; r.classList.toggle('open', open); if (open) buzz();
+    });
+    c.addEventListener('click', e => { if (r.classList.contains('open') || mode === 'x') { e.preventDefault(); e.stopPropagation(); swClose(r); mode = ''; } }, true);
+    r.querySelectorAll('[data-sw]').forEach(b => b.onclick = () => onAct(b.dataset.sw, b.dataset.v, r));
+  });
+}
+// a bar at the bottom: «… · تراجع» for 5 s; the change happens only when it closes
+function undoBar(msg, undo, commit) {
+  const old = document.getElementById('undo'); if (old && old._commit) { clearTimeout(old._t); old._commit(); old.remove(); }
+  const d = document.createElement('div'); d.id = 'undo'; d.className = 'undo'; d.innerHTML = `<span>${esc(msg)}</span><button>تراجع</button>`;
+  document.body.appendChild(d); d._commit = commit; buzz();
+  d.querySelector('button').onclick = () => { clearTimeout(d._t); d._commit = null; d.remove(); undo(); };
+  d._t = setTimeout(() => { if (d._commit) d._commit(); d.remove(); }, 5000);
 }
 
 // one فرصة
@@ -646,7 +724,7 @@ function parseRefRange(q) {
 function addItem(f, it) {
   if (f.items.some(x => itemKey(x) === itemKey(it))) { toast('موجودة في الفرصة دي بالفعل'); return false; }
   if (it.t === 'v') it.x = verseText(it);
-  f.items.push(it); saveFR(); try { localStorage.setItem('ssw_flast', f.id); } catch (e) {} return true;
+  f.items.push(it); saveFR(); buzz(); try { localStorage.setItem('ssw_flast', f.id); } catch (e) {} return true;
 }
 function closeSheet() { const s = $('sheet'); if (s) s.remove(); }
 function openSheet(html) {
@@ -737,6 +815,7 @@ function route() {
   else if (p[0] === 'about') vAbout();
   else vHymns();
   azSetup();
+  const mn = $('main'); mn.classList.remove('anim'); void mn.offsetWidth; mn.classList.add('anim');
 }
 addEventListener('hashchange', route);
 // search box
@@ -862,3 +941,14 @@ document.addEventListener('focusout', () => setTimeout(() => { if (!document.act
 // a phone keeps the app open in the background for days: look for updates again when it comes back
 document.addEventListener('visibilitychange', () => { if (!document.hidden && Date.now() - lastCheck > 15 * 60 * 1000) { checkUpdates(); sendReg(); } });
 addEventListener('online', sendReg);
+
+// ---------- splash ----------
+// logo + name appear together; after that the splash stays 1.3 s so the name is read, then fades (max 3.5 s in all)
+(function () {
+  const sp = document.getElementById('splash'); if (!sp) return;
+  let done = false; const out = () => { if (done) return; done = true; sp.classList.add('out'); setTimeout(() => sp.remove(), 450); };
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) { setTimeout(out, 900); return; }
+  const q = sp.querySelector('.spi'), t0 = Date.now();
+  (function wait() { if (q && q.classList.contains('go')) setTimeout(out, 1300); else if (Date.now() - t0 < 2000) setTimeout(wait, 50); else out(); })();
+  setTimeout(out, 3500);
+})();
