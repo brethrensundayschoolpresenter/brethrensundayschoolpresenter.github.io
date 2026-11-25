@@ -410,13 +410,18 @@ function azSetup() {
   azPlace();
 }
 addEventListener('resize', () => { if (AZ.on) azSetup(); });
+// keep the sticky letters and the handle in place when the header or the list changes size after the first draw (fonts, notes, cards)
+try { const ro = new ResizeObserver(() => { document.documentElement.style.setProperty('--azt', Math.round(topH()) + 'px'); azPlace(); }); ro.observe(document.querySelector('.top')); ro.observe($('main')); } catch (e) {}
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => azPlace());
 // the handle sits where you are in the list (like a scrollbar thumb) and shows the current letter
 // letter headers are sticky, so measure the first hymn under each letter (it never sticks)
 const azFirst = h => h.nextElementSibling || h;
 function azCur() { const t = topH() + 60; let cur = AZ.heads[0]; for (const h of AZ.heads) { if (azFirst(h).getBoundingClientRect().top <= t) cur = h; else break; } return cur; }
 function azPlace() {
   if (!AZ.on) return;
-  const top = topH() + 6, bot = innerHeight - 82 - 52, max = document.documentElement.scrollHeight - innerHeight;
+  const h0 = AZ.heads[0], bot = innerHeight - 82 - 52, max = document.documentElement.scrollHeight - innerHeight;
+  // at the very top the handle sits next to the first letter header (not over the note above it), then follows the scroll
+  const top = Math.min(bot, Math.max(topH() + 6, h0 ? h0.getBoundingClientRect().top - 8 : 0));
   const f = max > 0 ? Math.min(1, scrollY / max) : 0;
   $('azh').style.top = Math.round(top + f * Math.max(0, bot - top)) + 'px';
   const c = azCur(); if (c) $('azh').textContent = azLbl(c.dataset.l);
