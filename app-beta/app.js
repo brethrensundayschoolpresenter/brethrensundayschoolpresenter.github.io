@@ -16,6 +16,7 @@ const IC = {
   info: '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01"/></svg>',
   chat: '<svg viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z"/><path d="M8.5 11h.01M12 11h.01M15.5 11h.01"/></svg>'
 };
+const buzz = () => { try { if (navigator.vibrate) navigator.vibrate(12); } catch (e) {} };
 function toast(m) { const t = $('toast'); t.textContent = m; t.classList.add('show'); clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove('show'), 2400); }
 let PREF = { fs: 19 };
 try { Object.assign(PREF, JSON.parse(localStorage.getItem('ssw_pref') || '{}')); } catch (e) {}
@@ -204,14 +205,24 @@ function dataArrived(v) {
 
 // ---------- views ----------
 const NAV = { depth: 0, tab: 'hymns', q: { hymns: '', bible: '' }, from: null };
+// beta: last searches (hymns), shown as small chips above the list when the search is empty
+const RECENT = { get() { try { return JSON.parse(localStorage.getItem('ssw_recent') || '[]'); } catch (e) { return []; } } };
+function recentAdd(q) { if (NAV.q.hymns.trim() !== q && latinDigits(NAV.q.hymns.trim()) !== q) return; const r = RECENT.get().filter(x => x !== q); r.unshift(q); try { localStorage.setItem('ssw_recent', JSON.stringify(r.slice(0, 5))); } catch (e) {} }
+function recentHTML() { const r = RECENT.get(); return r.length ? `<div class="recent"><span class="rl">آخر بحث</span>${r.map(x => `<button data-q="${esc(x)}">${esc(x)}</button>`).join('')}<button class="rx" aria-label="امسح آخر بحث">×</button></div>` : ''; }
+function recentBind() {
+  document.querySelectorAll('.recent [data-q]').forEach(b => b.onclick = () => { $('q').value = b.dataset.q; $('q').dispatchEvent(new Event('input')); });
+  const x = document.querySelector('.recent .rx'); if (x) x.onclick = () => { try { localStorage.removeItem('ssw_recent'); } catch (e) {} const r = document.querySelector('.recent'); if (r) r.remove(); azSetup(); };
+}
 function vHymns() {
   setTab('hymns'); homeBar(); showSearch(true, 'اسم الترنيمة أو أي كلمة منها…');
   $('q').value = NAV.q.hymns; sboxState();
   const q = latinDigits(NAV.q.hymns.trim()), m = $('main');
+  if (q.length > 1) { clearTimeout(vHymns.rt); vHymns.rt = setTimeout(() => recentAdd(q), 1500); }
   if (!q) {
-    m.innerHTML = `<div class="hint"><b>رجاء محبة:</b> استخدم البرنامج للمساعدة بس، لأنه مش بديل إنك تاخد وقت قدّام الرب وتطلب إرشاده قبل فرصة الترانيم.</div>`
+    m.innerHTML = recentHTML() + `<div class="hint"><b>رجاء محبة:</b> استخدم البرنامج للمساعدة بس، لأنه مش بديل إنك تاخد وقت قدّام الرب وتطلب إرشاده قبل فرصة الترانيم.</div>`
       + (localStorage.getItem('ssw_hint2') || matchMedia('(display-mode: standalone)').matches || navigator.standalone ? '' : `<div class="hint">عايز تفتحه زي أي برنامج ومن غير نت؟ ضيفه للشاشة الرئيسية (Add to Home Screen) — <a href="../#add" style="color:var(--link);font-weight:800;text-decoration:underline">شوف إزاي بالصور</a>. <button style="color:var(--link);font-weight:800" onclick="localStorage.setItem('ssw_hint2',1);this.parentNode.remove()">تمام</button></div>`)
       + alphaHTML(H.map(h => h.num));
+    recentBind();
     return;
   }
   const seen = new Set(), tit = KE.searchTitles(q, 15), frag = KE.searchFragments(q, 60), res = KE.searchHymnText(q, 60);
@@ -247,7 +258,7 @@ function vHymn(n) {
     + (d ? `<div class="card"><span class="lb"><span>فكرة الترنيمة</span></span><p>${esc(d.i)}</p></div>` : '')
     + (vs.length ? `<div class="card"><span class="lb"><span>آيات في الترنيمة</span></span><div class="vs">${vs.map(([p, ph], i) => `<div class="vrow"><button class="vch" data-k="${i}"><div class="q">«${esc(ph)}»</div><div class="r">${esc(refTxt(p))}</div></button><button class="vplus" data-vk="${i}" aria-label="ضيف الشاهد لفرصة">+</button></div>`).join('')}</div></div>` : '')
     + (sp ? `<div class="card story" id="sty"><span class="lb"><span>قصة مقترحة</span></span><b>${esc(d.s[0])}</b><p style="font-weight:500">${esc(d.s[2])}</p><span class="r">${esc(refTxt(sp))} ‹ افتح القصة</span><br><button class="addf story-add" id="ads">${ICF.plus} ضيف القصة لفرصة</button></div>` : '')
-    + `<div class="tools" id="lyrT"><button id="fsm">خط أصغر</button><button id="fsp">خط أكبر</button></div>${keyLine(n)}<div class="lyr">${lyr}</div><button class="mist" id="mist">${IC.chat}<span>لقيت غلطة في الترنيمة دي؟ ابعتها لنا</span></button>`;
+    + `<div class="tools tsz" id="lyrT"><button id="fsm" aria-label="خط أصغر">أ<sub>−</sub></button><button id="fsp" aria-label="خط أكبر" class="big">أ<sub>+</sub></button></div>${keyLine(n)}<div class="lyr">${lyr}</div><button class="mist" id="mist">${IC.chat}<span>لقيت غلطة في الترنيمة دي؟ ابعتها لنا</span></button>`;
   $('main').querySelectorAll('.vch').forEach(b => b.onclick = () => openPassage(vs[+b.dataset.k][0], n));
   if ($('sty')) $('sty').onclick = e => { if (!e.target.closest('#ads')) openPassage(sp, n); };
   $('adf').onclick = () => addToForsa({ t: 'h', n, note: '' }, 'الترنيمة');
@@ -255,7 +266,7 @@ function vHymn(n) {
   if ($('glr')) $('glr').onclick = () => { const y = $('lyrT').getBoundingClientRect().top + scrollY - 70; scrollTo({ top: y, behavior: 'smooth' }); };
   $('main').querySelectorAll('.vplus').forEach(b => b.onclick = () => { const p = vs[+b.dataset.vk][0]; withBible(() => addToForsa({ t: 'v', b: p.b, c: p.c, v: p.v, v2: p.v2, note: '' }, 'الشاهد')); });
   if ($('ads')) $('ads').onclick = () => withBible(() => addToForsa({ t: 'v', b: sp.b, c: sp.c, v: sp.v, v2: sp.v2, note: '' }, 'القصة'));
-  $('fv').onclick = () => { const i = FAV.indexOf(n); if (i >= 0) FAV.splice(i, 1); else FAV.unshift(n); saveFav(); $('fv').classList.toggle('on', i < 0); toast(i < 0 ? 'اتضافت للمفضلة' : 'اتشالت من المفضلة'); };
+  $('fv').onclick = () => { const i = FAV.indexOf(n); if (i >= 0) FAV.splice(i, 1); else FAV.unshift(n); saveFav(); buzz(); $('fv').classList.toggle('on', i < 0); toast(i < 0 ? 'اتضافت للمفضلة' : 'اتشالت من المفضلة'); };
   $('shr').onclick = () => shareHymn(n);
   $('mist').onclick = () => suggest(n);
   $('fsm').onclick = () => fontStep(-1); $('fsp').onclick = () => fontStep(1);
@@ -381,7 +392,7 @@ function vChapter(b, c, v1, v2) {
   needBible(() => {
     const ch = B[b] && B[b].chapters[c]; if (!ch) { location.hash = '#/bible'; return; }
     const hit = i => v1 != null && i >= v1 && i <= v2;
-    $('main').innerHTML = `<div class="ht"><span class="hl">${esc(bookName(b))} ${arD(c + 1)}</span></div><div class="tools"><button id="fsm">خط أصغر</button><button id="fsp">خط أكبر</button></div>`
+    $('main').innerHTML = `<div class="ht"><span class="hl">${esc(bookName(b))} ${arD(c + 1)}</span></div><div class="tools tsz"><button id="fsm" aria-label="خط أصغر">أ<sub>−</sub></button><button id="fsp" aria-label="خط أكبر" class="big">أ<sub>+</sub></button></div>`
       + ch.map((t, i) => `<div class="vl${hit(i) ? ' hit' : ''}" id="v${i}"><b>${arD(i + 1)}</b>${esc(t)}</div>`).join('')
       + `<div class="cnav">${c > 0 ? `<button id="pc">‹ الأصحاح ${arD(c)}</button>` : '<span></span>'}${c < B[b].chapters.length - 1 ? `<button id="nc">الأصحاح ${arD(c + 2)} ›</button>` : ''}</div>`;
     $('fsm').onclick = () => fontStep(-1); $('fsp').onclick = () => fontStep(1);
@@ -395,8 +406,12 @@ function vChapter(b, c, v1, v2) {
 }
 function vFav() {
   setTab('fav'); homeBar('الترانيم اللي علّمت عليها'); showSearch(false);
-  $('main').innerHTML = FAV.length ? `<div class="hint">علّم على ترانيم الدرس اللي جاي بالقلب ♡ من صفحة الترنيمة، وتلاقيها هنا على طول.</div>` + FAV.map(n => H[n - 1] ? hymnItem(n) : '').join('')
+  const ord = !!vFav.ord;
+  $('main').innerHTML = FAV.length ? `<div class="hint">علّم على ترانيم الدرس اللي جاي بالقلب ♡ من صفحة الترنيمة، وتلاقيها هنا على طول. اسحب أي ترنيمة لليسار عشان تشيلها.</div><div class="tools"><button id="ford" class="${ord ? 'on' : ''}">${ord ? 'خلصت الترتيب' : 'رتّبهم'}</button></div>` + FAV.map((n, i) => H[n - 1] ? (ord ? `<div class="ordr"><div class="ob"><button data-mv="${i}" data-d="-1" ${i ? '' : 'disabled'} aria-label="لفوق">${ICF.up}</button><button data-mv="${i}" data-d="1" ${i < FAV.length - 1 ? '' : 'disabled'} aria-label="لتحت">${ICF.down}</button></div>${hymnItem(n)}</div>` : swRow(hymnItem(n), [['rm', 'شيل', n]])) : '').join('')
     : '<div class="empty">لسه ماعلّمتش على ترانيم<br>افتح أي ترنيمة ودوس على القلب ♡</div>';
+  if ($('ford')) $('ford').onclick = () => { vFav.ord = !vFav.ord; const y = scrollY; vFav(); scrollTo(0, y); };
+  $('main').querySelectorAll('[data-mv]').forEach(b => b.onclick = () => { const i = +b.dataset.mv, j = i + +b.dataset.d; if (j < 0 || j >= FAV.length) return; [FAV[i], FAV[j]] = [FAV[j], FAV[i]]; saveFav(); const y = scrollY; vFav(); scrollTo(0, y); });
+  swipeBind($('main'), (act, n, row) => { n = +n; row.classList.add('gone'); undoBar('اتشالت من المفضلة', () => { row.classList.remove('gone'); swClose(row); }, () => { FAV = FAV.filter(x => x !== n); saveFav(); if (location.hash === '#/fav') { const y = scrollY; vFav(); scrollTo(0, y); } }); });
 }
 function vAbout() {
   setTab(''); backBar('رجوع'); showSearch(false);
@@ -532,7 +547,7 @@ const ICF = {
 function vForsaList() {
   setTab('forsa'); homeBar('حضّر فرصتك: ترانيم وشواهد وملاحظات'); showSearch(false);
   const t = todayStr(), all = fSort(), up = all.filter(f => f.date >= t).reverse(), past = all.filter(f => f.date < t);
-  const row = f => { const w = whenTxt(f.date); return `<a class="it fl" href="#/f/${f.id}"><div class="t">${esc(fName(f))}${w ? `<span class="badge">${w}</span>` : ''}</div><div class="s">${esc(fDate(f.date))}${f.place ? ' · ' + esc(f.place) : ''} · ${countTxt(f)}</div></a>`; };
+  const row = f => { const w = whenTxt(f.date); return swRow(`<a class="it fl" href="#/f/${f.id}"><div class="t">${esc(fName(f))}${w ? `<span class="badge">${w}</span>` : ''}</div><div class="s">${esc(fDate(f.date))}${f.place ? ' · ' + esc(f.place) : ''} · ${countTxt(f)}</div></a>`, [['dup', 'نسخة', f.id], ['del', 'امسح', f.id]]); };
   $('main').innerHTML = `<button class="newf" id="nf">${ICF.plus.replace('<svg', '<svg style="width:22px;height:22px;stroke:#111;fill:none;stroke-width:2.6;stroke-linecap:round"')} فرصة جديدة</button>`
     + (FR.length ? '' : `<div class="hint">اعمل فرصة، وضيف ليها الترانيم والشواهد اللي هتستخدمها، واكتب ملاحظاتك. الفرص كلها بتفضل متسجلة هنا بتاريخها.</div>`)
     + (up.length ? `<div class="sec">الفرص الجاية</div>${up.map(row).join('')}` : '')
@@ -545,6 +560,48 @@ function vForsaList() {
   if ($('bkR')) $('bkR').onclick = () => $('bkF').click();
   if ($('bkF')) $('bkF').onchange = () => { const f = $('bkF').files[0]; if (f) restoreForsas(f); };
   if (window.cloudBind) cloudBind();
+  swipeBind($('main'), (act, id, row) => {
+    const f = fById(id); if (!f) return;
+    if (act === 'dup') {
+      const c = JSON.parse(JSON.stringify(f)); c.id = Date.now().toString(36); c.date = todayStr(); c.title = fName(f) + ' (نسخة)'; delete c.u;
+      FR.unshift(c); saveFR(); buzz(); toast('اتعملت نسخة: «' + c.title + '»'); vForsaList(); return;
+    }
+    row.classList.add('gone');   // really deleted only after 5 s, so «تراجع» puts it back as it was
+    undoBar('الفرصة اتمسحت', () => { row.classList.remove('gone'); swClose(row); }, () => { FR = FR.filter(x => x.id !== id); saveFR(); if (location.hash === '#/f') vForsaList(); });
+  });
+}
+// ---------- beta: swipe a row to the left to show its buttons ----------
+function swRow(inner, acts) {
+  return `<div class="swr"><div class="swa">${acts.map(([a, t, v]) => `<button data-sw="${a}" data-v="${esc(String(v))}" class="sw-${a}">${t}</button>`).join('')}</div><div class="swc">${inner}</div></div>`;
+}
+function swClose(r) { const c = r && r.querySelector('.swc'); if (c) { c.style.transform = ''; r.classList.remove('open'); } }
+function swipeBind(root, onAct) {
+  root.querySelectorAll('.swr').forEach(r => {
+    const c = r.querySelector('.swc'), W = () => r.querySelector('.swa').offsetWidth;
+    let x0 = 0, y0 = 0, dx = 0, mode = '', base = 0;
+    c.addEventListener('touchstart', e => { const t = e.touches[0]; x0 = t.clientX; y0 = t.clientY; dx = 0; mode = ''; base = r.classList.contains('open') ? -W() : 0; c.style.transition = 'none'; }, { passive: true });
+    c.addEventListener('touchmove', e => {
+      const t = e.touches[0], ddx = t.clientX - x0, ddy = t.clientY - y0;
+      if (!mode) { if (Math.abs(ddx) < 8 && Math.abs(ddy) < 8) return; mode = Math.abs(ddx) > Math.abs(ddy) * 1.3 ? 'x' : 'y'; if (mode === 'x') root.querySelectorAll('.swr.open').forEach(o => { if (o !== r) swClose(o); }); }
+      if (mode !== 'x') return;
+      e.preventDefault(); dx = ddx; c.style.transform = `translateX(${Math.max(-W() - 20, Math.min(0, base + dx))}px)`;
+    }, { passive: false });
+    c.addEventListener('touchend', () => {
+      c.style.transition = '';
+      if (mode !== 'x') return;
+      const open = base + dx < -W() / 2; c.style.transform = open ? `translateX(${-W()}px)` : ''; r.classList.toggle('open', open); if (open) buzz();
+    });
+    c.addEventListener('click', e => { if (r.classList.contains('open') || mode === 'x') { e.preventDefault(); e.stopPropagation(); swClose(r); mode = ''; } }, true);
+    r.querySelectorAll('[data-sw]').forEach(b => b.onclick = () => onAct(b.dataset.sw, b.dataset.v, r));
+  });
+}
+// a bar at the bottom: «… · تراجع» for 5 s; the change happens only when it closes
+function undoBar(msg, undo, commit) {
+  const old = document.getElementById('undo'); if (old && old._commit) { clearTimeout(old._t); old._commit(); old.remove(); }
+  const d = document.createElement('div'); d.id = 'undo'; d.className = 'undo'; d.innerHTML = `<span>${esc(msg)}</span><button>تراجع</button>`;
+  document.body.appendChild(d); d._commit = commit; buzz();
+  d.querySelector('button').onclick = () => { clearTimeout(d._t); d._commit = null; d.remove(); undo(); };
+  d._t = setTimeout(() => { if (d._commit) d._commit(); d.remove(); }, 5000);
 }
 
 // one فرصة
@@ -667,7 +724,7 @@ function parseRefRange(q) {
 function addItem(f, it) {
   if (f.items.some(x => itemKey(x) === itemKey(it))) { toast('موجودة في الفرصة دي بالفعل'); return false; }
   if (it.t === 'v') it.x = verseText(it);
-  f.items.push(it); saveFR(); try { localStorage.setItem('ssw_flast', f.id); } catch (e) {} return true;
+  f.items.push(it); saveFR(); buzz(); try { localStorage.setItem('ssw_flast', f.id); } catch (e) {} return true;
 }
 function closeSheet() { const s = $('sheet'); if (s) s.remove(); }
 function openSheet(html) {

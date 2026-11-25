@@ -39,6 +39,36 @@
 .fadein{animation:bIn .2s ease-out}
 .upd,.welcome>div,.cl-news{animation:bPop .22s ease-out}
 @media (prefers-reduced-motion:reduce){#splash .spi{opacity:1}#main.anim,.fadein,.upd,.welcome>div,.cl-news,#splash{animation:none!important;transition:none!important}}
+/* beta: compact font buttons */
+.tools.tsz{justify-content:flex-start;gap:6px}
+.tools.tsz button{width:42px;height:34px;padding:0;font-size:17px;line-height:1;display:flex;align-items:center;justify-content:center;gap:1px}
+.tools.tsz button.big{font-size:22px}
+.tools.tsz sub{font-size:12px;vertical-align:0;font-weight:800}
+.tools button.on{background:var(--hi);color:var(--onhi)}
+/* beta: last searches */
+.recent{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:8px 0 10px}
+.recent .rl{font-size:12.5px;color:var(--mut);font-weight:700}
+.recent button{border:1.5px solid var(--line);border-radius:999px;padding:2px 12px;font-size:14px;font-weight:700;background:var(--panel)}
+.recent .rx{border:0;color:var(--mut);font-size:18px;padding:0 6px;background:none}
+/* beta: swipe rows */
+.swr{position:relative;margin-bottom:7px;border-radius:14px;overflow:hidden}
+.swr .it{margin-bottom:0}
+.swc{position:relative;z-index:1;transition:transform .22s ease;background:var(--bg);touch-action:pan-y}
+.swa{position:absolute;top:0;bottom:0;right:0;display:flex;z-index:0}
+.swa button{width:78px;font-weight:800;font-size:15px;color:#fff}
+.swa .sw-del,.swa .sw-rm{background:#d64545}
+.swa .sw-dup{background:#3f7fd6}
+.swr.gone{display:none}
+/* beta: reorder favourites */
+.ordr{display:flex;align-items:stretch;gap:6px;margin-bottom:7px}
+.ordr .it{flex:1;margin:0}
+.ordr .ob{display:flex;flex-direction:column;gap:4px}
+.ordr .ob button{flex:1;width:40px;border:2px solid var(--ink);border-radius:10px;display:flex;align-items:center;justify-content:center;background:var(--panel)}
+.ordr .ob button:disabled{opacity:.3}
+.ordr .ob svg{width:18px;height:18px;stroke:var(--ink);fill:none;stroke-width:2.4}
+/* beta: undo bar */
+.undo{position:fixed;left:12px;right:12px;bottom:calc(86px + var(--safe-b));z-index:60;display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--ink);color:var(--panel);border-radius:14px;padding:10px 14px;font-weight:800;animation:bIn .2s ease-out}
+.undo button{color:var(--hi);font-weight:800;font-size:16px;padding:2px 6px}
 /* beta: splash */
 #splash{position:fixed;inset:0;z-index:100;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;transition:opacity .35s ease}
 #splash .spi{display:flex;flex-direction:column;align-items:center;gap:10px;opacity:0}
