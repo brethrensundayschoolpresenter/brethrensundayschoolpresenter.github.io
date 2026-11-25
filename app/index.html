@@ -79,6 +79,7 @@
 
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
 body{padding-top:var(--azt,112px)}
+html:has(.upd-pop),html:has(.upd-pop) body{overflow:hidden}
 html,body{margin:0;background:var(--bg);color:var(--txt);font-family:K,sans-serif;font-size:16px}
 button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
 a{color:inherit;text-decoration:none}
@@ -224,9 +225,9 @@ body.typing #fbar{display:none}
 .cl-news .cl-gbtn{width:100%;margin-top:14px;background:var(--hi);color:var(--ink);border:2.5px solid var(--ink);border-radius:14px;padding:11px;font:inherit;font-weight:800;font-size:19px;box-shadow:0 4px 0 var(--ink)}
 .cl-news .cl-later{width:100%;margin-top:8px;background:transparent;color:var(--panel);border:0;font:inherit;font-weight:700;font-size:15px;text-decoration:underline;padding:6px}
 .cl-news .cl-opt{font-size:12.5px;opacity:.85;margin-top:2px;line-height:1.6}
-.upd-pop{position:fixed;inset:0;z-index:48;background:#0007;display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn .2s}
+.upd-pop{overscroll-behavior:contain;position:fixed;inset:0;z-index:48;background:#0007;display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn .2s}
 @keyframes fadeIn{from{opacity:0}}
-.upd-card{width:min(400px,100%);background:var(--panel);border:3px solid var(--ink);border-radius:20px;padding:18px 18px 14px;box-shadow:0 8px 0 var(--ink);text-align:right;animation:popIn .3s cubic-bezier(.2,.8,.2,1.2)}
+.upd-card{width:min(400px,100%);max-height:calc(100vh - 40px);max-height:calc(100dvh - 40px - env(safe-area-inset-top,0px) - env(safe-area-inset-bottom,0px));overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;background:var(--panel);border:3px solid var(--ink);border-radius:20px;padding:18px 18px 14px;box-shadow:0 8px 0 var(--ink);text-align:right;animation:popIn .3s cubic-bezier(.2,.8,.2,1.2)}
 @keyframes popIn{from{transform:scale(.85);opacity:0}}
 .upd-ic{width:54px;height:54px;border-radius:16px;background:var(--hi);border:2.5px solid var(--ink);display:flex;align-items:center;justify-content:center;font-size:28px;margin:0 auto 6px}
 .upd-card h3{margin:0 0 10px;text-align:center;font-size:22px}
