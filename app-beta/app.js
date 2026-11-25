@@ -886,12 +886,12 @@ document.addEventListener('visibilitychange', () => { if (!document.hidden && Da
 addEventListener('online', sendReg);
 
 // ---------- beta: splash ----------
+// logo + name appear together; after that the splash stays 1.3 s so the name is read, then fades (max 3.5 s in all)
 (function () {
   const sp = document.getElementById('splash'); if (!sp) return;
-  let done = false; const out = () => { if (done) return; done = true; sp.classList.add('out'); setTimeout(() => sp.remove(), 400); };
-  if (matchMedia('(prefers-reduced-motion: reduce)').matches) return out();
-  // the name under the logo uses the app font: wait until it is ready, then keep the splash ~0.7 s so the name is always seen
-  const t0 = Date.now(), ready = (document.fonts && document.fonts.load) ? document.fonts.load('800 24px K') : Promise.resolve();
-  ready.catch(() => {}).then(() => setTimeout(out, Math.max(700, 900 - (Date.now() - t0))));
-  setTimeout(out, 3000);   // never longer than 3 s
+  let done = false; const out = () => { if (done) return; done = true; sp.classList.add('out'); setTimeout(() => sp.remove(), 450); };
+  if (matchMedia('(prefers-reduced-motion: reduce)').matches) { setTimeout(out, 900); return; }
+  const q = sp.querySelector('.spi'), t0 = Date.now();
+  (function wait() { if (q && q.classList.contains('go')) setTimeout(out, 1300); else if (Date.now() - t0 < 2000) setTimeout(wait, 50); else out(); })();
+  setTimeout(out, 3500);
 })();
