@@ -17,6 +17,7 @@
 <link rel="preload" href="../fonts/BalooBhaijaan2-VF.ttf" as="font" type="font/ttf" crossorigin>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icon-192.png">
+<link rel="preload" href="icon-192.png" as="image">
 <link rel="apple-touch-icon" href="apple-touch-icon.png">
 <script>(function(){try{var t=localStorage.getItem('ssw_theme')||'auto';var d=t==='dark'||(t==='auto'&&matchMedia('(prefers-color-scheme: dark)').matches);if(d)document.documentElement.setAttribute('data-theme','dark');}catch(e){}})();</script>
 <style>
@@ -37,10 +38,12 @@
 #main.anim{animation:bIn .22s ease-out}
 .fadein{animation:bIn .2s ease-out}
 .upd,.welcome>div,.cl-news{animation:bPop .22s ease-out}
-@media (prefers-reduced-motion:reduce){#main.anim,.fadein,.upd,.welcome>div,.cl-news,#splash{animation:none!important;transition:none!important}}
+@media (prefers-reduced-motion:reduce){#splash .spi{opacity:1}#main.anim,.fadein,.upd,.welcome>div,.cl-news,#splash{animation:none!important;transition:none!important}}
 /* beta: splash */
 #splash{position:fixed;inset:0;z-index:100;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;transition:opacity .35s ease}
-#splash img{width:96px;height:96px;border-radius:24px;animation:bPop .35s ease-out}
+#splash .spi{display:flex;flex-direction:column;align-items:center;gap:10px;opacity:0}
+#splash .spi.go{animation:bPop .35s ease-out forwards}
+#splash img{width:96px;height:96px;border-radius:24px}
 #splash b{font-size:24px;font-weight:800;color:var(--txt);font-family:-apple-system,system-ui,'Segoe UI',Tahoma,sans-serif}
 #splash small{font-size:13px;color:var(--mut);direction:ltr;font-family:-apple-system,system-ui,'Segoe UI',sans-serif}
 #splash.out{opacity:0;pointer-events:none}
@@ -137,7 +140,7 @@ body.typing .tabs{display:none}
 #kbar{margin-top:8px}#kbar button{width:100%;border:2.5px solid var(--ink);border-radius:14px;padding:8px 6px;background:var(--panel);color:var(--ink);font-family:inherit;font-size:15px;font-weight:800;box-shadow:0 3px 0 var(--ink)}
 #kbar button.on{background:var(--hi)}
 .keyl{display:inline-block;margin:4px 0 10px;font-weight:800;font-size:16px;background:var(--hi);border:2px solid var(--ink);border-radius:10px;padding:3px 12px;direction:ltr}
-.keyl span{font-weight:700;color:var(--txt2);margin-left:8px}
+.keyl span{font-weight:700;color:#444;margin-left:8px}
 .ik{float:left;direction:ltr;font-weight:800;font-size:12.5px;background:var(--hiSoft);border:1.5px solid var(--line);border-radius:7px;padding:0 6px;margin-top:2px}
 #fbar{display:flex;gap:8px;margin-top:8px}
 #fbar button{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;border:2.5px solid var(--ink);border-radius:14px;padding:7px 6px;background:var(--hi);color:var(--ink);font-family:inherit;box-shadow:0 3px 0 var(--ink);line-height:1.3}
@@ -291,7 +294,8 @@ body.typing #fbar{display:none}
 </style>
 </head>
 <body>
-<div id="splash"><img src="icon-192.png" alt=""><b>ترانيم مدارس الأحد</b><small>Brethren Sunday School Presenter</small></div>
+<div id="splash"><div class="spi"><img src="icon-192.png" alt="" onload="this.parentNode.classList.add('go')"><b>ترانيم مدارس الأحد</b><small>Brethren Sunday School Presenter</small></div></div>
+<script>(function(){var i=document.querySelector('#splash img');if(i&&i.complete)i.parentNode.classList.add('go');setTimeout(function(){var q=document.querySelector('#splash .spi');if(q)q.classList.add('go')},800)})();</script>
 <div class="load" id="load"><img src="icon-192.png" alt=""><span>بيحمّل الترانيم…</span></div>
 <header class="top"><div class="in">
  <div class="bar" id="bar"></div>
