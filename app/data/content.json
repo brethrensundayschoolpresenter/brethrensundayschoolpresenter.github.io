@@ -1,8 +1,8 @@
 {
- "dataVersion": 22,
+ "dataVersion": 23,
  "minApp": "1.0.7",
  "files": {
-  "hymns.js": "65ffba32a44336f7e83e8c8982d3f4ba31fa0ac4e813248d2bc16d812d7e7fe7",
+  "hymns.js": "b4b0adff64ff934657aa9f32304a7f2eb22f3d178f83d68c5d3eb661906f8506",
   "topics.js": "8edada15599731c58cf4cf3a4025e6a6ae72693ef50d4967e59c48d293431ad9",
   "stories.js": "95fdb00199a0eb002d01d879854bfeb5d662d9bf69da55c1228044763c99e0c2"
  },
@@ -47,6 +47,7 @@
    "«ونحن لا نعلم»: القصة المقترحة بقت «عبور البحر الأحمر» (خر ١٤: ١٣)."
   ],
   "21": [],
-  "22": []
+  "22": [],
+  "23": []
  }
 }
