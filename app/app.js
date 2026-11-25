@@ -967,6 +967,8 @@ addEventListener('online', sendReg);
     T.style.transform = dy > 1 ? 'translateY(' + dy + 'px)' : '';
     B.style.transform = Math.abs(db) > 1 ? 'translateY(' + db + 'px)' : '';
   };
-  const q = () => { if (!raf) raf = requestAnimationFrame(fix); };
+  // wait until the scroll (and the end-of-page bounce) has fully stopped, so the bars never follow the bounce
+  let idle = 0;
+  const q = () => { clearTimeout(idle); idle = setTimeout(() => { if (!raf) raf = requestAnimationFrame(fix); }, 250); };
   v.addEventListener('resize', q); v.addEventListener('scroll', q); addEventListener('scroll', q, { passive: true });
 })();
