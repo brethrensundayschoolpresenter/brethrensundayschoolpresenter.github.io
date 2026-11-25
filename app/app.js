@@ -952,3 +952,21 @@ addEventListener('online', sendReg);
   (function wait() { if (q && q.classList.contains('go')) setTimeout(out, 1300); else if (Date.now() - t0 < 2000) setTimeout(wait, 50); else out(); })();
   setTimeout(out, 3500);
 })();
+
+// iPhone fix (2026-11-26): Safari sometimes leaves the visual viewport offset after a scroll, so the fixed header
+// disappears and the bottom tab bar sits in the middle of the screen. Keep both glued to what is actually on screen.
+(function () {
+  const v = window.visualViewport, T = document.querySelector('.top'), B = document.getElementById('tabs');
+  if (!v || !T || !B) return;
+  let raf = 0;
+  const typing = () => { const a = document.activeElement; return !!a && /^(INPUT|TEXTAREA)$/.test(a.tagName); };
+  const fix = () => {
+    raf = 0;
+    if (typing()) { T.style.transform = ''; B.style.transform = ''; return; }   // keyboard open: leave everything as before
+    const dy = Math.round(v.offsetTop), db = Math.round(v.offsetTop + v.height - innerHeight);
+    T.style.transform = dy > 1 ? 'translateY(' + dy + 'px)' : '';
+    B.style.transform = Math.abs(db) > 1 ? 'translateY(' + db + 'px)' : '';
+  };
+  const q = () => { if (!raf) raf = requestAnimationFrame(fix); };
+  v.addEventListener('resize', q); v.addEventListener('scroll', q); addEventListener('scroll', q, { passive: true });
+})();
