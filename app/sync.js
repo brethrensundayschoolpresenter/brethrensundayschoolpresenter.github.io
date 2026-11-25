@@ -153,9 +153,10 @@
       if (!fb) { setState('login'); await loadSdk(); }   // normally already loaded when the card shows, so the popup opens straight from the tap (iPhone blocks late popups)
       const p = new fb.GoogleAuthProvider(); p.setCustomParameters({ prompt: 'select_account' });
       const redirect = async () => { track(); L.set('ssw_login_redir', Date.now()); setState('login'); await fb.signInWithRedirect(auth, p); };
-      // app opened from the home screen (no real popups there): go to Google's page and come back
-      if (matchMedia('(display-mode: standalone)').matches || navigator.standalone) { await redirect(); return; }
+      // popup everywhere (also the iPhone home-screen app): the sign-in pages are on our own site now, so the result reaches this screen
+      // directly; going to Google's page instead (redirect) left the home-screen app on a blank page until it was reopened
       const pop = fb.signInWithPopup(auth, p); setState('login');
+      const t0 = Date.now(), poll = setInterval(() => { if (auth.currentUser || Date.now() - t0 > 180000) { clearInterval(poll); if (auth.currentUser && !user && !started) start(); } }, 2000);
       try { await pop; if (!started) start(); }
       catch (e) {
         const c = e && e.code || '';
@@ -180,7 +181,7 @@
     const s = st.state;
     if (s === 'out' || s === 'login') return `<div class="cloud" id="cloudBox"><div class="cl-t">☁️ احفظ فرصك على حسابك</div>
       <div class="cl-s">سجّل دخول بحساب جوجل، وفرصك والمفضلة تتحفظ وتلاقيها على أي موبايل تاني. كل واحد بيشوف فرصه هو بس.</div>
-      <button class="cl-go" id="clIn"${s === 'login' ? ' disabled' : ''}>${s === 'login' ? 'استنى…' : 'سجّل دخول بجوجل'}</button></div>`;
+      <button class="cl-go" id="clIn"${s === 'login' ? ' disabled' : ''}>${s === 'login' ? 'استنى…' : 'سجّل دخول بجوجل'}</button>${s === 'login' ? '<button class="cl-back" onclick="location.reload()">سجّلت ورجعت ولسه مش ظاهر؟ دوس هنا</button>' : ''}</div>`;
     const line = s === 'sync' || s === 'wait' ? 'بيتزامن…' : s === 'offline' ? 'من غير نت دلوقتي — هيتزامن أول ما النت يرجع' : s === 'err' ? 'حصلت مشكلة في المزامنة — هيحاول تاني' : 'متزامن ' + ago(st.at);
     return `<div class="cloud on" id="cloudBox"><div class="cl-t">☁️ فرصك محفوظة على حسابك</div>
       <div class="cl-s">${st.name ? esc(st.name) + ' · ' : ''}${line}</div>
