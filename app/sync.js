@@ -188,6 +188,8 @@
   window.cloudCardHTML = cardHTML;
   window.cloudSignedIn = () => ON() && !!L.get('ssw_cloud', null);
   window.cloudBind = bind;
+  window.cloudLogin = login;
+  window.cloudPreload = () => { if (!fb && navigator.onLine) loadSdk().catch(() => {}); };
 
   // ---- start ----
   // sync.js loads before app.js (so the first «فرصي» page already has the card); start once app.js has run

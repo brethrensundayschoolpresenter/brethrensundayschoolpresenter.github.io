@@ -155,6 +155,17 @@ body.typing #fbar{display:none}
 @media (max-width:370px){.sug span{display:none}.sug{width:40px;padding:0;justify-content:center}}
 .mist{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin:16px 0 4px;border:2px dashed var(--line);border-radius:14px;padding:11px;background:var(--panel);font-weight:800;font-size:15px;color:#333}
 .mist svg{width:20px;height:20px;stroke:#111;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.cl-news{position:relative;width:min(400px,100%);background:linear-gradient(160deg,#2f7cf6 0%,#1b4fb3 100%);color:#fff;border:3px solid #111;border-radius:24px;padding:26px 20px 16px;box-shadow:0 8px 0 #111;text-align:center;animation:popIn .35s cubic-bezier(.2,.8,.2,1.2)}
+.cl-news .cl-new{position:absolute;top:-14px;right:50%;transform:translateX(50%) rotate(-3deg);background:#ffff00;color:#111;border:2.5px solid #111;border-radius:12px;padding:2px 16px;font-weight:800;font-size:16px}
+.cl-news .cl-cloud{font-size:62px;line-height:1;margin:4px 0 6px;animation:clFloat 2.4s ease-in-out infinite}
+@keyframes clFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+.cl-news h3{margin:0 0 6px;font-size:24px;font-weight:800;line-height:1.35}
+.cl-news p{margin:0 0 12px;font-size:15.5px;line-height:1.7;opacity:.95}
+.cl-news .cl-li{display:flex;align-items:center;gap:10px;background:#ffffff26;border-radius:12px;padding:7px 12px;margin:6px 0;font-weight:700;font-size:15.5px;text-align:right}
+.cl-news .cl-li span{font-size:20px}
+.cl-news .cl-gbtn{width:100%;margin-top:14px;background:#ffff00;color:#111;border:2.5px solid #111;border-radius:14px;padding:11px;font:inherit;font-weight:800;font-size:19px;box-shadow:0 4px 0 #111}
+.cl-news .cl-later{width:100%;margin-top:8px;background:transparent;color:#fff;border:0;font:inherit;font-weight:700;font-size:15px;text-decoration:underline;padding:6px}
+.cl-news .cl-opt{font-size:12.5px;opacity:.85;margin-top:2px;line-height:1.6}
 .upd-pop{position:fixed;inset:0;z-index:48;background:#0007;display:flex;align-items:center;justify-content:center;padding:20px;animation:fadeIn .2s}
 @keyframes fadeIn{from{opacity:0}}
 .upd-card{width:min(400px,100%);background:#fff;border:3px solid #111;border-radius:20px;padding:18px 18px 14px;box-shadow:0 8px 0 #111;text-align:right;animation:popIn .3s cubic-bezier(.2,.8,.2,1.2)}

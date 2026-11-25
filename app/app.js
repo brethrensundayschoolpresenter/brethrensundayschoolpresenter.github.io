@@ -148,8 +148,33 @@ function markNewsSeen() {
 }
 function closeNews() { markNewsSeen(); const p = $('updPop'); if (p) p.remove(); }
 let reloading = false;
+// big one-time card for the cloud login (APPV 7) — shown on its own, then the normal news (if any) right after
+function cloudNewsHTML() {
+  return `<div class="cl-news"><div class="cl-new">جديد</div><div class="cl-cloud">☁️</div>
+    <h3>فرصك بقت محفوظة على حسابك</h3><p>سجّل دخول بحساب جوجل مرة واحدة، وفرصك والمفضلة تتحفظ لوحدها.</p>
+    <div class="cl-li"><span>📱</span>تلاقيها على أي موبايل تفتح منه</div>
+    <div class="cl-li"><span>🔄</span>أي تعديل بيتنقل لوحده</div>
+    <div class="cl-li"><span>🔒</span>كل واحد بيشوف فرصه هو بس</div>
+    <button class="cl-gbtn" id="clNewsIn">سجّل دخول بجوجل</button>
+    <button class="cl-later" id="clNewsLater">مش دلوقتي</button>
+    <div class="cl-opt">اختياري — والبرنامج شغال عادي من غيره. وتقدر تسجّل بعدين من «فرصي».</div></div>`;
+}
+function closeCloudNews(go) {
+  try { localStorage.setItem('ssw_appv', APPV); } catch (e) {}
+  const p = $('updPop'); if (p) p.remove();
+  if (go) { location.hash = '#/f'; if (window.cloudLogin) cloudLogin(); }
+  else setTimeout(showNews, 400);
+}
 function showNews() {
   if (reloading || $('updPop') || $('welcome') && $('welcome').style.display !== 'none') return;
+  if (APPV === 7 && appNewsDue() && window.cloudSignedIn && !cloudSignedIn() && window.cloudLogin) {
+    const d = document.createElement('div'); d.className = 'upd-pop'; d.id = 'updPop'; d.innerHTML = cloudNewsHTML();
+    document.body.appendChild(d); if (window.cloudPreload) cloudPreload();
+    $('clNewsIn').onclick = () => closeCloudNews(true); $('clNewsLater').onclick = () => closeCloudNews(false);
+    d.addEventListener('click', e => { if (e.target === d) closeCloudNews(false); });
+    return;
+  }
+  if (APPV === 7 && appNewsDue() && window.cloudSignedIn && cloudSignedIn()) { try { localStorage.setItem('ssw_appv', APPV); } catch (e) {} }   // already signed in: nothing to announce
   const h = newHymnsHTML(); if (!h) return;
   const d = document.createElement('div'); d.className = 'upd-pop'; d.id = 'updPop'; d.innerHTML = h;
   d.addEventListener('click', e => { if (e.target === d) closeNews(); });
