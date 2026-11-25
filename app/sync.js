@@ -174,7 +174,12 @@
   }
 
   // ---- the card on «فرصي» ----
-  function setState(s) { st.state = s; const el = document.getElementById('cloudBox'); if (el) el.outerHTML = cardHTML(); bind(); }
+  function setState(s) {
+    const was = st.state; st.state = s;
+    // signed in ⇄ out on the «فرصي» list: redraw the page (the file-backup box shows only when signed out)
+    if (((was === 'out' || was === 'login') !== (s === 'out' || s === 'login')) && (location.hash || '#/') === '#/f') { try { route(); } catch (e) {} return; }
+    const el = document.getElementById('cloudBox'); if (el) el.outerHTML = cardHTML(); bind();
+  }
   function ago(t) { if (!t) return ''; const m = Math.round((Date.now() - t) / 6e4); return m < 1 ? 'دلوقتي' : m < 60 ? 'من ' + arD(m) + ' دقيقة' : m < 1440 ? 'من ' + arD(Math.round(m / 60)) + ' ساعة' : 'من ' + arD(Math.round(m / 1440)) + ' يوم'; }
   function cardHTML() {
     if (!ON()) return '';
