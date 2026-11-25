@@ -213,6 +213,7 @@ function vHymns() {
   res.forEach(r => { if (seen.has(r.num) || seen.size >= 60) return; seen.add(r.num); out += hymnItem(r.num, snip(r.num, r.i)); });
   m.innerHTML = out || '<div class="empty">مالقيتش ترنيمة فيها الكلام ده<br>جرّب كلمة تانية</div>';
 }
+const LYR_REPEAT = ['ده قرارك', 'ربي خلقني خليقة جديدة'];   // Shady: words page shows the chorus after every verse in these
 function vHymn(n) {
   if (n > seenCount() && n === H.length) { try { localStorage.setItem('ssw_seen', H.length); } catch (e) {} }
   const h = H[n - 1]; if (!h) { location.hash = '#/'; return; }
@@ -224,7 +225,7 @@ function vHymn(n) {
   const sp = d ? deepRef(d.s[1]) : null;
   // the words: every verse/chorus once, in order
   const seen = new Set(); let k = 0, lyr = '', prevLab = null;
-  const asis = h.slides.every(s => !s.label);   // no ق/1 labels = keep every slide exactly like the ppt (repeats too)
+  const asis = h.slides.every(s => !s.label) || LYR_REPEAT.includes(h.title);   // no ق/1 labels, or Shady asked: every slide like the ppt (the chorus after each verse)
   h.slides.forEach(s => {
     const key = s.lines.join('\n'); if (!asis && seen.has(key)) return; seen.add(key);
     const cont = s.part || (s.label && s.label === prevLab); prevLab = s.label;   // 2nd slide of the same verse/chorus: no new tag
