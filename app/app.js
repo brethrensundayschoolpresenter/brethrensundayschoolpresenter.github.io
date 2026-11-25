@@ -402,7 +402,7 @@ function topH() { return document.querySelector('.top').getBoundingClientRect().
 function azSetup() {
   document.documentElement.style.setProperty('--azt', Math.round(topH()) + 'px');
   AZ.heads = [...document.querySelectorAll('#main .lh')];
-  AZ.on = AZ.heads.length > 3;
+  AZ.on = AZ.heads.length > 3 && !location.hash.startsWith('#/t/');   // topics are short: no letter handle there
   $('azh').style.display = AZ.on ? '' : 'none';
   $('az').classList.remove('open');
   if (!AZ.on) return;
