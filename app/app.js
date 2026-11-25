@@ -404,13 +404,46 @@ function vChapter(b, c, v1, v2) {
     if (t) scrollBy(0, -130);
   });
 }
+// drag-to-reorder (favourites «رتّبهم»): hold the ≡ handle and drag the row; the other rows slide out of the way
+function dragSort(root, onDrop) {
+  root.querySelectorAll('.ordr .dh').forEach(h => h.addEventListener('pointerdown', e => {
+    if (e.button > 0) return;
+    e.preventDefault();
+    const row = h.closest('.ordr'), rows = [...root.querySelectorAll('.ordr')], from = rows.indexOf(row);
+    const step = row.offsetHeight + parseFloat(getComputedStyle(row).marginBottom || 0);
+    let y0 = e.clientY, sy0 = scrollY, cy = e.clientY, to = from, raf = 0, done = false;
+    try { h.setPointerCapture(e.pointerId); } catch (x) {}
+    row.classList.add('drag'); buzz();
+    rows.forEach(r => { if (r !== row) r.classList.add('slide'); });
+    const place = () => {
+      const dy = cy - y0 + scrollY - sy0;
+      row.style.transform = 'translateY(' + dy + 'px)';
+      let t = Math.max(0, Math.min(rows.length - 1, from + Math.round(dy / step)));
+      if (t !== to) { to = t; buzz(); }
+      rows.forEach((r, i) => { if (r === row) return; r.style.transform = from < i && i <= to ? 'translateY(' + -step + 'px)' : to <= i && i < from ? 'translateY(' + step + 'px)' : ''; });
+    };
+    const tick = () => {   // scroll the page while the finger is near the top / bottom edge
+      raf = 0; if (done) return;
+      const top = (document.querySelector('.top') || {}).offsetHeight || 0, bot = innerHeight - (($('tabs') || {}).offsetHeight || 0);
+      const v = cy < top + 60 ? -8 : cy > bot - 60 ? 8 : 0;
+      if (v) { scrollBy(0, v); place(); raf = requestAnimationFrame(tick); }
+    };
+    const move = ev => { cy = ev.clientY; place(); if (!raf) raf = requestAnimationFrame(tick); };
+    const end = () => {
+      done = true; removeEventListener('pointermove', move); removeEventListener('pointerup', end); removeEventListener('pointercancel', end);
+      rows.forEach(r => { r.style.transform = ''; r.classList.remove('slide', 'drag'); });
+      if (to !== from) onDrop(from, to);
+    };
+    addEventListener('pointermove', move); addEventListener('pointerup', end); addEventListener('pointercancel', end);
+  }));
+}
 function vFav() {
   setTab('fav'); homeBar('الترانيم اللي علّمت عليها'); showSearch(false);
   const ord = !!vFav.ord;
-  $('main').innerHTML = FAV.length ? `<div class="hint">علّم على ترانيم الدرس اللي جاي بالقلب ♡ من صفحة الترنيمة، وتلاقيها هنا على طول. اسحب أي ترنيمة لليسار عشان تشيلها.</div><div class="tools"><button id="ford" class="${ord ? 'on' : ''}">${ord ? 'خلصت الترتيب' : 'رتّبهم'}</button></div>` + FAV.map((n, i) => H[n - 1] ? (ord ? `<div class="ordr"><div class="ob"><button data-mv="${i}" data-d="-1" ${i ? '' : 'disabled'} aria-label="لفوق">${ICF.up}</button><button data-mv="${i}" data-d="1" ${i < FAV.length - 1 ? '' : 'disabled'} aria-label="لتحت">${ICF.down}</button></div>${hymnItem(n)}</div>` : swRow(hymnItem(n), [['rm', 'شيل', n]])) : '').join('')
+  $('main').innerHTML = FAV.length ? `<div class="hint">علّم على ترانيم الدرس اللي جاي بالقلب ♡ من صفحة الترنيمة، وتلاقيها هنا على طول. اسحب أي ترنيمة لليسار عشان تشيلها.</div><div class="tools"><button id="ford" class="${ord ? 'on' : ''}">${ord ? 'خلصت الترتيب' : 'رتّبهم'}</button></div>` + FAV.map((n, i) => H[n - 1] ? (ord ? `<div class="ordr" data-i="${i}"><button class="dh" aria-label="اسحب عشان ترتّب">${ICF.grip}</button>${hymnItem(n)}</div>` : swRow(hymnItem(n), [['rm', 'شيل', n]])) : '').join('')
     : '<div class="empty">لسه ماعلّمتش على ترانيم<br>افتح أي ترنيمة ودوس على القلب ♡</div>';
   if ($('ford')) $('ford').onclick = () => { vFav.ord = !vFav.ord; const y = scrollY; vFav(); scrollTo(0, y); };
-  $('main').querySelectorAll('[data-mv]').forEach(b => b.onclick = () => { const i = +b.dataset.mv, j = i + +b.dataset.d; if (j < 0 || j >= FAV.length) return; [FAV[i], FAV[j]] = [FAV[j], FAV[i]]; saveFav(); const y = scrollY; vFav(); scrollTo(0, y); });
+  if (ord) dragSort($('main'), (from, to) => { const [x] = FAV.splice(from, 1); FAV.splice(to, 0, x); saveFav(); const y = scrollY; vFav(); scrollTo(0, y); });
   swipeBind($('main'), (act, n, row) => { n = +n; row.classList.add('gone'); undoBar('اتشالت من المفضلة', () => { row.classList.remove('gone'); swClose(row); }, () => { FAV = FAV.filter(x => x !== n); saveFav(); if (location.hash === '#/fav') { const y = scrollY; vFav(); scrollTo(0, y); } }); });
 }
 function vAbout() {
@@ -538,6 +571,7 @@ const ICF = {
   plus: '<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>',
   up: '<svg viewBox="0 0 24 24"><path d="m6 15 6-6 6 6"/></svg>',
   down: '<svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>',
+  grip: '<svg viewBox="0 0 24 24"><path d="M5 8h14M5 12h14M5 16h14"/></svg>',
   x: '<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg>',
   book: '<svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5z"/></svg>',
   note: '<svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>'

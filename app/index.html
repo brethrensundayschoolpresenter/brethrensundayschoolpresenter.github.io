@@ -61,10 +61,13 @@
 /* reorder favourites */
 .ordr{display:flex;align-items:stretch;gap:6px;margin-bottom:7px}
 .ordr .it{flex:1;margin:0}
-.ordr .ob{display:flex;flex-direction:column;gap:4px}
-.ordr .ob button{flex:1;width:40px;border:2px solid var(--ink);border-radius:10px;display:flex;align-items:center;justify-content:center;background:var(--panel)}
-.ordr .ob button:disabled{opacity:.3}
-.ordr .ob svg{width:18px;height:18px;stroke:var(--ink);fill:none;stroke-width:2.4}
+.ordr{position:relative;background:var(--bg)}
+.ordr .dh{width:44px;flex:none;border:2px solid var(--ink);border-radius:10px;display:flex;align-items:center;justify-content:center;background:var(--panel);touch-action:none;-webkit-user-select:none;user-select:none;cursor:grab}
+.ordr .dh svg{width:20px;height:20px;stroke:var(--ink);fill:none;stroke-width:2.4;stroke-linecap:round}
+.ordr.slide{transition:transform .18s ease}
+.ordr.drag{z-index:5;box-shadow:0 10px 26px #0004;border-radius:14px}
+.ordr.drag .dh{background:var(--hi);cursor:grabbing}
+.ordr.drag .dh svg{stroke:#111}
 /* undo bar */
 .undo{position:fixed;left:12px;right:12px;bottom:calc(86px + var(--safe-b));z-index:60;display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--ink);color:var(--panel);border-radius:14px;padding:10px 14px;font-weight:800;animation:bIn .2s ease-out}
 .undo button{color:var(--hi);font-weight:800;font-size:16px;padding:2px 6px}
