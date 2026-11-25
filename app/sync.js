@@ -147,10 +147,12 @@
     } catch (e) { fb = null; st.err = 'sdk'; setState(L.get('ssw_cloud', null) ? 'offline' : 'out'); }
   }
   async function login() {
+    // came back from Google's page in the home-screen app but this screen didn't notice yet: reload to pick up the login
+    if (!user && navigator.onLine && Date.now() - (+L.get('ssw_login_redir', 0) || 0) < 10 * 60000) { location.reload(); return; }
     try {
       if (!fb) { setState('login'); await loadSdk(); }   // normally already loaded when the card shows, so the popup opens straight from the tap (iPhone blocks late popups)
       const p = new fb.GoogleAuthProvider(); p.setCustomParameters({ prompt: 'select_account' });
-      const redirect = async () => { track(); L.set('ssw_login_redir', 1); setState('login'); await fb.signInWithRedirect(auth, p); };
+      const redirect = async () => { track(); L.set('ssw_login_redir', Date.now()); setState('login'); await fb.signInWithRedirect(auth, p); };
       // app opened from the home screen (no real popups there): go to Google's page and come back
       if (matchMedia('(display-mode: standalone)').matches || navigator.standalone) { await redirect(); return; }
       const pop = fb.signInWithPopup(auth, p); setState('login');
@@ -203,7 +205,13 @@
     // opened with no internet: the login library couldn't load yet -> start again when the internet comes back
     const wake = () => { if (!L.get('ssw_cloud', null) && !user) return; if (!started) start(); else sync(); };
     addEventListener('online', wake);
-    document.addEventListener('visibilitychange', () => { if (!document.hidden && Date.now() - lastPull > 30000) wake(); });
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden) return;
+      // iPhone home-screen app: Google's page opens on top and the login finishes there; when we're back, reload once so this screen sees it
+      const r = +L.get('ssw_login_redir', 0) || 0;
+      if (r && !user && Date.now() - r < 10 * 60000) { setTimeout(() => { if (!user) location.reload(); }, 700); return; }
+      if (Date.now() - lastPull > 30000) wake();
+    });
   };
   // DOMContentLoaded comes after every script on the page has run (app.js may still be downloading right after this file)
   if (ON()) { if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot(); }
