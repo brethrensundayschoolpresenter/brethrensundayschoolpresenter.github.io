@@ -4,7 +4,7 @@
 // Merge rule: each فرصة keeps its own "last changed" time (u); the newer copy wins; a deleted فرصة leaves a tombstone (del[id] = time).
 // Security is in the Firestore rules (each user can read/write only users/<his uid>), not here.
 (function () {
-  const CFG = { apiKey: 'AIzaSyAqf_TjFNGHlhZeYVUUC_3Ki1OK6crC7wo', authDomain: 'bssp-app.firebaseapp.com', projectId: 'bssp-app', appId: '1:498768877357:web:af7d3a6bacb9296fdb25a4' };
+  const CFG = { apiKey: 'AIzaSyAqf_TjFNGHlhZeYVUUC_3Ki1OK6crC7wo', authDomain: 'brethrensundayschoolpresenter.github.io', projectId: 'bssp-app', appId: '1:498768877357:web:af7d3a6bacb9296fdb25a4' };
   const SDK = 'https://www.gstatic.com/firebasejs/10.14.1/';
   const DOC = uid => 'https://firestore.googleapis.com/v1/projects/bssp-app/databases/(default)/documents/users/' + encodeURIComponent(uid);
   const KEEP_DEL = 90 * 864e5;   // forget tombstones after 90 days
@@ -137,7 +137,8 @@
     try {
       await loadSdk();
       if (started) return; started = true;
-      try { await fb.getRedirectResult(auth); } catch (e) {}
+      try { await fb.getRedirectResult(auth); } catch (e) { if (L.get('ssw_login_redir', 0)) toast('مقدرناش نسجّل الدخول، جرّب تاني'); }
+      L.del('ssw_login_redir');
       fb.onAuthStateChanged(auth, u => {
         user = u || null;
         if (user) { st.name = user.displayName || user.email || ''; L.set('ssw_cloud', { uid: user.uid, name: st.name }); setState('wait'); sync(); }
@@ -149,16 +150,19 @@
     try {
       if (!fb) { setState('login'); await loadSdk(); }   // normally already loaded when the card shows, so the popup opens straight from the tap (iPhone blocks late popups)
       const p = new fb.GoogleAuthProvider(); p.setCustomParameters({ prompt: 'select_account' });
+      const redirect = async () => { track(); L.set('ssw_login_redir', 1); setState('login'); await fb.signInWithRedirect(auth, p); };
+      // app opened from the home screen (no real popups there): go to Google's page and come back
+      if (matchMedia('(display-mode: standalone)').matches || navigator.standalone) { await redirect(); return; }
       const pop = fb.signInWithPopup(auth, p); setState('login');
       try { await pop; if (!started) start(); }
       catch (e) {
         const c = e && e.code || '';
-        if (/popup-blocked|operation-not-supported|web-storage-unsupported/.test(c)) { await fb.signInWithRedirect(auth, p); return; }
+        if (/popup-blocked|operation-not-supported|web-storage-unsupported/.test(c)) { await redirect(); return; }
         if (/popup-closed|cancelled-popup/.test(c)) { setState('out'); return; }
         throw e;
       }
       track();   // stamp what's on the phone so it goes up with the first sync
-    } catch (e) { st.err = String(e && (e.code || e.message) || e); setState('err'); toast('مقدرناش نسجّل الدخول، جرّب تاني'); }
+    } catch (e) { st.err = String(e && (e.code || e.message) || e); setState('out'); toast('مقدرناش نسجّل الدخول، جرّب تاني'); }
   }
   async function logout() {
     if (!confirm('تخرج من حسابك؟ فرصك هتفضل على الموبايل ده.')) return;
@@ -195,7 +199,7 @@
   // sync.js loads before app.js (so the first «فرصي» page already has the card); start once app.js has run
   const boot = () => {
     track();
-    if (L.get('ssw_cloud', null)) start();   // signed in on this phone: restore the session + sync; others load the login library only when «فرصي» shows the card
+    if (L.get('ssw_cloud', null) || L.get('ssw_login_redir', 0)) start();   // signed in on this phone: restore the session + sync; others load the login library only when «فرصي» shows the card
     // opened with no internet: the login library couldn't load yet -> start again when the internet comes back
     const wake = () => { if (!L.get('ssw_cloud', null) && !user) return; if (!started) start(); else sync(); };
     addEventListener('online', wake);
