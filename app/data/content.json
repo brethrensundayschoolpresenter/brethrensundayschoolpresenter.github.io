@@ -1,14 +1,12 @@
 {
- "dataVersion": 28,
+ "dataVersion": 29,
  "minApp": "1.0.7",
  "files": {
-  "hymns.js": "f31b29b50d4a2f7d43f622ffcd89e974fd5f9f88fed4b33e9adde1683e61c3b8",
-  "topics.js": "144cf4224817253682d75c4af2afefbe2da56feede2d1daf5c5db8949f01175c",
+  "hymns.js": "d91b853adcb99a22e2f675643ef9827d83e5fb6ca6521e6d8d0575faec434915",
+  "topics.js": "6fe398b35bd1cdc59d16fa59b3c1c9e3575c22871e10827bc3c1d82b47358850",
   "stories.js": "a0cd6843d4ee8e2b21c4a2a3585269efcd1c2e5ef1f661fa7e4d7dab28a581cf"
  },
- "notes": [
-  "ترنيمة جديدة: «إن قالوا سني صغير»."
- ],
+ "notes": [],
  "history": {
   "7": [
    "ترنيمة جديدة: «ماكنتش أتخيل»."
@@ -59,6 +57,7 @@
   "27": [],
   "28": [
    "ترنيمة جديدة: «إن قالوا سني صغير»."
-  ]
+  ],
+  "29": []
  }
 }
