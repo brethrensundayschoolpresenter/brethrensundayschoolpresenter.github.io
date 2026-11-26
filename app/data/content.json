@@ -1,10 +1,10 @@
 {
- "dataVersion": 26,
+ "dataVersion": 27,
  "minApp": "1.0.7",
  "files": {
   "hymns.js": "a7087a9971a7f716519ab07f6596bb97c9a285ccc18ea78b5c556cb2e858bfa7",
   "topics.js": "59ffd390479f71a1796426d7f3f8e1826e32bd1e3b6a3b2deaeea9924e1e1eeb",
-  "stories.js": "75f8797c7696fb3551ea372fe031497d3f8fb4da292e6dc5ddeed72cc779ab2d"
+  "stories.js": "85ae62e40bda3d2600bc24c2a9ba639a352bae29dd3bfe176b2f661ee4225237"
  },
  "notes": [],
  "history": {
@@ -53,6 +53,7 @@
    "ترنيمة جديدة: «علبة ألواني بتعلمني»."
   ],
   "25": [],
-  "26": []
+  "26": [],
+  "27": []
  }
 }
