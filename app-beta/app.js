@@ -915,6 +915,25 @@ async function sendReg() {
   const fd = new FormData(); fd.append('entry.1735689864', r.n); fd.append('entry.520013336', r.m + ' (موبايل)');
   try { await fetch(FORM, { method: 'POST', mode: 'no-cors', body: fd }); localStorage.removeItem('ssw_reg_wait'); } catch (e) {}
 }
+// ---------- once a day (online): who uses the app — name from the first open + a random phone id + Home Screen or browser ----------
+const USAGE = 'https://docs.google.com/forms/d/e/1FAIpQLSdbtl3-F05oj4u-UVteKihXa5Wc7rbFNQ1gLYWIYFqyJd7mUA/formResponse';
+async function sendPing() {
+  try {
+    if (!navigator.onLine) return;
+    const day = new Date().toLocaleDateString('en-CA'), K = 'sswb_ping';
+    if (localStorage.getItem(K) === day) return;
+    let id = localStorage.getItem('ssw_uid');
+    if (!id) { id = Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4); localStorage.setItem('ssw_uid', id); }
+    const home = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
+    const fd = new FormData();
+    fd.append('entry.1735689864', localStorage.getItem('ssw_name') || '');
+    fd.append('entry.983565199', id);
+    fd.append('entry.523498647', (home ? 'home screen' : 'browser') + ' (beta)');
+    fd.append('entry.520013336', localStorage.getItem('ssw_meet') || '');
+    await fetch(USAGE, { method: 'POST', mode: 'no-cors', body: fd });
+    localStorage.setItem(K, day);
+  } catch (e) {}
+}
 function askReg() {
   if (localStorage.getItem('ssw_reg') === '1' || localStorage.getItem('bssp_reg') === '1') return;
   $('welcome').style.display = '';
@@ -926,8 +945,8 @@ function askReg() {
     const n = $('wN').value.trim(), m = $('wM').value.trim();
     if (n.length < 2) { $('wE').textContent = 'اكتب اسمك'; $('wN').focus(); return; }
     if (m.length < 2) { $('wE').textContent = 'اكتب اسم الاجتماع أو الكنيسة'; $('wM').focus(); return; }
-    try { localStorage.setItem('ssw_reg_wait', JSON.stringify({ n, m })); localStorage.setItem('ssw_reg', '1'); localStorage.setItem('ssw_name', n); localStorage.setItem('sswb_appv', APPV); } catch (x) {}
-    $('welcome').remove(); sendReg(); toast('أهلًا بيك يا ' + n.split(' ')[0]); setTimeout(showNews, 1500);
+    try { localStorage.setItem('ssw_reg_wait', JSON.stringify({ n, m })); localStorage.setItem('ssw_reg', '1'); localStorage.setItem('ssw_name', n); localStorage.setItem('ssw_meet', m); localStorage.setItem('sswb_appv', APPV); } catch (x) {}
+    $('welcome').remove(); sendReg(); sendPing(); toast('أهلًا بيك يا ' + n.split(' ')[0]); setTimeout(showNews, 1500);
   });
 }
 
@@ -971,13 +990,13 @@ if ('serviceWorker' in navigator) {
   navigator.serviceWorker.addEventListener('controllerchange', () => { if (hadSW && !reloaded) { reloaded = true; reloading = true; location.reload(); } });
 }
 syncBundled();
-setTimeout(() => { loadBible(); checkUpdates(); sendReg(); }, 1200);
+setTimeout(() => { loadBible(); checkUpdates(); sendReg(); setTimeout(sendPing, 4000); }, 1200);
 // the bottom bar stays at the bottom: while typing (keyboard open, the phone may move «fixed» things) it hides, and comes back after
 document.addEventListener('focusin', e => { if (e.target.matches('input:not([type=date]),textarea')) document.body.classList.add('typing'); });
 document.addEventListener('focusout', () => setTimeout(() => { if (!document.activeElement || !document.activeElement.matches('input,textarea')) document.body.classList.remove('typing'); }, 50));
 // a phone keeps the app open in the background for days: look for updates again when it comes back
-document.addEventListener('visibilitychange', () => { if (!document.hidden && Date.now() - lastCheck > 15 * 60 * 1000) { checkUpdates(); sendReg(); } });
-addEventListener('online', sendReg);
+document.addEventListener('visibilitychange', () => { if (!document.hidden && Date.now() - lastCheck > 15 * 60 * 1000) { checkUpdates(); sendReg(); sendPing(); } });
+addEventListener('online', () => { sendReg(); sendPing(); });
 
 // ---------- splash ----------
 // logo + name appear together; after that the splash stays 1.3 s so the name is read, then fades (max 3.5 s in all)
