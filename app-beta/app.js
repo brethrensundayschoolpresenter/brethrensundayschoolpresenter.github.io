@@ -1,7 +1,8 @@
 // ترانيم مدارس الأحد — web app for the servants (no projector): hymns + idea + verses + story, topics, Bible, favourites
 const H = window.HYMNS, BK = window.BOOKS, T = window.TOPICS || [], HD = window.HDEEP || {}, KY = window.KEYS || {};
 let B = null;                       // Bible arrives later (bible.js is big)
-KE.build(H, [], BK);
+const HV = H.filter(h => !h.x);   // hidden hymns ("x":1) stay in the data so numbers never shift, but are not listed or searched
+KE.build(HV, [], BK);
 const $ = id => document.getElementById(id);
 const arD = n => String(n).replace(/[0-9]/g, d => '٠١٢٣٤٥٦٧٨٩'[d]);
 const esc = s => String(s).replace(/[&<>"]/g, m => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[m]));
@@ -66,9 +67,10 @@ function hiLine(lines, q) {
   return esc(best.slice(0, s)) + '<mark>' + esc(best.slice(s, e)) + '</mark>' + esc(best.slice(e));
 }
 const firstLetter = t => { const c = KE.norm(t).charAt(0); return /[a-z]/.test(c) ? 'English' : c || '#'; };
+const ABC = 'ابتثجحخدذرزسشصضطظعغفقكلمنهوي', LRANK = l => { const i = ABC.indexOf(l); return i < 0 ? (l === 'English' ? 99 : 98) : i; };   // A–Z letters in Arabic alphabet order (not by hymn number)
 function alphaHTML(nums) {
   const L0 = n => firstLetter(H[n - 1].title), D0 = n => H[n - 1].d || '';
-  const sorted = nums.slice().sort((a, b) => a - b), order = [...new Set(sorted.map(L0))];
+  const sorted = nums.slice().sort((a, b) => a - b), order = [...new Set(sorted.map(L0))].sort((x, y) => LRANK(x) - LRANK(y));
   sorted.sort((a, b) => order.indexOf(L0(a)) - order.indexOf(L0(b)) || (D0(b) > D0(a) ? 1 : D0(b) < D0(a) ? -1 : a - b));
   let cur = null, out = '';
   sorted.forEach(n => { const L = L0(n); if (L !== cur) { cur = L; out += `<div class="lh" data-l="${esc(L)}"><span class="letter">${esc(L)}</span></div>`; } out += hymnItem(n); });
@@ -81,7 +83,7 @@ function hymnItem(n, sub, key) {
 
 // ---------- top bar ----------
 function bar(html) { $('bar').innerHTML = html; }
-// ---------- beta: light / dark (follows the phone unless chosen) ----------
+// ---------- light / dark (follows the phone unless chosen) ----------
 const THEME = {
   get() { try { return localStorage.getItem('ssw_theme') || 'auto'; } catch (e) { return 'auto'; } },
   dark() { const t = THEME.get(); return t === 'dark' || (t === 'auto' && matchMedia('(prefers-color-scheme: dark)').matches); },
@@ -103,43 +105,43 @@ function suggest(n) { window.open(WA + '?text=' + encodeURIComponent(n ? 'ترن
 
 // ---------- «ترانيم جديدة اتضافت»: shown on the home list after an update brings new hymns ----------
 function seenCount() {
-  let n = +(localStorage.getItem('ssw_seen') || 0);
-  if (!n) { n = localStorage.getItem('ssw_reg') === '1' ? Math.min(967, H.length) : H.length; try { localStorage.setItem('ssw_seen', n); } catch (e) {} }   // 967 = before the first new hymn
+  let n = +(localStorage.getItem('sswb_seen') || 0);
+  if (!n) { n = H.length; /* BETA: no new-hymns popup */ try { localStorage.setItem('sswb_seen', n); } catch (e) {} }   // 967 = before the first new hymn
   return n;
 }
 // notes of every data update are kept per version, so an update you missed still shows its notes, and nothing old shows twice
 function saveNotes(v, notes, hist, from) {   // from = the data version the phone had before this update
   try {
-    let N = null; try { N = JSON.parse(localStorage.getItem('ssw_notes') || 'null'); } catch (e) {}
+    let N = null; try { N = JSON.parse(localStorage.getItem('sswb_notes') || 'null'); } catch (e) {}
     const h = (N && N.h) || {}; if (N && !N.h && N.notes) h[N.v] = N.notes;
     if (hist) { for (const k in hist) if (+k > (from || 0) && +k <= v) h[k] = hist[k]; } else h[v] = notes;
     if (!h[v] && notes) h[v] = notes;
     for (const k of Object.keys(h)) if (+k < v - 20) delete h[k];
-    localStorage.setItem('ssw_notes', JSON.stringify({ v: Math.max(v, (N && N.v) || 0), h }));
+    localStorage.setItem('sswb_notes', JSON.stringify({ v: Math.max(v, (N && N.v) || 0), h }));
   } catch (e) {}
 }
 function pendingNotes() {
-  let N = null; try { N = JSON.parse(localStorage.getItem('ssw_notes') || 'null'); } catch (e) {}
+  let N = null; try { N = JSON.parse(localStorage.getItem('sswb_notes') || 'null'); } catch (e) {}
   if (!N) return [];
-  const seen = +localStorage.getItem('ssw_notes_seen') || 0, h = N.h || { [N.v]: N.notes || [] }, out = [];
+  const seen = +localStorage.getItem('sswb_notes_seen') || 0, h = N.h || { [N.v]: N.notes || [] }, out = [];
   Object.keys(h).map(Number).filter(k => k > seen && k <= N.v).sort((a, b) => a - b).forEach(k => (h[k] || []).forEach(t => { if (!out.includes(t)) out.push(t); }));
   return out;
 }
 // popup after an update (opens by itself, once):
 //  new hymns -> «ترنيمة جديدة اتضافت» + the names (tap = open it); only fixes -> «الترانيم اتحدّثت» + the notes
 // «البرنامج اتحدّث»: bump APPV + APP_NEWS when the web app itself gets something new
-const APPV = 7;
-const APP_NEWS = ['جديد: تقدر تحفظ فرصك والمفضلة على حسابك. من «فرصي» دوس «سجّل دخول بجوجل»، وهتلاقيها على أي موبايل تاني تفتح منه.', 'التسجيل اختياري، والبرنامج شغال عادي من غيره، وكل واحد بيشوف فرصه هو بس.'];
+const APPV = 9;   // 9 = same news as 8, shown again to everyone (Shady) with the Keys count + thanks
+const APP_NEWS = ['شكل جديد: وضع غامق بيمشي مع الموبايل، وتقدر تغيّره من زرار القمر/الشمس فوق.', 'الكتاب المقدس: اختار «العهد القديم» أو «العهد الجديد» من فوق على طول.', 'في «فرصي»: اسحب أي فرصة لليسار عشان تعمل منها نسخة أو تمسحها (ولو مسحت بالغلط دوس «تراجع»).', 'المفضلة: رتّبهم زي ما تحب، واسحب أي ترنيمة لليسار عشان تشيلها.', 'وآخر حاجات دوّرت عليها بتظهر فوق قايمة الترانيم.'];
 const APP_LINK = ['#/f', 'افتح «فرصي»'];
 // new Keys since the last popup («Keys جديدة اتضافت»); first run just remembers what's there
 function newKeys() {
-  let seen = null; try { seen = JSON.parse(localStorage.getItem('ssw_keys_seen') || 'null'); } catch (e) {}
+  let seen = null; try { seen = JSON.parse(localStorage.getItem('sswb_keys_seen') || 'null'); } catch (e) {}
   const cur = Object.keys(KY);
-  if (!seen) { try { localStorage.setItem('ssw_keys_seen', JSON.stringify(cur)); } catch (e) {} return []; }
+  if (!seen) { try { localStorage.setItem('sswb_keys_seen', JSON.stringify(cur)); } catch (e) {} return []; }
   const S = new Set(seen);
   return cur.filter(n => !S.has(n)).map(n => H.find(h => String(h.num) === n)).filter(Boolean);
 }
-const appNewsDue = () => +(localStorage.getItem('ssw_appv') || 0) < APPV;
+const appNewsDue = () => +(localStorage.getItem('sswb_appv') || 0) < APPV;
 function newHymnsHTML() {
   const n = seenCount(), nw = H.length > n ? H.slice(n) : [];
   const app = appNewsDue() ? APP_NEWS : [];
@@ -147,7 +149,7 @@ function newHymnsHTML() {
   const notes = pendingNotes().filter(t => !nw.some(h => t.includes(h.title)) && !(app.length && app.some(x => x.includes('اللسان والكلام')) && t.includes('اللسان والكلام')));
   if (!nw.length && !notes.length && !app.length && !nk.length) return '';
   const title = nw.length ? (nw.length > 1 ? 'ترانيم جديدة اتضافت' : 'ترنيمة جديدة اتضافت') : app.length ? 'البرنامج اتحدّث' : notes.length ? 'الترانيم اتحدّثت' : 'Keys جديدة اتضافت';
-  return `<div class="upd-card"><div class="upd-ic">✨</div><h3>${title}</h3>`
+  return `<div class="upd-card"><div class="upd-ic"><svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true"><path fill="#111" d="M12 2l2.2 6.3L20.5 10l-6.3 2.2L12 18.5l-2.2-6.3L3.5 10l6.3-1.7z"/><path fill="#111" d="M19 15l.9 2.1L22 18l-2.1.9L19 21l-.9-2.1L16 18l2.1-.9z"/></svg></div><h3>${title}</h3>`
     + nw.map(h => `<a class="upd-h" href="#/h/${h.num}" onclick="closeNews()">«${esc(h.title)}» <span>افتحها ‹</span></a>`).join('')
     + (notes.length ? `<ul>${notes.map(t => `<li>${esc(t)}</li>`).join('')}</ul>` : '')
     + (nk.length || app.length ? `<div class="upd-k">${nk.length ? `اتضاف الـ<bdi>Key</bdi> لـ ${arD(nk.length)} ترنيمة جديدة، وبقى عندنا ${arD(Object.keys(KY).length)} ترنيمة ليها <bdi>Key</bdi>.` : `بقى عندنا ${arD(Object.keys(KY).length)} ترنيمة ليها <bdi>Key</bdi>.`}<br><span>بنشكر الرب لأجل الشباب اللي تعبوا في تحضيرهم.</span></div>` : '')
@@ -155,7 +157,7 @@ function newHymnsHTML() {
     + `<button class="upd-ok" onclick="closeNews()">تمام</button></div>`;
 }
 function markNewsSeen() {
-  try { localStorage.setItem('ssw_appv', APPV); localStorage.setItem('ssw_seen', H.length); localStorage.setItem('ssw_keys_seen', JSON.stringify(Object.keys(KY))); const N = JSON.parse(localStorage.getItem('ssw_notes') || 'null'); if (N) localStorage.setItem('ssw_notes_seen', N.v); } catch (e) {}
+  try { localStorage.setItem('sswb_appv', APPV); localStorage.setItem('sswb_seen', H.length); localStorage.setItem('sswb_keys_seen', JSON.stringify(Object.keys(KY))); const N = JSON.parse(localStorage.getItem('sswb_notes') || 'null'); if (N) localStorage.setItem('sswb_notes_seen', N.v); } catch (e) {}
 }
 function closeNews() { markNewsSeen(); const p = $('updPop'); if (p) p.remove(); }
 let reloading = false;
@@ -171,7 +173,7 @@ function cloudNewsHTML() {
     <div class="cl-opt">اختياري — والبرنامج شغال عادي من غيره. وتقدر تسجّل بعدين من «فرصي».</div></div>`;
 }
 function closeCloudNews(go) {
-  try { localStorage.setItem('ssw_appv', APPV); } catch (e) {}
+  try { localStorage.setItem('sswb_appv', APPV); } catch (e) {}
   const p = $('updPop'); if (p) p.remove();
   if (go) { location.hash = '#/f'; if (window.cloudLogin) cloudLogin(); }
   else setTimeout(showNews, 400);
@@ -185,7 +187,7 @@ function showNews() {
     d.addEventListener('click', e => { if (e.target === d) closeCloudNews(false); });
     return;
   }
-  if (APPV === 7 && appNewsDue() && window.cloudSignedIn && cloudSignedIn()) { try { localStorage.setItem('ssw_appv', APPV); } catch (e) {} }   // already signed in: nothing to announce
+  if (APPV === 7 && appNewsDue() && window.cloudSignedIn && cloudSignedIn()) { try { localStorage.setItem('sswb_appv', APPV); } catch (e) {} }   // already signed in: nothing to announce
   const h = newHymnsHTML(); if (!h) return;
   const d = document.createElement('div'); d.className = 'upd-pop'; d.id = 'updPop'; d.innerHTML = h;
   d.addEventListener('click', e => { if (e.target === d) closeNews(); });
@@ -199,13 +201,13 @@ function dataArrived(v) {
   if ($('updBtn')) return;
   const el = document.createElement('button'); el.id = 'updBtn';
   el.className = 'toast show'; el.style.pointerEvents = 'auto'; el.style.background = '#ffff00'; el.style.color = '#111'; el.style.border = '2px solid #111';
-  el.textContent = 'وصل تحديث للترانيم ✨ — دوس هنا'; el.onclick = () => { reloading = true; location.reload(); };
+  el.textContent = 'وصل تحديث للترانيم — دوس هنا'; el.onclick = () => { reloading = true; location.reload(); };
   document.body.appendChild(el);
 }
 
 // ---------- views ----------
 const NAV = { depth: 0, tab: 'hymns', q: { hymns: '', bible: '' }, from: null };
-// beta: last searches (hymns), shown as small chips above the list when the search is empty
+// last searches (hymns), shown as small chips above the list when the search is empty
 const RECENT = { get() { try { return JSON.parse(localStorage.getItem('ssw_recent') || '[]'); } catch (e) { return []; } } };
 function recentAdd(q) { if (NAV.q.hymns.trim() !== q && latinDigits(NAV.q.hymns.trim()) !== q) return; const r = RECENT.get().filter(x => x !== q); r.unshift(q); try { localStorage.setItem('ssw_recent', JSON.stringify(r.slice(0, 5))); } catch (e) {} }
 function recentHTML() { const r = RECENT.get(); return r.length ? `<div class="recent"><span class="rl">آخر بحث</span>${r.map(x => `<button data-q="${esc(x)}">${esc(x)}</button>`).join('')}<button class="rx" aria-label="امسح آخر بحث">×</button></div>` : ''; }
@@ -221,7 +223,7 @@ function vHymns() {
   if (!q) {
     m.innerHTML = recentHTML() + `<div class="hint"><b>رجاء محبة:</b> استخدم البرنامج للمساعدة بس، لأنه مش بديل إنك تاخد وقت قدّام الرب وتطلب إرشاده قبل فرصة الترانيم.</div>`
       + (localStorage.getItem('ssw_hint2') || matchMedia('(display-mode: standalone)').matches || navigator.standalone ? '' : `<div class="hint">عايز تفتحه زي أي برنامج ومن غير نت؟ ضيفه للشاشة الرئيسية (Add to Home Screen) — <a href="../#add" style="color:var(--link);font-weight:800;text-decoration:underline">شوف إزاي بالصور</a>. <button style="color:var(--link);font-weight:800" onclick="localStorage.setItem('ssw_hint2',1);this.parentNode.remove()">تمام</button></div>`)
-      + alphaHTML(H.map(h => h.num));
+      + alphaHTML(HV.map(h => h.num));
     recentBind();
     return;
   }
@@ -235,7 +237,7 @@ function vHymns() {
   m.innerHTML = out || '<div class="empty">مالقيتش ترنيمة فيها الكلام ده<br>جرّب كلمة تانية</div>';
 }
 function vHymn(n) {
-  if (n > seenCount() && n === H.length) { try { localStorage.setItem('ssw_seen', H.length); } catch (e) {} }
+  if (n > seenCount() && n === H.length) { try { localStorage.setItem('sswb_seen', H.length); } catch (e) {} }
   const h = H[n - 1]; if (!h) { location.hash = '#/'; return; }
   setTab(NAV.tab); showSearch(false);
   const fav = FAV.includes(n);
@@ -338,7 +340,7 @@ function keyRank(k) {   // C=0 … B=11, minor right after its major (C, Cm, C#,
 }
 function alphaOrder(nums) {
   const L0 = n => firstLetter(H[n - 1].title), D0 = n => H[n - 1].d || '';
-  const sorted = nums.slice().sort((a, b) => a - b), order = [...new Set(sorted.map(L0))];
+  const sorted = nums.slice().sort((a, b) => a - b), order = [...new Set(sorted.map(L0))].sort((x, y) => LRANK(x) - LRANK(y));
   return sorted.sort((a, b) => order.indexOf(L0(a)) - order.indexOf(L0(b)) || (D0(b) > D0(a) ? 1 : D0(b) < D0(a) ? -1 : a - b));
 }
 
@@ -354,7 +356,7 @@ function vBible() {
   $('q').value = NAV.q.bible; sboxState();
   const q = latinDigits(NAV.q.bible.trim());
   if (!q) {
-    // beta: two buttons at the top (العهد القديم | العهد الجديد) — only the chosen one shows, no long scroll to reach the New Testament
+    // two buttons at the top (العهد القديم | العهد الجديد) — only the chosen one shows, no long scroll to reach the New Testament
     const btn = (i) => `<button data-b="${i}">${esc(bookName(i))}</button>`;
     let t = localStorage.getItem('ssw_testament') === 'nt' ? 'nt' : 'ot';
     const draw = () => {
@@ -404,26 +406,59 @@ function vChapter(b, c, v1, v2) {
     if (t) scrollBy(0, -130);
   });
 }
+// drag-to-reorder (favourites «رتّبهم»): hold the ≡ handle and drag the row; the other rows slide out of the way
+function dragSort(root, onDrop) {
+  root.querySelectorAll('.ordr .dh').forEach(h => h.addEventListener('pointerdown', e => {
+    if (e.button > 0) return;
+    e.preventDefault();
+    const row = h.closest('.ordr'), rows = [...root.querySelectorAll('.ordr')], from = rows.indexOf(row);
+    const step = row.offsetHeight + parseFloat(getComputedStyle(row).marginBottom || 0);
+    let y0 = e.clientY, sy0 = scrollY, cy = e.clientY, to = from, raf = 0, done = false;
+    try { h.setPointerCapture(e.pointerId); } catch (x) {}
+    row.classList.add('drag'); buzz();
+    rows.forEach(r => { if (r !== row) r.classList.add('slide'); });
+    const place = () => {
+      const dy = cy - y0 + scrollY - sy0;
+      row.style.transform = 'translateY(' + dy + 'px)';
+      let t = Math.max(0, Math.min(rows.length - 1, from + Math.round(dy / step)));
+      if (t !== to) { to = t; buzz(); }
+      rows.forEach((r, i) => { if (r === row) return; r.style.transform = from < i && i <= to ? 'translateY(' + -step + 'px)' : to <= i && i < from ? 'translateY(' + step + 'px)' : ''; });
+    };
+    const tick = () => {   // scroll the page while the finger is near the top / bottom edge
+      raf = 0; if (done) return;
+      const top = (document.querySelector('.top') || {}).offsetHeight || 0, bot = innerHeight - (($('tabs') || {}).offsetHeight || 0);
+      const v = cy < top + 60 ? -8 : cy > bot - 60 ? 8 : 0;
+      if (v) { scrollBy(0, v); place(); raf = requestAnimationFrame(tick); }
+    };
+    const move = ev => { cy = ev.clientY; place(); if (!raf) raf = requestAnimationFrame(tick); };
+    const end = () => {
+      done = true; removeEventListener('pointermove', move); removeEventListener('pointerup', end); removeEventListener('pointercancel', end);
+      rows.forEach(r => { r.style.transform = ''; r.classList.remove('slide', 'drag'); });
+      if (to !== from) onDrop(from, to);
+    };
+    addEventListener('pointermove', move); addEventListener('pointerup', end); addEventListener('pointercancel', end);
+  }));
+}
 function vFav() {
   setTab('fav'); homeBar('الترانيم اللي علّمت عليها'); showSearch(false);
   const ord = !!vFav.ord;
-  $('main').innerHTML = FAV.length ? `<div class="hint">علّم على ترانيم الدرس اللي جاي بالقلب ♡ من صفحة الترنيمة، وتلاقيها هنا على طول. اسحب أي ترنيمة لليسار عشان تشيلها.</div><div class="tools"><button id="ford" class="${ord ? 'on' : ''}">${ord ? 'خلصت الترتيب' : 'رتّبهم'}</button></div>` + FAV.map((n, i) => H[n - 1] ? (ord ? `<div class="ordr"><div class="ob"><button data-mv="${i}" data-d="-1" ${i ? '' : 'disabled'} aria-label="لفوق">${ICF.up}</button><button data-mv="${i}" data-d="1" ${i < FAV.length - 1 ? '' : 'disabled'} aria-label="لتحت">${ICF.down}</button></div>${hymnItem(n)}</div>` : swRow(hymnItem(n), [['rm', 'شيل', n]])) : '').join('')
+  $('main').innerHTML = FAV.length ? `<div class="hint">علّم على ترانيم الدرس اللي جاي بالقلب ♡ من صفحة الترنيمة، وتلاقيها هنا على طول. اسحب أي ترنيمة لليسار عشان تشيلها.</div><div class="tools"><button id="ford" class="${ord ? 'on' : ''}">${ord ? 'خلصت الترتيب' : 'رتّبهم'}</button></div>` + FAV.map((n, i) => H[n - 1] ? (ord ? `<div class="ordr" data-i="${i}"><button class="dh" aria-label="اسحب عشان ترتّب">${ICF.grip}</button>${hymnItem(n)}</div>` : swRow(hymnItem(n), [['rm', 'شيل', n]])) : '').join('')
     : '<div class="empty">لسه ماعلّمتش على ترانيم<br>افتح أي ترنيمة ودوس على القلب ♡</div>';
   if ($('ford')) $('ford').onclick = () => { vFav.ord = !vFav.ord; const y = scrollY; vFav(); scrollTo(0, y); };
-  $('main').querySelectorAll('[data-mv]').forEach(b => b.onclick = () => { const i = +b.dataset.mv, j = i + +b.dataset.d; if (j < 0 || j >= FAV.length) return; [FAV[i], FAV[j]] = [FAV[j], FAV[i]]; saveFav(); const y = scrollY; vFav(); scrollTo(0, y); });
+  if (ord) dragSort($('main'), (from, to) => { const [x] = FAV.splice(from, 1); FAV.splice(to, 0, x); saveFav(); const y = scrollY; vFav(); scrollTo(0, y); });
   swipeBind($('main'), (act, n, row) => { n = +n; row.classList.add('gone'); undoBar('اتشالت من المفضلة', () => { row.classList.remove('gone'); swClose(row); }, () => { FAV = FAV.filter(x => x !== n); saveFav(); if (location.hash === '#/fav') { const y = scrollY; vFav(); scrollTo(0, y); } }); });
 }
 function vAbout() {
   setTab(''); backBar('رجوع'); showSearch(false);
   $('main').innerHTML = `<div class="ht"><span class="hl">ترانيم مدارس الأحد</span></div><div style="direction:ltr;text-align:right;color:var(--mut);font-weight:700;white-space:nowrap;font-size:min(16px,4.2vw)">Brethren Sunday School Presenter</div>
   <div class="card"><p>تدوّر على أي ترنيمة، وتشوف فكرتها والآيات اللي كلامها مأخوذ منها وقصة مناسبة ليها، وتقرا في الكتاب المقدس. بيشتغل من غير نت، وبيتحدّث لوحده لما تنزل ترانيم جديدة.</p></div>
-  <div class="card"><span class="lb"><span>فرصي</span></span><p style="font-weight:500">حضّر الفرصة: ضيف الترانيم والشواهد واكتب ملاحظاتك، وكل الفرص بتفضل متسجلة بتاريخها. بتتحفظ على الموبايل ده بس، فخد منها نسخة من «فرصي» (زرار «خد نسخة») وابعتها لنفسك واتساب، وعلى أي موبايل تاني رجّعها بـ«رجّع نسخة».</p></div>
+  <div class="card"><span class="lb"><span>فرصي</span></span><p style="font-weight:500">حضّر الفرصة: ضيف الترانيم والشواهد واكتب ملاحظاتك.<br>لو سجّلت دخول بحساب جوجل من «فرصي»، فرصك بتتحفظ لوحدها ومش هتضيع.<br>لو ماسجّلتش، البرنامج شغال عادي، بس الفرص بتفضل على الموبايل ده بس، فخد منها نسخة (زرار «خد نسخة») وابعتها لنفسك واتساب.</p></div>
   <div class="card"><span class="lb"><span>رجاء محبة</span></span><p style="font-weight:500">استخدم البرنامج للمساعدة بس، لأنه مش بديل إنك تاخد وقت قدّام الرب وتطلب إرشاده قبل فرصة الترانيم.</p></div>
   <div class="card"><span class="lb"><span>ضيفه للشاشة الرئيسية</span></span><p style="font-weight:500"><a href="../#add" style="color:var(--link);font-weight:800;text-decoration:underline">شوف الخطوات بالصور</a><br><b>آيفون:</b> من Safari دوس زرار المشاركة وبعدين «Add to Home Screen».<br><b>أندرويد:</b> من Chrome دوس النقط التلاتة وبعدين «Add to Home screen» أو «Install app».</p></div>
   <div class="card"><span class="lb"><span>للعرض على البروجكتور</span></span><p style="font-weight:500">نزّل برنامج الكمبيوتر من <a href="../" style="color:var(--link);text-decoration:underline">هنا</a>.</p></div>
   <div class="card"><span class="lb"><span>لقيت غلطة أو عندك ترنيمة ناقصة؟</span></span><p style="font-weight:500">ابعتها لنا <a href="https://wa.me/201227120955" target="_blank" rel="noopener" style="color:var(--link);text-decoration:underline">واتساب</a> (ولو ترنيمة جديدة ابعت كلامها مكتوب أو ملف PowerPoint)، ولما تتراجع بتنزل للكل.</p></div>
   <p style="text-align:center;color:var(--mut);font-size:13px" id="dv"></p>`;
-  $('dv').textContent = 'نسخة الترانيم ' + arD(localStorage.getItem('ssw_dv') || DATA_VERSION);
+  $('dv').textContent = 'نسخة الترانيم ' + arD(localStorage.getItem('sswb_dv') || DATA_VERSION);
   const tc = document.createElement('div'); tc.className = 'card'; tc.innerHTML = `<span class="lb"><span>الشكل</span></span><div class="seg" style="position:static;margin:8px 0 0"><button data-m="auto">زي الموبايل</button><button data-m="light">فاتح</button><button data-m="dark">غامق</button></div>`;
   $('main').insertBefore(tc, $('main').children[2] || null);
   const mark = () => tc.querySelectorAll('[data-m]').forEach(b => b.classList.toggle('on', b.dataset.m === THEME.get()));
@@ -538,6 +573,7 @@ const ICF = {
   plus: '<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>',
   up: '<svg viewBox="0 0 24 24"><path d="m6 15 6-6 6 6"/></svg>',
   down: '<svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>',
+  grip: '<svg viewBox="0 0 24 24"><path d="M5 8h14M5 12h14M5 16h14"/></svg>',
   x: '<svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg>',
   book: '<svg viewBox="0 0 24 24"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20V3H6.5A2.5 2.5 0 0 0 4 5.5z"/></svg>',
   note: '<svg viewBox="0 0 24 24"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>'
@@ -553,7 +589,7 @@ function vForsaList() {
     + (up.length ? `<div class="sec">الفرص الجاية</div>${up.map(row).join('')}` : '')
     + (past.length ? `<div class="sec">الفرص اللي فاتت</div>${past.map(row).join('')}` : '')
     + (window.cloudCardHTML ? cloudCardHTML() : '')
-    + (window.cloudSignedIn && cloudSignedIn() ? '' : `<div class="hint fbk"><b>الفرص متسجلة على الموبايل ده بس</b> (جوه المتصفح). لو هتغيّر الموبايل أو تمسح بيانات المتصفح، خد نسخة وابعتها لنفسك واتساب، وعلى الموبايل الجديد دوس «رجّع نسخة» واختار الملف.
+    + (window.cloudSignedIn && cloudSignedIn() ? '' : `<div class="hint fbk"><b>فرصك بتتحفظ على الموبايل ده بس.</b> لو عايز تحافظ عليها وتلاقيها لو غيّرت الموبايل أو بتستخدم أكتر من موبايل، سجّل دخول بجوجل.
       <div class="fbk-b">${FR.length ? '<button id="bkS">خد نسخة</button>' : ''}<button id="bkR">رجّع نسخة</button></div><input type="file" id="bkF" accept=".json,application/json,text/plain" hidden></div>`);   // signed in: the account keeps them, so no file backup box
   $('nf').onclick = () => { const f = newForsa(); location.hash = '#/f/' + f.id; };
   if ($('bkS')) $('bkS').onclick = backupForsas;
@@ -570,7 +606,7 @@ function vForsaList() {
     undoBar('الفرصة اتمسحت', () => { row.classList.remove('gone'); swClose(row); }, () => { FR = FR.filter(x => x.id !== id); saveFR(); if (location.hash === '#/f') vForsaList(); });
   });
 }
-// ---------- beta: swipe a row to the left to show its buttons ----------
+// ---------- swipe a row to the left to show its buttons ----------
 function swRow(inner, acts) {
   return `<div class="swr"><div class="swa">${acts.map(([a, t, v]) => `<button data-sw="${a}" data-v="${esc(String(v))}" class="sw-${a}">${t}</button>`).join('')}</div><div class="swc">${inner}</div></div>`;
 }
@@ -845,16 +881,16 @@ function loadBible() {
 }
 
 // ---------- updates: same hymn data the desktop app gets (content.json on GitHub) ----------
-const DATA_VERSION = 24;
+const DATA_VERSION = 32;
 const RAW = 'https://raw.githubusercontent.com/brethrensundayschoolpresenter/brethren-sunday-school-presenter/main/renderer/data/';
 async function sha256(t) { const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(t)); return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join(''); }
 let lastCheck = 0;
 async function checkUpdates() {
-  lastCheck = Date.now();
+  lastCheck = Date.now(); return;   // BETA: test data only, no updates
   try {
     if (!('caches' in window) || !navigator.onLine) return;
     const c = await (await fetch(RAW + 'content.json?t=' + Date.now(), { cache: 'no-store' })).json();
-    const have = +(localStorage.getItem('ssw_dv') || DATA_VERSION);
+    const have = +(localStorage.getItem('sswb_dv') || DATA_VERSION);
     if (!c || !(c.dataVersion > have) || !c.files) return;
     const got = {};
     for (const f of Object.keys(c.files)) {
@@ -863,8 +899,8 @@ async function checkUpdates() {
       got[f] = t;
     }
     const cache = await caches.open('ssw-data');
-    for (const f in got) await cache.put(new URL('../app/data/' + f, location.href).href, new Response(got[f], { headers: { 'Content-Type': 'text/javascript; charset=utf-8' } }));
-    localStorage.setItem('ssw_dv', c.dataVersion);
+    for (const f in got) await cache.put(new URL('data/' + f, location.href).href, new Response(got[f], { headers: { 'Content-Type': 'text/javascript; charset=utf-8' } }));
+    localStorage.setItem('sswb_dv', c.dataVersion);
     if ((c.notes && c.notes.length) || c.history) saveNotes(c.dataVersion, c.notes, c.history, have);
     dataArrived(c.dataVersion);
   } catch (e) {}
@@ -883,36 +919,37 @@ function askReg() {
   if (localStorage.getItem('ssw_reg') === '1' || localStorage.getItem('bssp_reg') === '1') return;
   $('welcome').style.display = '';
   // a new phone: everything it has now is not «new» for it
-  try { localStorage.setItem('ssw_seen', H.length); localStorage.setItem('ssw_notes_seen', localStorage.getItem('ssw_dv') || DATA_VERSION); localStorage.setItem('ssw_appv', APPV); } catch (e) {}
+  try { localStorage.setItem('sswb_seen', H.length); localStorage.setItem('sswb_notes_seen', localStorage.getItem('sswb_dv') || DATA_VERSION); localStorage.setItem('sswb_appv', APPV); } catch (e) {}
   $('wN').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); $('wM').focus(); } });
   $('wf').addEventListener('submit', e => {
     e.preventDefault();
     const n = $('wN').value.trim(), m = $('wM').value.trim();
     if (n.length < 2) { $('wE').textContent = 'اكتب اسمك'; $('wN').focus(); return; }
     if (m.length < 2) { $('wE').textContent = 'اكتب اسم الاجتماع أو الكنيسة'; $('wM').focus(); return; }
-    try { localStorage.setItem('ssw_reg_wait', JSON.stringify({ n, m })); localStorage.setItem('ssw_reg', '1'); localStorage.setItem('ssw_name', n); localStorage.setItem('ssw_appv', APPV); } catch (x) {}
+    try { localStorage.setItem('ssw_reg_wait', JSON.stringify({ n, m })); localStorage.setItem('ssw_reg', '1'); localStorage.setItem('ssw_name', n); localStorage.setItem('sswb_appv', APPV); } catch (x) {}
     $('welcome').remove(); sendReg(); toast('أهلًا بيك يا ' + n.split(' ')[0]); setTimeout(showNews, 1500);
   });
 }
 
 // ---------- the hymns that came with this version of the web app (same site, so they never lag behind) ----------
 async function syncBundled() {
+  return;   // BETA: test data only
   try {
     if (!('caches' in window) || !navigator.onLine) return;
-    const have = +(localStorage.getItem('ssw_dv') || 0);
+    const have = +(localStorage.getItem('sswb_dv') || 0);
     if (have >= DATA_VERSION) return;
     let notes = [], hist = null;
-    try { const c = await (await fetch('../app/%64ata/content.json?fresh=' + DATA_VERSION, { cache: 'no-cache' })).json(); notes = c.notes || []; hist = c.history || null; } catch (e) {}
+    try { const c = await (await fetch('%64ata/content.json?fresh=' + DATA_VERSION, { cache: 'no-cache' })).json(); notes = c.notes || []; hist = c.history || null; } catch (e) {}
     const got = {};
     for (const f of ['hymns.js', 'topics.js', 'stories.js']) {
       // '%64ata' = 'data': an older offline worker on the phone doesn't recognise this path, so it can't answer with its old copy
-      const r = await fetch('../app/%64ata/' + f + '?fresh=' + DATA_VERSION, { cache: 'no-cache' });
+      const r = await fetch('%64ata/' + f + '?fresh=' + DATA_VERSION, { cache: 'no-cache' });
       if (!r.ok) return;
       got[f] = await r.text();
     }
     const cache = await caches.open('ssw-data');
-    for (const f in got) await cache.put(new URL('../app/data/' + f, location.href).href, new Response(got[f], { headers: { 'Content-Type': 'text/javascript; charset=utf-8' } }));
-    localStorage.setItem('ssw_dv', DATA_VERSION);
+    for (const f in got) await cache.put(new URL('data/' + f, location.href).href, new Response(got[f], { headers: { 'Content-Type': 'text/javascript; charset=utf-8' } }));
+    localStorage.setItem('sswb_dv', DATA_VERSION);
     if (have && (notes.length || hist)) saveNotes(DATA_VERSION, notes, hist, have);
     if (have) dataArrived(DATA_VERSION);
     else { const n = (got['hymns.js'].match(/"num":/g) || []).length; if (n && n !== H.length && !sessionStorage.getItem('ssw_rl')) { sessionStorage.setItem('ssw_rl', '1'); location.reload(); } }
@@ -942,7 +979,7 @@ document.addEventListener('focusout', () => setTimeout(() => { if (!document.act
 document.addEventListener('visibilitychange', () => { if (!document.hidden && Date.now() - lastCheck > 15 * 60 * 1000) { checkUpdates(); sendReg(); } });
 addEventListener('online', sendReg);
 
-// ---------- beta: splash ----------
+// ---------- splash ----------
 // logo + name appear together; after that the splash stays 1.3 s so the name is read, then fades (max 3.5 s in all)
 (function () {
   const sp = document.getElementById('splash'); if (!sp) return;
@@ -951,4 +988,24 @@ addEventListener('online', sendReg);
   const q = sp.querySelector('.spi'), t0 = Date.now();
   (function wait() { if (q && q.classList.contains('go')) setTimeout(out, 1300); else if (Date.now() - t0 < 2000) setTimeout(wait, 50); else out(); })();
   setTimeout(out, 3500);
+})();
+
+// iPhone fix (2026-11-26): Safari sometimes leaves the visual viewport offset after a scroll, so the fixed header
+// disappears and the bottom tab bar sits in the middle of the screen. Keep both glued to what is actually on screen.
+(function () {
+  const v = window.visualViewport, T = document.querySelector('.top'), B = document.getElementById('tabs');
+  if (!v || !T || !B) return;
+  let raf = 0;
+  const typing = () => { const a = document.activeElement; return !!a && /^(INPUT|TEXTAREA)$/.test(a.tagName); };
+  const fix = () => {
+    raf = 0;
+    if (typing()) { T.style.transform = ''; B.style.transform = ''; return; }   // keyboard open: leave everything as before
+    const dy = Math.round(v.offsetTop), db = Math.round(v.offsetTop + v.height - innerHeight);
+    T.style.transform = dy > 1 ? 'translateY(' + dy + 'px)' : '';
+    B.style.transform = Math.abs(db) > 1 ? 'translateY(' + db + 'px)' : '';
+  };
+  // wait until the scroll (and the end-of-page bounce) has fully stopped, so the bars never follow the bounce
+  let idle = 0;
+  const q = () => { clearTimeout(idle); idle = setTimeout(() => { if (!raf) raf = requestAnimationFrame(fix); }, 250); };
+  v.addEventListener('resize', q); v.addEventListener('scroll', q); addEventListener('scroll', q, { passive: true });
 })();

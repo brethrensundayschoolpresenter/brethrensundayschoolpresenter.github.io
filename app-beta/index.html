@@ -28,29 +28,29 @@
 :root[data-theme=dark] :is(.letter,.badge,.fnum,.upd-ic,.upd-ok,.newf,.addf,.sug,.azh,.welcome button,.tabs a.on,.ib.on,.back.y,.keyl,#fbar button,#kbar button.on,.golyr.gkey,.vsel button,.fref button,.cl-news .cl-gbtn,.cl-news .cl-new,.cloud .cl-b,.card .lb span,.vb .tag,mark,.hl,.fbk-b button:first-child,.grid button:active,.seg button.on){color:var(--onhi)}
 :root[data-theme=dark] .golyr.gkey small{color:#333}
 :root[data-theme=dark] img[src$="icon-192.png"]{filter:none}
-/* beta: segmented control (Bible) */
+/* segmented control (Bible) */
 .seg{display:flex;gap:6px;background:var(--soft);border:2px solid var(--ink);border-radius:14px;padding:4px;margin:10px 0 12px;position:sticky;top:calc(var(--azt,112px) + 6px);z-index:6}
 .seg button{flex:1;border-radius:10px;padding:8px 6px;font-weight:800;font-size:16px;color:var(--mut);transition:background .2s,color .2s}
 .seg button.on{background:var(--hi);color:var(--onhi)}
-/* beta: motion (short and soft; off when the phone asks for less motion) */
+/* motion (short and soft; off when the phone asks for less motion) */
 @keyframes bIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
 @keyframes bPop{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
 #main.anim{animation:bIn .22s ease-out}
 .fadein{animation:bIn .2s ease-out}
 .upd,.welcome>div,.cl-news{animation:bPop .22s ease-out}
 @media (prefers-reduced-motion:reduce){#splash .spi{opacity:1}#main.anim,.fadein,.upd,.welcome>div,.cl-news,#splash{animation:none!important;transition:none!important}}
-/* beta: compact font buttons */
+/* compact font buttons */
 .tools.tsz{justify-content:flex-start;gap:6px}
 .tools.tsz button{width:42px;height:34px;padding:0;font-size:17px;line-height:1;display:flex;align-items:center;justify-content:center;gap:1px}
 .tools.tsz button.big{font-size:22px}
 .tools.tsz sub{font-size:12px;vertical-align:0;font-weight:800}
 .tools button.on{background:var(--hi);color:var(--onhi)}
-/* beta: last searches */
+/* last searches */
 .recent{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:8px 0 10px}
 .recent .rl{font-size:12.5px;color:var(--mut);font-weight:700}
 .recent button{border:1.5px solid var(--line);border-radius:999px;padding:2px 12px;font-size:14px;font-weight:700;background:var(--panel)}
 .recent .rx{border:0;color:var(--mut);font-size:18px;padding:0 6px;background:none}
-/* beta: swipe rows */
+/* swipe rows */
 .swr{position:relative;margin-bottom:7px;border-radius:14px;overflow:hidden}
 .swr .it{margin-bottom:0}
 .swc{position:relative;z-index:1;transition:transform .22s ease;background:var(--bg);touch-action:pan-y}
@@ -59,17 +59,20 @@
 .swa .sw-del,.swa .sw-rm{background:#d64545}
 .swa .sw-dup{background:#3f7fd6}
 .swr.gone{display:none}
-/* beta: reorder favourites */
+/* reorder favourites */
 .ordr{display:flex;align-items:stretch;gap:6px;margin-bottom:7px}
 .ordr .it{flex:1;margin:0}
-.ordr .ob{display:flex;flex-direction:column;gap:4px}
-.ordr .ob button{flex:1;width:40px;border:2px solid var(--ink);border-radius:10px;display:flex;align-items:center;justify-content:center;background:var(--panel)}
-.ordr .ob button:disabled{opacity:.3}
-.ordr .ob svg{width:18px;height:18px;stroke:var(--ink);fill:none;stroke-width:2.4}
-/* beta: undo bar */
+.ordr{position:relative;background:var(--bg)}
+.ordr .dh{width:44px;flex:none;border:2px solid var(--ink);border-radius:10px;display:flex;align-items:center;justify-content:center;background:var(--panel);touch-action:none;-webkit-user-select:none;user-select:none;cursor:grab}
+.ordr .dh svg{width:20px;height:20px;stroke:var(--ink);fill:none;stroke-width:2.4;stroke-linecap:round}
+.ordr.slide{transition:transform .18s ease}
+.ordr.drag{z-index:5;box-shadow:0 10px 26px #0004;border-radius:14px}
+.ordr.drag .dh{background:var(--hi);cursor:grabbing}
+.ordr.drag .dh svg{stroke:#111}
+/* undo bar */
 .undo{position:fixed;left:12px;right:12px;bottom:calc(86px + var(--safe-b));z-index:60;display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--ink);color:var(--panel);border-radius:14px;padding:10px 14px;font-weight:800;animation:bIn .2s ease-out}
 .undo button{color:var(--hi);font-weight:800;font-size:16px;padding:2px 6px}
-/* beta: splash */
+/* splash */
 #splash{position:fixed;inset:0;z-index:100;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;transition:opacity .35s ease}
 #splash .spi{display:flex;flex-direction:column;align-items:center;gap:10px;opacity:0}
 #splash .spi.go{animation:bPop .35s ease-out forwards}
@@ -357,7 +360,7 @@ body.typing #fbar{display:none}
 </form></div>
 <div class="az" id="az"></div><div class="azh" id="azh" style="display:none" aria-label="الحروف"></div><div class="azb" id="azb"></div>
 <div class="toast" id="toast"></div>
-<script src="../app/data/hymns.js"></script>
+<script src="data/hymns.js"></script>
 <script src="../app/data/topics.js"></script>
 <script src="../app/data/stories.js"></script>
 <script src="../app/data/keys.js"></script>
