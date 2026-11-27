@@ -67,9 +67,10 @@ function hiLine(lines, q) {
   return esc(best.slice(0, s)) + '<mark>' + esc(best.slice(s, e)) + '</mark>' + esc(best.slice(e));
 }
 const firstLetter = t => { const c = KE.norm(t).charAt(0); return /[a-z]/.test(c) ? 'English' : c || '#'; };
+const ABC = 'ابتثجحخدذرزسشصضطظعغفقكلمنهوي', LRANK = l => { const i = ABC.indexOf(l); return i < 0 ? (l === 'English' ? 99 : 98) : i; };   // A–Z letters in Arabic alphabet order (not by hymn number)
 function alphaHTML(nums) {
   const L0 = n => firstLetter(H[n - 1].title), D0 = n => H[n - 1].d || '';
-  const sorted = nums.slice().sort((a, b) => a - b), order = [...new Set(sorted.map(L0))];
+  const sorted = nums.slice().sort((a, b) => a - b), order = [...new Set(sorted.map(L0))].sort((x, y) => LRANK(x) - LRANK(y));
   sorted.sort((a, b) => order.indexOf(L0(a)) - order.indexOf(L0(b)) || (D0(b) > D0(a) ? 1 : D0(b) < D0(a) ? -1 : a - b));
   let cur = null, out = '';
   sorted.forEach(n => { const L = L0(n); if (L !== cur) { cur = L; out += `<div class="lh" data-l="${esc(L)}"><span class="letter">${esc(L)}</span></div>`; } out += hymnItem(n); });
@@ -248,7 +249,7 @@ function vHymn(n) {
   const seen = new Set(); let k = 0, lyr = '', prevLab = null;
   const asis = h.slides.every(s => !s.label);   // no ق/1 labels = keep every slide exactly like the ppt (repeats too)
   h.slides.forEach(s => {
-    const key = s.lines.join('\n'); if (!asis && seen.has(key)) return; seen.add(key);
+    const key = s.lines.join('\n'); if (!asis && !s.part && seen.has(key)) return; seen.add(key);   // a repeated whole verse/chorus shows once; the rest of a verse (part) always shows
     const cont = s.part || (s.label && s.label === prevLab); prevLab = s.label;   // 2nd slide of the same verse/chorus: no new tag
     const tag = cont ? '' : s.label === 'ق' ? 'القرار' : s.label ? 'العدد ' + arD(s.label) : '';
     lyr += `<div class="vb ${(cont ? k - 1 : k++) % 2 ? 'bl' : 'w'}">${tag ? `<div><span class="tag">${tag}</span></div>` : ''}${s.lines.map(esc).join('<br>')}</div>`;
@@ -339,7 +340,7 @@ function keyRank(k) {   // C=0 … B=11, minor right after its major (C, Cm, C#,
 }
 function alphaOrder(nums) {
   const L0 = n => firstLetter(H[n - 1].title), D0 = n => H[n - 1].d || '';
-  const sorted = nums.slice().sort((a, b) => a - b), order = [...new Set(sorted.map(L0))];
+  const sorted = nums.slice().sort((a, b) => a - b), order = [...new Set(sorted.map(L0))].sort((x, y) => LRANK(x) - LRANK(y));
   return sorted.sort((a, b) => order.indexOf(L0(a)) - order.indexOf(L0(b)) || (D0(b) > D0(a) ? 1 : D0(b) < D0(a) ? -1 : a - b));
 }
 
@@ -880,7 +881,7 @@ function loadBible() {
 }
 
 // ---------- updates: same hymn data the desktop app gets (content.json on GitHub) ----------
-const DATA_VERSION = 32;
+const DATA_VERSION = 33;
 const RAW = 'https://raw.githubusercontent.com/brethrensundayschoolpresenter/brethren-sunday-school-presenter/main/renderer/data/';
 async function sha256(t) { const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(t)); return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join(''); }
 let lastCheck = 0;
