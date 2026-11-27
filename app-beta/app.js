@@ -995,6 +995,8 @@ addEventListener('online', sendReg);
 (function () {
   const v = window.visualViewport, T = document.querySelector('.top'), B = document.getElementById('tabs');
   if (!v || !T || !B) return;
+  // app opened from the Home Screen: no Safari bars move, so the bars stay fixed by CSS alone (the transform made them jump sometimes)
+  if (matchMedia('(display-mode: standalone)').matches || navigator.standalone) { T.style.transform = ''; B.style.transform = ''; document.documentElement.classList.add('pwa'); return; }
   let raf = 0;
   const typing = () => { const a = document.activeElement; return !!a && /^(INPUT|TEXTAREA)$/.test(a.tagName); };
   const fix = () => {
