@@ -148,7 +148,7 @@ function newHymnsHTML() {
   const notes = pendingNotes().filter(t => !nw.some(h => t.includes(h.title)) && !(app.length && app.some(x => x.includes('اللسان والكلام')) && t.includes('اللسان والكلام')));
   if (!nw.length && !notes.length && !app.length && !nk.length) return '';
   const title = nw.length ? (nw.length > 1 ? 'ترانيم جديدة اتضافت' : 'ترنيمة جديدة اتضافت') : app.length ? 'البرنامج اتحدّث' : notes.length ? 'الترانيم اتحدّثت' : 'Keys جديدة اتضافت';
-  return `<div class="upd-card"><div class="upd-ic">✨</div><h3>${title}</h3>`
+  return `<div class="upd-card"><div class="upd-ic"><svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true"><path fill="#111" d="M12 2l2.2 6.3L20.5 10l-6.3 2.2L12 18.5l-2.2-6.3L3.5 10l6.3-1.7z"/><path fill="#111" d="M19 15l.9 2.1L22 18l-2.1.9L19 21l-.9-2.1L16 18l2.1-.9z"/></svg></div><h3>${title}</h3>`
     + nw.map(h => `<a class="upd-h" href="#/h/${h.num}" onclick="closeNews()">«${esc(h.title)}» <span>افتحها ‹</span></a>`).join('')
     + (notes.length ? `<ul>${notes.map(t => `<li>${esc(t)}</li>`).join('')}</ul>` : '')
     + (nk.length || app.length ? `<div class="upd-k">${nk.length ? `اتضاف الـ<bdi>Key</bdi> لـ ${arD(nk.length)} ترنيمة جديدة، وبقى عندنا ${arD(Object.keys(KY).length)} ترنيمة ليها <bdi>Key</bdi>.` : `بقى عندنا ${arD(Object.keys(KY).length)} ترنيمة ليها <bdi>Key</bdi>.`}<br><span>بنشكر الرب لأجل الشباب اللي تعبوا في تحضيرهم.</span></div>` : '')
@@ -200,7 +200,7 @@ function dataArrived(v) {
   if ($('updBtn')) return;
   const el = document.createElement('button'); el.id = 'updBtn';
   el.className = 'toast show'; el.style.pointerEvents = 'auto'; el.style.background = '#ffff00'; el.style.color = '#111'; el.style.border = '2px solid #111';
-  el.textContent = 'وصل تحديث للترانيم ✨ — دوس هنا'; el.onclick = () => { reloading = true; location.reload(); };
+  el.textContent = 'وصل تحديث للترانيم — دوس هنا'; el.onclick = () => { reloading = true; location.reload(); };
   document.body.appendChild(el);
 }
 
