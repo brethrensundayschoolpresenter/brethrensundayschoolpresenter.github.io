@@ -290,15 +290,16 @@ function vTopics() {
   let out = '', sec = null;
   T.forEach(t => {
     if (t.section !== sec) { sec = t.section; out += `<div><span class="letter">${esc(sec)}</span></div>`; }
-    out += `<a class="it" href="#/t/${t.id}"><div class="tp"><div class="t">${esc(t.name)}</div><span class="n">${arD(t.nums.length)} ترنيمة</span></div>${t.ref ? `<div class="s">${esc(t.ref.replace(/\d/g, d => arD(d)))}</div>` : ''}</a>`;
+    out += `<a class="it" href="#/t/${t.id}"><div class="tp"><div class="t">${esc(t.name)}</div><span class="n">${arD(t.nums.filter(n => H[n - 1] && !H[n - 1].x).length)} ترنيمة</span></div>${t.ref ? `<div class="s">${esc(t.ref.replace(/\d/g, d => arD(d)))}</div>` : ''}</a>`;
   });
   $('main').innerHTML = out;
 }
 function vTopic(id) {
   const t = T.find(x => x.id === id); if (!t) { location.hash = '#/topics'; return; }
   setTab('topics'); backBar('المواضيع'); showSearch(false);
-  const head = `<div class="ht"><span class="hl">${esc(t.name)}</span></div><div class="s" style="color:var(--mut);font-weight:700;margin-bottom:6px">${arD(t.nums.length)} ترنيمة</div>`;
-  const draw = () => { $('main').innerHTML = head + (NAV.byKey ? keyHTML(t.nums) : alphaHTML(t.nums)); };
+  const tn = t.nums.filter(n => H[n - 1] && !H[n - 1].x);   // a hidden hymn never shows in a topic
+  const head = `<div class="ht"><span class="hl">${esc(t.name)}</span></div><div class="s" style="color:var(--mut);font-weight:700;margin-bottom:6px">${arD(tn.length)} ترنيمة</div>`;
+  const draw = () => { $('main').innerHTML = head + (NAV.byKey ? keyHTML(tn) : alphaHTML(tn)); };
   document.querySelectorAll('#kbar').forEach(x => x.remove());
   if (t.nums.some(n => KY[n])) {   // only when some hymn in this topic has an approved Key
     const kb = document.createElement('div'); kb.id = 'kbar';
