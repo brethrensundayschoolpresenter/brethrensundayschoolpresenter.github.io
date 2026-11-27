@@ -249,7 +249,7 @@ function vHymn(n) {
   const seen = new Set(); let k = 0, lyr = '', prevLab = null;
   const asis = h.slides.every(s => !s.label);   // no ق/1 labels = keep every slide exactly like the ppt (repeats too)
   h.slides.forEach(s => {
-    const key = s.lines.join('\n'); if (!asis && seen.has(key)) return; seen.add(key);
+    const key = s.lines.join('\n'); if (!asis && !s.part && seen.has(key)) return; seen.add(key);   // a repeated whole verse/chorus shows once; the rest of a verse (part) always shows
     const cont = s.part || (s.label && s.label === prevLab); prevLab = s.label;   // 2nd slide of the same verse/chorus: no new tag
     const tag = cont ? '' : s.label === 'ق' ? 'القرار' : s.label ? 'العدد ' + arD(s.label) : '';
     lyr += `<div class="vb ${(cont ? k - 1 : k++) % 2 ? 'bl' : 'w'}">${tag ? `<div><span class="tag">${tag}</span></div>` : ''}${s.lines.map(esc).join('<br>')}</div>`;
