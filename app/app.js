@@ -985,6 +985,7 @@ if ('serviceWorker' in navigator) {
   // always look for a newer version of the app files; when one takes over, reload once so it shows right away
   const hadSW = !!navigator.serviceWorker.controller;
   navigator.serviceWorker.register('sw.js', { updateViaCache: 'none' }).then(r => r.update()).catch(() => {});
+  try { if (navigator.storage && navigator.storage.persist) navigator.storage.persist().catch(() => {}); } catch (e) {}   // ask the phone not to clear the offline copy when space is low
   let reloaded = false;
   navigator.serviceWorker.addEventListener('controllerchange', () => { if (hadSW && !reloaded) { reloaded = true; reloading = true; location.reload(); } });
 }
