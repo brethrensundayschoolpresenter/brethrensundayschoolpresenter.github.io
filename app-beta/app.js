@@ -1070,6 +1070,7 @@ function askReg() {
     if (m.length < 2) { $('wE').textContent = 'اكتب اسم الاجتماع أو الكنيسة'; $('wM').focus(); return; }
     try { localStorage.setItem('ssw_reg_wait', JSON.stringify({ n, m })); localStorage.setItem('ssw_reg', '1'); localStorage.setItem('ssw_name', n); localStorage.setItem('ssw_meet', m); localStorage.setItem('sswb_appv', APPV); } catch (x) {}
     $('welcome').remove(); sendReg(); sendPing(); toast('أهلًا بيك يا ' + n.split(' ')[0]); setTimeout(showNews, 1500);
+    if (document.activeElement) document.activeElement.blur(); scrollTo(0, 0); setTimeout(() => scrollTo(0, 0), 400);   // the keyboard had pushed the page down: back to the top
   });
 }
 
