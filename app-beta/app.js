@@ -818,14 +818,14 @@ async function shareForsa(f) {
 // «استورد فرصة»: someone sent a فرصة on WhatsApp («شارك» text from this app) → paste it here → it becomes a NEW فرصة on this phone
 function importSheet() {
   openSheet(`<div class="ht" style="margin:0 0 8px"><span class="hl">افتح فرصة اتبعتتلك</span></div>
-    <div class="s" style="color:var(--mut);font-weight:600;margin-bottom:8px">انسخ رسالة الفرصة اللي اتبعتتلك على الواتساب والزقها هنا.</div>
+    <div class="s" style="color:var(--mut);font-weight:600;margin-bottom:8px">انسخ رسالة الفرصة اللي اتبعتتلك على الواتساب والزقها هنا. ولو اللي اتبعتلك ملف، دوس «اختار الملف» تحت.</div>
     <textarea id="imT" class="imt" placeholder="الزق رسالة الفرصة هنا" dir="rtl"></textarea>
     <div class="imb"><button id="imP" class="golyr">الصق</button><button id="imGo" class="newf" style="margin:0;flex:1">افتحها</button></div>
     <div id="imR"></div>
-    <button id="imF" class="linkb">أو اختار ملف فرصة (.json)</button><input type="file" id="imFile" accept=".json,application/json,text/plain" hidden>`);
+    <button id="imF" class="linkb">اتبعتلك ملف؟ اختار الملف</button><input type="file" id="imFile" accept=".json,application/json,text/plain" hidden>`);
   $('imP').onclick = async () => { try { const t = await navigator.clipboard.readText(); if (t) $('imT').value = t; else toast('مفيش حاجة منسوخة'); } catch (e) { toast('دوس جوه الخانة واختار «لصق»'); $('imT').focus(); } };
   $('imF').onclick = () => $('imFile').click();
-  $('imFile').onchange = () => { const f = $('imFile').files[0]; if (f) { closeSheet(); restoreForsas(f); } };
+  $('imFile').onchange = async () => { const f = $('imFile').files[0]; if (!f) return; let t = ''; try { t = await f.text(); } catch (e) {} $('imFile').value = ''; withBible(() => importPreview(t)); };
   $('imGo').onclick = () => { const t = $('imT').value.trim(); if (!t) { toast('الزق رسالة الفرصة الأول'); return; } withBible(() => importPreview(t)); };
 }
 function parseForsaText(txt) {
@@ -865,17 +865,38 @@ function parseForsaText(txt) {
   f.note = notes.join('\n').trim();
   return { f, miss };
 }
+function parseForsaJSON(txt) {
+  let d; try { d = JSON.parse(txt); } catch (e) { return null; }
+  const list = d && d.app === 'ssw-forsa' && Array.isArray(d.forsas) ? d.forsas : null; if (!list) return null;
+  const exact = new Map(), byName = new Map();
+  H.forEach((h, k) => { if (h && !h.x) { if (!exact.has(h.title)) exact.set(h.title, k + 1); const nn = KE.norm(h.title); if (!byName.has(nn)) byName.set(nn, k + 1); } });
+  return list.filter(f => f && Array.isArray(f.items)).map(src => {
+    const f = { title: String(src.title || '').slice(0, 60), date: /^\d{4}-\d\d-\d\d$/.test(src.date) ? src.date : todayStr(), place: String(src.place || ''), note: String(src.note || ''), items: [] }, miss = [];
+    src.items.forEach(it => {
+      if (it.t === 'h') {   // by the name (the numbers can differ between copies), then by the number
+        const same = H[it.n - 1] && !H[it.n - 1].x && (!it.title || H[it.n - 1].title === it.title);   // same number + same name = surely that hymn
+        const n = same ? it.n : (it.title && (exact.get(it.title) || byName.get(KE.norm(it.title)))) || 0;
+        if (n) f.items.push({ t: 'h', n, note: String(it.note || '') }); else miss.push(it.title || '؟');
+      } else if (B && B[it.b] && B[it.b].chapters[it.c] && B[it.b].chapters[it.c][it.v] != null) f.items.push({ t: 'v', b: it.b, c: it.c, v: it.v, v2: Math.max(it.v, Math.min(+it.v2 || it.v, B[it.b].chapters[it.c].length - 1)), note: String(it.note || '') });
+      else miss.push('شاهد');
+    });
+    return { f, miss };
+  });
+}
 function importPreview(txt) {
-  const r = parseForsaText(txt);
-  if (!r || (!r.f.items.length && !r.miss.length)) { $('imR').innerHTML = '<div class="imr bad">دي مش رسالة فرصة. لازم تكون الرسالة اللي اتعملت بزرار «شارك» في البرنامج.</div>'; return; }
-  const f = r.f;
-  $('imR').innerHTML = `<div class="imr"><b>${esc(fName(f))}</b><div>${esc(fDate(f.date))}${f.place ? ' · ' + esc(f.place) : ''}</div><div>لقيت: ${countTxt(f)}</div>`
-    + (r.miss.length ? `<div class="bad">مالقيتش: ${r.miss.map(esc).join('، ')}</div>` : '')
-    + (f.items.length ? '<button id="imOk" class="newf" style="margin-top:10px">ضيفها لفرصي</button>' : '') + '</div>';
+  txt = String(txt || '').trim();
+  const rs = txt.startsWith('{') ? parseForsaJSON(txt) : (r => r ? [r] : null)(parseForsaText(txt));
+  if (!rs || !rs.length || rs.every(r => !r.f.items.length && !r.miss.length)) { $('imR').innerHTML = '<div class="imr bad">دي مش فرصة. الزق الرسالة اللي اتبعتتلك من البرنامج زي ما هي، أو اختار الملف.</div>'; return; }
+  const ok = rs.filter(r => r.f.items.length);
+  $('imR').innerHTML = '<div class="imr">' + rs.map(r => `<b>${esc(fName(r.f))}</b><div>${esc(fDate(r.f.date))}${r.f.place ? ' · ' + esc(r.f.place) : ''}</div><div>لقيت: ${countTxt(r.f)}</div>`
+    + (r.miss.length ? `<div class="bad">مالقيتش: ${r.miss.map(esc).join('، ')}</div>` : '')).join('<hr>')
+    + (ok.length ? `<button id="imOk" class="newf" style="margin-top:10px">${ok.length > 1 ? 'ضيفهم لفرصي' : 'ضيفها لفرصي'}</button>` : '') + '</div>';
   if ($('imOk')) $('imOk').onclick = () => {
-    const nf = Object.assign({ id: Date.now().toString(36) }, f);
-    FR.unshift(nf); saveFR(); try { localStorage.setItem('ssw_flast', nf.id); } catch (e) {}
-    closeSheet(); location.hash = '#/f/' + nf.id; toast('الفرصة اتضافت لفرصك');
+    let first = null; const t0 = Date.now();
+    ok.slice().reverse().forEach((r, i) => { const nf = Object.assign({ id: (t0 + i).toString(36) }, r.f); FR.unshift(nf); first = nf; });
+    saveFR(); try { localStorage.setItem('ssw_flast', first.id); } catch (e) {}
+    closeSheet();
+    if (ok.length === 1) { location.hash = '#/f/' + first.id; toast('الفرصة اتضافت لفرصك'); } else { vForsaList(); toast('اتضافت ' + arD(ok.length) + (ok.length <= 10 ? ' فرص' : ' فرصة') + ' لفرصك'); }
   };
 }
 // Bible chapter: tap verses to pick them, then «ضيف للفرصة»
