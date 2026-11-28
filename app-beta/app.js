@@ -130,8 +130,8 @@ function pendingNotes() {
 // popup after an update (opens by itself, once):
 //  new hymns -> «ترنيمة جديدة اتضافت» + the names (tap = open it); only fixes -> «الترانيم اتحدّثت» + the notes
 // «البرنامج اتحدّث»: bump APPV + APP_NEWS when the web app itself gets something new
-const APPV = 9;   // 9 = same news as 8, shown again to everyone (Shady) with the Keys count + thanks
-const APP_NEWS = ['شكل جديد: وضع غامق بيمشي مع الموبايل، وتقدر تغيّره من زرار القمر/الشمس فوق.', 'الكتاب المقدس: اختار «العهد القديم» أو «العهد الجديد» من فوق على طول.', 'في «فرصي»: اسحب أي فرصة لليسار عشان تعمل منها نسخة أو تمسحها (ولو مسحت بالغلط دوس «تراجع»).', 'المفضلة: رتّبهم زي ما تحب، واسحب أي ترنيمة لليسار عشان تشيلها.', 'وآخر حاجات دوّرت عليها بتظهر فوق قايمة الترانيم.'];
+const APPV = 10;   // 10 = Key in the shared فرصة + «افتحها هنا» + ≡ drag (28 Nov)
+const APP_NEWS = ['لو حضّرت فرصة وعايز تبعتها للي بيعزف معاك: دوس «شير الفرصة كتابة»، وهيتكتب الـKey جنب اسم كل ترنيمة ليها Key.', 'ولو حد بعتلك فرصة على الواتساب (رسالة أو ملف): افتح «فرصي» ودوس «افتحها هنا»، وهتنزل عندك بالترانيم والشواهد بنفس الترتيب.', 'وترتيب الفرصة بقى أسهل: امسك ≡ واسحب الترنيمة لمكانها.'];
 const APP_LINK = ['#/f', 'افتح «فرصي»'];
 // new Keys since the last popup («Keys جديدة اتضافت»); first run just remembers what's there
 function newKeys() {
@@ -152,8 +152,9 @@ function newHymnsHTML() {
   return `<div class="upd-card"><div class="upd-ic"><svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true"><path fill="#111" d="M12 2l2.2 6.3L20.5 10l-6.3 2.2L12 18.5l-2.2-6.3L3.5 10l6.3-1.7z"/><path fill="#111" d="M19 15l.9 2.1L22 18l-2.1.9L19 21l-.9-2.1L16 18l2.1-.9z"/></svg></div><h3>${title}</h3>`
     + nw.map(h => `<a class="upd-h" href="#/h/${h.num}" onclick="closeNews()">«${esc(h.title)}» <span>افتحها ‹</span></a>`).join('')
     + (notes.length ? `<ul>${notes.map(t => `<li>${esc(t)}</li>`).join('')}</ul>` : '')
-    + (nk.length || app.length ? `<div class="upd-k">${nk.length ? `اتضاف الـ<bdi>Key</bdi> لـ ${arD(nk.length)} ترنيمة جديدة، وبقى عندنا ${arD(Object.keys(KY).length)} ترنيمة ليها <bdi>Key</bdi>.` : `بقى عندنا ${arD(Object.keys(KY).length)} ترنيمة ليها <bdi>Key</bdi>.`}<br><span>بنشكر الرب لأجل الشباب اللي تعبوا في تحضيرهم.</span></div>` : '')
-    + (app.length ? `${nw.length || notes.length ? '<b>جديد في البرنامج:</b>' : ''}<ul>${app.map(t => `<li>${esc(t)}</li>`).join('')}</ul><a class="upd-h" href="${APP_LINK[0]}" onclick="closeNews()">${APP_LINK[1]} <span>‹</span></a>` : '')
+    + (app.length ? `<div class="upd-kk">${nk.length ? `اتضاف الـ<bdi>Key</bdi> لـ ${arD(nk.length)} ترنيمة جديدة، وبقى عندنا ${arD(Object.keys(KY).length)} ترنيمة ليها <bdi>Key</bdi>.` : `بقى عندنا ${arD(Object.keys(KY).length)} ترنيمة ليها <bdi>Key</bdi>.`}<br><span>بنشكر الرب لأجل الشباب اللي تعبوا في تحضيرهم.</span></div>`   // the Keys line first, small; the app news keeps the yellow box
+      + `${nw.length || notes.length ? '<b>جديد في البرنامج:</b>' : ''}<div class="upd-k">${esc(app[0])}</div>${app.length > 1 ? `<ul>${app.slice(1).map(t => `<li>${esc(t)}</li>`).join('')}</ul>` : ''}<a class="upd-h" href="${APP_LINK[0]}" onclick="closeNews()">${APP_LINK[1]} <span>‹</span></a>`
+    : nk.length ? `<div class="upd-k">${nk.length ? `اتضاف الـ<bdi>Key</bdi> لـ ${arD(nk.length)} ترنيمة جديدة، وبقى عندنا ${arD(Object.keys(KY).length)} ترنيمة ليها <bdi>Key</bdi>.` : `بقى عندنا ${arD(Object.keys(KY).length)} ترنيمة ليها <bdi>Key</bdi>.`}<br><span>بنشكر الرب لأجل الشباب اللي تعبوا في تحضيرهم.</span></div>` : '')
     + `<button class="upd-ok" onclick="closeNews()">تمام</button></div>`;
 }
 function markNewsSeen() {
@@ -972,7 +973,7 @@ function loadBible() {
 }
 
 // ---------- updates: same hymn data the desktop app gets (content.json on GitHub) ----------
-const DATA_VERSION = 51;
+const DATA_VERSION = 52;
 const RAW = 'https://raw.githubusercontent.com/brethrensundayschoolpresenter/brethren-sunday-school-presenter/main/renderer/data/';
 async function sha256(t) { const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(t)); return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join(''); }
 let lastCheck = 0;
