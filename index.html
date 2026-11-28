@@ -545,7 +545,7 @@ document.getElementById('regf').addEventListener('submit', async e => {
   const fd = new FormData();
   fd.append('entry.1735689864', n); fd.append('entry.520013336', m);
   try { await fetch(FORM, { method: 'POST', mode: 'no-cors', body: fd }); } catch (x) {}
-  try { localStorage.setItem('bssp_reg', '1'); } catch (x) {}
+  try { localStorage.setItem('bssp_reg', '1'); localStorage.setItem('ssw_name', n); localStorage.setItem('ssw_meet', m); } catch (x) {}   // the app (same site) knows the name + meeting too
   document.getElementById('reg').classList.remove('open');
   location.href = pending;
 });

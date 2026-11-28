@@ -223,9 +223,9 @@ function vHymns() {
   if (q.length > 1) { clearTimeout(vHymns.rt); vHymns.rt = setTimeout(() => recentAdd(q), 1500); }
   if (!q) {
     m.innerHTML = recentHTML() + `<div class="hint"><b>رجاء محبة:</b> استخدم البرنامج للمساعدة بس، لأنه مش بديل إنك تاخد وقت قدّام الرب وتطلب إرشاده قبل فرصة الترانيم.</div>`
-      + (localStorage.getItem('ssw_hint2') || matchMedia('(display-mode: standalone)').matches || navigator.standalone ? '' : `<div class="hint">عايز تفتحه زي أي برنامج ومن غير نت؟ ضيفه للشاشة الرئيسية (Add to Home Screen) — <a href="../#add" style="color:var(--link);font-weight:800;text-decoration:underline">شوف إزاي بالصور</a>. <button style="color:var(--link);font-weight:800" onclick="localStorage.setItem('ssw_hint2',1);this.parentNode.remove()">تمام</button></div>`)
+      + (isApp() || !isPhone() ? '' : `<button class="mkapp" id="mkapp"><div><b>خلّيه برنامج على موبايلك</b><small>بيفتح أسرع، وبيشتغل من غير نت، ومن غير شريط المتصفح.</small></div><span>‹</span></button>`)
       + alphaHTML(HV.map(h => h.num));
-    recentBind();
+    recentBind(); if ($('mkapp')) $('mkapp').onclick = mkAppSheet;
     return;
   }
   const seen = new Set(), tit = KE.searchTitles(q, 15), frag = KE.searchFragments(q, 60), res = KE.searchHymnText(q, 60);
@@ -452,6 +452,20 @@ function vFav() {
   if (ord) dragSort($('main'), (from, to) => { const [x] = FAV.splice(from, 1); FAV.splice(to, 0, x); saveFav(); const y = scrollY; vFav(); scrollTo(0, y); });
   swipeBind($('main'), (act, n, row) => { n = +n; row.classList.add('gone'); undoBar('اتشالت من المفضلة', () => { row.classList.remove('gone'); swClose(row); }, () => { FAV = FAV.filter(x => x !== n); saveFav(); if (location.hash === '#/fav') { const y = scrollY; vFav(); scrollTo(0, y); } }); });
 }
+// «خلّيه برنامج على موبايلك»: a small strip on the home screen while it is opened in the browser (phones only); gone once it is on the Home Screen
+const isApp = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+const isPhone = () => /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.maxTouchPoints > 1 && /Macintosh/.test(navigator.userAgent));
+let A2HS = null; addEventListener('beforeinstallprompt', e => { e.preventDefault(); A2HS = e; });
+function mkAppSheet() {
+  const ios = /iPhone|iPad|iPod/i.test(navigator.userAgent) || (navigator.maxTouchPoints > 1 && /Macintosh/.test(navigator.userAgent));
+  const inApp = /FBAN|FBAV|Instagram|Line\/|; wv\)/i.test(navigator.userAgent) || (ios && !/Safari/i.test(navigator.userAgent));
+  openSheet(`<div class="ht" style="margin:0 0 8px"><span class="hl">خلّيه برنامج على موبايلك</span></div>
+    <div class="imhow"><div>• بيفتح أسرع، من أيقونة على الشاشة زي أي برنامج.</div><div>• بيشتغل من غير نت.</div><div>• من غير شريط المتصفح، فالشاشة كلها للترنيمة.</div></div>
+    ${inApp ? `<div class="imr">إنت فاتحه من جوه برنامج تاني (زي الواتساب)، ومن هنا مينفعش يتضاف. افتح الرابط في ${ios ? 'Safari' : 'Chrome'} الأول، وبعدين ضيفه.</div>` : ''}
+    ${A2HS ? '<button id="mkNow" class="newf" style="margin-top:10px">ضيفه دلوقتي</button>' : `<div class="imr">${ios ? 'في Safari: دوس زرار المشاركة <b>⬆︎</b> تحت، وبعدين «إضافة إلى الشاشة الرئيسية» (Add to Home Screen).' : 'في Chrome: دوس <b>⋮</b> فوق، وبعدين «إضافة إلى الشاشة الرئيسية» أو «تثبيت التطبيق».'}</div>`}
+    <a class="linkb" href="../#add">شوف الخطوات بالصور</a>`);
+  if ($('mkNow')) $('mkNow').onclick = async () => { try { A2HS.prompt(); const r = await A2HS.userChoice; A2HS = null; closeSheet(); if (r && r.outcome === 'accepted') toast('اتضاف — افتحه من الأيقونة'); } catch (e) { closeSheet(); } };
+}
 function vAbout() {
   setTab(''); backBar('رجوع'); showSearch(false);
   $('main').innerHTML = `<div class="ht"><span class="hl">ترانيم مدارس الأحد</span></div><div style="direction:ltr;text-align:right;color:var(--mut);font-weight:700;white-space:nowrap;font-size:min(16px,4.2vw)">Brethren Sunday School Presenter</div>
@@ -465,6 +479,21 @@ function vAbout() {
   $('dv').textContent = 'نسخة الترانيم ' + arD(localStorage.getItem('ssw_dv') || DATA_VERSION);
   const tc = document.createElement('div'); tc.className = 'card'; tc.innerHTML = `<span class="lb"><span>الشكل</span></span><div class="seg" style="position:static;margin:8px 0 0"><button data-m="auto">زي الموبايل</button><button data-m="light">فاتح</button><button data-m="dark">غامق</button></div>`;
   $('main').insertBefore(tc, $('main').children[2] || null);
+  const me = document.createElement('div'); me.className = 'card'; $('main').insertBefore(me, tc.nextSibling);
+  const meShow = (edit) => {
+    const n = localStorage.getItem('ssw_name') || '', m = localStorage.getItem('ssw_meet') || '';
+    me.innerHTML = `<span class="lb"><span>اسمك واجتماعك</span></span>` + (edit
+      ? `<input id="meN" class="mein" placeholder="اسمك" maxlength="40" value="${esc(n)}"><input id="meM" class="mein" placeholder="الاجتماع أو الكنيسة" maxlength="60" value="${esc(m)}"><button id="meOk" class="newf" style="margin-top:8px">حفظ</button>`
+      : (n || m ? `<p style="font-weight:600">${esc(n)}${n && m ? ' · ' : ''}${esc(m)} <button id="meEd" class="linkb" style="display:inline;margin:0 6px">غيّر</button></p>`
+        : `<p style="font-weight:500">مش مكتوبين على الموبايل ده. <button id="meEd" class="linkb" style="display:inline;margin:0">اكتبهم</button></p>`));
+    if ($('meEd')) $('meEd').onclick = () => meShow(true);
+    if ($('meOk')) $('meOk').onclick = () => {
+      const a = $('meN').value.trim().slice(0, 40), b = $('meM').value.trim().slice(0, 60);
+      try { if (a) localStorage.setItem('ssw_name', a); if (b) localStorage.setItem('ssw_meet', b); localStorage.removeItem('ssw_ping'); } catch (e) {}
+      meShow(false); toast('اتحفظ'); sendPing();
+    };
+  };
+  meShow(false);
   const mark = () => tc.querySelectorAll('[data-m]').forEach(b => b.classList.toggle('on', b.dataset.m === THEME.get()));
   tc.querySelectorAll('[data-m]').forEach(b => b.onclick = () => { THEME.set(b.dataset.m); mark(); }); mark();
 }
@@ -924,12 +953,13 @@ addEventListener('hashchange', () => { const v = $('vsel'); if (v) v.remove(); c
 
 // ---------- router ----------
 let lastHash = '';
+['touchstart', 'wheel', 'keydown'].forEach(t => addEventListener(t, () => { route.moved = 1; }, { once: true, passive: true }));
 function route() {
   const h = location.hash || '#/', p = h.slice(2).split('/');
   document.querySelectorAll('#fbar,#kbar').forEach(x => x.remove()); document.body.classList.remove('hasfbar');
   if (lastHash && h !== lastHash) NAV.depth++;
   lastHash = h;
-  if (p[0] === '' ) { NAV.tab = 'hymns'; NAV.from = null; vHymns(); }
+  if (p[0] === '' ) { NAV.tab = 'hymns'; NAV.from = null; vHymns(); if (!route.once) { route.once = 1; scrollTo(0, 0); setTimeout(() => { if (scrollY > 0 && !route.moved) scrollTo(0, 0); }, 350); } }   // the app opens at the very top (the browser was bringing back the old place)
   else if (p[0] === 'h') { vHymn(+p[1]); }
   else if (p[0] === 'topics') { NAV.tab = 'topics'; vTopics(); scrollTo(0, 0); }   // topics always open at the top
   else if (p[0] === 't') { NAV.tab = 'topics'; vTopic(+p[1]); scrollTo(0, 0); }
@@ -1018,7 +1048,8 @@ async function sendPing() {
     if (!id) { id = Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4); localStorage.setItem('ssw_uid', id); }
     const home = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
     const fd = new FormData();
-    fd.append('entry.1735689864', localStorage.getItem('ssw_name') || '');
+    let gname = ''; try { gname = (JSON.parse(localStorage.getItem('ssw_cloud') || 'null') || {}).name || ''; } catch (e) {}
+    fd.append('entry.1735689864', localStorage.getItem('ssw_name') || gname);   // no name on this phone (registered on the site before)? the Google name
     fd.append('entry.983565199', id);
     fd.append('entry.523498647', (home ? 'home screen' : 'browser'));
     fd.append('entry.520013336', localStorage.getItem('ssw_meet') || '');
@@ -1039,6 +1070,7 @@ function askReg() {
     if (m.length < 2) { $('wE').textContent = 'اكتب اسم الاجتماع أو الكنيسة'; $('wM').focus(); return; }
     try { localStorage.setItem('ssw_reg_wait', JSON.stringify({ n, m })); localStorage.setItem('ssw_reg', '1'); localStorage.setItem('ssw_name', n); localStorage.setItem('ssw_meet', m); localStorage.setItem('ssw_appv', APPV); } catch (x) {}
     $('welcome').remove(); sendReg(); sendPing(); toast('أهلًا بيك يا ' + n.split(' ')[0]); setTimeout(showNews, 1500);
+    if (document.activeElement) document.activeElement.blur(); scrollTo(0, 0); setTimeout(() => scrollTo(0, 0), 400);   // the keyboard had pushed the page down: back to the top
   });
 }
 
