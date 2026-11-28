@@ -20,12 +20,12 @@ const IC = {
 const buzz = () => { try { if (navigator.vibrate) navigator.vibrate(12); } catch (e) {} };
 function toast(m) { const t = $('toast'); t.textContent = m; t.classList.add('show'); clearTimeout(toast.t); toast.t = setTimeout(() => t.classList.remove('show'), 2400); }
 let PREF = { fs: 19 };
-try { Object.assign(PREF, JSON.parse(localStorage.getItem('sswb_pref') || '{}')); } catch (e) {}
-const savePref = () => { try { localStorage.setItem('sswb_pref', JSON.stringify(PREF)); } catch (e) {} };
+try { Object.assign(PREF, JSON.parse(localStorage.getItem('ssw_pref') || '{}')); } catch (e) {}
+const savePref = () => { try { localStorage.setItem('ssw_pref', JSON.stringify(PREF)); } catch (e) {} };
 document.documentElement.style.setProperty('--fs', PREF.fs + 'px');
 let FAV = [];
-try { FAV = JSON.parse(localStorage.getItem('sswb_fav') || '[]'); } catch (e) {}
-const saveFav = () => { try { localStorage.setItem('sswb_fav', JSON.stringify(FAV)); } catch (e) {} if (window.cloudDirty) cloudDirty(); };
+try { FAV = JSON.parse(localStorage.getItem('ssw_fav') || '[]'); } catch (e) {}
+const saveFav = () => { try { localStorage.setItem('ssw_fav', JSON.stringify(FAV)); } catch (e) {} if (window.cloudDirty) cloudDirty(); };
 
 // Bible book abbreviations (same as the desktop app)
 const ABBR = { 'تك':0,'خر':1,'لا':2,'عد':3,'تث':4,'يش':5,'قض':6,'را':7,'1صم':8,'2صم':9,'1مل':10,'2مل':11,'1اخ':12,'2اخ':13,'عز':14,'نح':15,'اس':16,'اي':17,'مز':18,'ام':19,'جا':20,'نش':21,'اش':22,'ار':23,'مرا':24,'حز':25,'دا':26,'هو':27,'يوء':28,'يوئ':28,'عا':29,'عو':30,'يون':31,'مي':32,'نا':33,'حب':34,'صف':35,'حج':36,'زك':37,'مل':38,
@@ -85,10 +85,10 @@ function hymnItem(n, sub, key) {
 function bar(html) { $('bar').innerHTML = html; }
 // ---------- light / dark (follows the phone unless chosen) ----------
 const THEME = {
-  get() { try { return localStorage.getItem('sswb_theme') || 'auto'; } catch (e) { return 'auto'; } },
+  get() { try { return localStorage.getItem('ssw_theme') || 'auto'; } catch (e) { return 'auto'; } },
   dark() { const t = THEME.get(); return t === 'dark' || (t === 'auto' && matchMedia('(prefers-color-scheme: dark)').matches); },
   apply() { const d = THEME.dark(); document.documentElement.toggleAttribute('data-theme', d); if (d) document.documentElement.setAttribute('data-theme', 'dark'); const m = document.querySelector('meta[name=theme-color]'); if (m) m.content = d ? '#0f141a' : '#fbfaf7'; const b = document.getElementById('thm'); if (b) b.innerHTML = d ? IC.sun : IC.moon; },
-  set(t) { try { localStorage.setItem('sswb_theme', t); } catch (e) {} THEME.apply(); }
+  set(t) { try { localStorage.setItem('ssw_theme', t); } catch (e) {} THEME.apply(); }
 };
 IC.moon = '<svg viewBox="0 0 24 24"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg>';
 IC.sun = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M4.6 4.6l1.4 1.4M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4L6 18M18 6l1.4-1.4"/></svg>';
@@ -196,7 +196,7 @@ function showNews() {
 }
 // new data arrived while the app is open: reload on the home screen (once per version), otherwise a yellow button
 function dataArrived(v) {
-  const k = 'sswb_rl_' + v;
+  const k = 'ssw_rl_' + v;
   if ((location.hash || '#/') === '#/' && !$('q').value && scrollY < 50 && !$('updPop') && !document.querySelector('.sheet') && !sessionStorage.getItem(k)) { sessionStorage.setItem(k, '1'); reloading = true; const p = $('updPop'); if (p) p.remove(); setTimeout(() => location.reload(), 600); return; }
   if ($('updBtn')) return;
   const el = document.createElement('button'); el.id = 'updBtn';
@@ -208,12 +208,12 @@ function dataArrived(v) {
 // ---------- views ----------
 const NAV = { depth: 0, tab: 'hymns', q: { hymns: '', bible: '' }, from: null };
 // last searches (hymns), shown as small chips above the list when the search is empty
-const RECENT = { get() { try { return JSON.parse(localStorage.getItem('sswb_recent') || '[]'); } catch (e) { return []; } } };
-function recentAdd(q) { if (NAV.q.hymns.trim() !== q && latinDigits(NAV.q.hymns.trim()) !== q) return; const r = RECENT.get().filter(x => x !== q); r.unshift(q); try { localStorage.setItem('sswb_recent', JSON.stringify(r.slice(0, 5))); } catch (e) {} }
+const RECENT = { get() { try { return JSON.parse(localStorage.getItem('ssw_recent') || '[]'); } catch (e) { return []; } } };
+function recentAdd(q) { if (NAV.q.hymns.trim() !== q && latinDigits(NAV.q.hymns.trim()) !== q) return; const r = RECENT.get().filter(x => x !== q); r.unshift(q); try { localStorage.setItem('ssw_recent', JSON.stringify(r.slice(0, 5))); } catch (e) {} }
 function recentHTML() { const r = RECENT.get(); return r.length ? `<div class="recent"><span class="rl">آخر بحث</span>${r.map(x => `<button data-q="${esc(x)}">${esc(x)}</button>`).join('')}<button class="rx" aria-label="امسح آخر بحث">×</button></div>` : ''; }
 function recentBind() {
   document.querySelectorAll('.recent [data-q]').forEach(b => b.onclick = () => { $('q').value = b.dataset.q; $('q').dispatchEvent(new Event('input')); });
-  const x = document.querySelector('.recent .rx'); if (x) x.onclick = () => { try { localStorage.removeItem('sswb_recent'); } catch (e) {} const r = document.querySelector('.recent'); if (r) r.remove(); azSetup(); };
+  const x = document.querySelector('.recent .rx'); if (x) x.onclick = () => { try { localStorage.removeItem('ssw_recent'); } catch (e) {} const r = document.querySelector('.recent'); if (r) r.remove(); azSetup(); };
 }
 function vHymns() {
   setTab('hymns'); homeBar(); showSearch(true, 'اسم الترنيمة أو أي كلمة منها…');
@@ -222,7 +222,7 @@ function vHymns() {
   if (q.length > 1) { clearTimeout(vHymns.rt); vHymns.rt = setTimeout(() => recentAdd(q), 1500); }
   if (!q) {
     m.innerHTML = recentHTML() + `<div class="hint"><b>رجاء محبة:</b> استخدم البرنامج للمساعدة بس، لأنه مش بديل إنك تاخد وقت قدّام الرب وتطلب إرشاده قبل فرصة الترانيم.</div>`
-      + (localStorage.getItem('sswb_hint2') || matchMedia('(display-mode: standalone)').matches || navigator.standalone ? '' : `<div class="hint">عايز تفتحه زي أي برنامج ومن غير نت؟ ضيفه للشاشة الرئيسية (Add to Home Screen) — <a href="../#add" style="color:var(--link);font-weight:800;text-decoration:underline">شوف إزاي بالصور</a>. <button style="color:var(--link);font-weight:800" onclick="localStorage.setItem('sswb_hint2',1);this.parentNode.remove()">تمام</button></div>`)
+      + (localStorage.getItem('ssw_hint2') || matchMedia('(display-mode: standalone)').matches || navigator.standalone ? '' : `<div class="hint">عايز تفتحه زي أي برنامج ومن غير نت؟ ضيفه للشاشة الرئيسية (Add to Home Screen) — <a href="../#add" style="color:var(--link);font-weight:800;text-decoration:underline">شوف إزاي بالصور</a>. <button style="color:var(--link);font-weight:800" onclick="localStorage.setItem('ssw_hint2',1);this.parentNode.remove()">تمام</button></div>`)
       + alphaHTML(HV.map(h => h.num));
     recentBind();
     return;
@@ -359,12 +359,12 @@ function vBible() {
   if (!q) {
     // two buttons at the top (العهد القديم | العهد الجديد) — only the chosen one shows, no long scroll to reach the New Testament
     const btn = (i) => `<button data-b="${i}">${esc(bookName(i))}</button>`;
-    let t = localStorage.getItem('sswb_testament') === 'nt' ? 'nt' : 'ot';
+    let t = localStorage.getItem('ssw_testament') === 'nt' ? 'nt' : 'ot';
     const draw = () => {
       const list = t === 'nt' ? BK.slice(39).map((_, i) => i + 39) : BK.slice(0, 39).map((_, i) => i);
       $('main').innerHTML = `<div class="seg" role="tablist"><button data-t="ot" class="${t === 'ot' ? 'on' : ''}">العهد القديم</button><button data-t="nt" class="${t === 'nt' ? 'on' : ''}">العهد الجديد</button></div><div class="grid fadein">${list.map(btn).join('')}</div>`;
       $('main').querySelectorAll('[data-b]').forEach(b => b.onclick = () => { location.hash = '#/b/' + b.dataset.b; });
-      $('main').querySelectorAll('.seg [data-t]').forEach(b => b.onclick = () => { if (t === b.dataset.t) return; t = b.dataset.t; try { localStorage.setItem('sswb_testament', t); } catch (e) {} draw(); });
+      $('main').querySelectorAll('.seg [data-t]').forEach(b => b.onclick = () => { if (t === b.dataset.t) return; t = b.dataset.t; try { localStorage.setItem('ssw_testament', t); } catch (e) {} draw(); });
     };
     draw();
     return;
@@ -544,8 +544,8 @@ addEventListener('scroll', () => {
 
 // ---------- «فرصي»: the servant prepares a فرصة (hymns + verses + notes); kept on this phone only ----------
 let FR = [];
-try { FR = JSON.parse(localStorage.getItem('sswb_forsa') || '[]'); } catch (e) {}
-const saveFR = () => { try { localStorage.setItem('sswb_forsa', JSON.stringify(FR)); } catch (e) { toast('مش قادر أحفظ على الموبايل ده'); } if (window.cloudDirty) cloudDirty(); };
+try { FR = JSON.parse(localStorage.getItem('ssw_forsa') || '[]'); } catch (e) {}
+const saveFR = () => { try { localStorage.setItem('ssw_forsa', JSON.stringify(FR)); } catch (e) { toast('مش قادر أحفظ على الموبايل ده'); } if (window.cloudDirty) cloudDirty(); };
 const ymd = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
 const todayStr = () => ymd(new Date());
 const MON = ['يناير', 'فبراير', 'مارس', 'أبريل', 'مايو', 'يونيو', 'يوليو', 'أغسطس', 'سبتمبر', 'أكتوبر', 'نوفمبر', 'ديسمبر'];
@@ -559,7 +559,7 @@ const fName = f => f.title || 'فرصة ' + fDate(f.date).split(' ').slice(1, 3)
 const fById = id => FR.find(f => f.id === id);
 function newForsa() {
   const f = { id: Date.now().toString(36), date: todayStr(), title: '', place: '', note: '', items: [] };
-  FR.unshift(f); saveFR(); try { localStorage.setItem('sswb_flast', f.id); } catch (e) {} return f;
+  FR.unshift(f); saveFR(); try { localStorage.setItem('ssw_flast', f.id); } catch (e) {} return f;
 }
 const fSort = () => FR.slice().sort((a, b) => (b.date > a.date ? 1 : b.date < a.date ? -1 : b.id > a.id ? 1 : -1));
 const verseText = it => B && B[it.b] && B[it.b].chapters[it.c] ? B[it.b].chapters[it.c].slice(it.v, it.v2 + 1).join(' ') : (it.x || '');
@@ -585,7 +585,7 @@ function vForsaList() {
   setTab('forsa'); homeBar('حضّر فرصتك: ترانيم وشواهد وملاحظات'); showSearch(false);
   const t = todayStr(), all = fSort(), up = all.filter(f => f.date >= t).reverse(), past = all.filter(f => f.date < t);
   const row = f => { const w = whenTxt(f.date); return swRow(`<a class="it fl" href="#/f/${f.id}"><div class="t">${esc(fName(f))}${w ? `<span class="badge">${w}</span>` : ''}</div><div class="s">${esc(fDate(f.date))}${f.place ? ' · ' + esc(f.place) : ''} · ${countTxt(f)}</div></a>`, [['dup', 'نسخة', f.id], ['del', 'امسح', f.id]]); };
-  $('main').innerHTML = `<button class="newf" id="nf">${ICF.plus.replace('<svg', '<svg style="width:22px;height:22px;stroke:#111;fill:none;stroke-width:2.6;stroke-linecap:round"')} فرصة جديدة</button><button class="impf" id="imf">استورد فرصة حد بعتهالك</button>`
+  $('main').innerHTML = `<button class="newf" id="nf">${ICF.plus.replace('<svg', '<svg style="width:22px;height:22px;stroke:#111;fill:none;stroke-width:2.6;stroke-linecap:round"')} فرصة جديدة</button><div class="impw"><b>حد بعتلك فرصة على الواتساب؟</b><button class="impf" id="imf">افتحها هنا</button><small>انسخ الرسالة ودوس هنا، وهتلاقيها في «فرصي» بالترانيم والشواهد بنفس الترتيب.</small></div>`
     + (FR.length ? '' : `<div class="hint">اعمل فرصة، وضيف ليها الترانيم والشواهد اللي هتستخدمها، واكتب ملاحظاتك. الفرص كلها بتفضل متسجلة هنا بتاريخها.</div>`)
     + (up.length ? `<div class="sec">الفرص الجاية</div>${up.map(row).join('')}` : '')
     + (past.length ? `<div class="sec">الفرص اللي فاتت</div>${past.map(row).join('')}` : '')
@@ -645,7 +645,7 @@ function undoBar(msg, undo, commit) {
 // one فرصة
 function vForsa(id) {
   const f = fById(id); if (!f) { location.hash = '#/f'; return; }
-  try { localStorage.setItem('sswb_flast', f.id); } catch (e) {}
+  try { localStorage.setItem('ssw_flast', f.id); } catch (e) {}
   setTab('forsa'); showSearch(false);
   backBar('فرصي');
   const save = () => { saveFR(); };
@@ -762,7 +762,7 @@ function parseRefRange(q) {
 function addItem(f, it) {
   if (f.items.some(x => itemKey(x) === itemKey(it))) { toast('موجودة في الفرصة دي بالفعل'); return false; }
   if (it.t === 'v') it.x = verseText(it);
-  f.items.push(it); saveFR(); buzz(); try { localStorage.setItem('sswb_flast', f.id); } catch (e) {} return true;
+  f.items.push(it); saveFR(); buzz(); try { localStorage.setItem('ssw_flast', f.id); } catch (e) {} return true;
 }
 function closeSheet() { const s = $('sheet'); if (s) s.remove(); }
 function openSheet(html) {
@@ -776,7 +776,7 @@ function openSheet(html) {
 function addToForsa(it, label) {
   const go = f => { if (addItem(f, it)) toast('اتضافت لـ «' + fName(f) + '»'); closeSheet(); };
   if (!FR.length) { const f = newForsa(); go(f); toast('اتعملت فرصة جديدة واتضاف ليها ' + label); return; }
-  const t = todayStr(), last = localStorage.getItem('sswb_flast');
+  const t = todayStr(), last = localStorage.getItem('ssw_flast');
   const list = fSort().filter(f => f.date >= t || f.id === last).reverse();
   const more = fSort().filter(f => !list.includes(f)).slice(0, 3);
   const row = f => `<button class="it${f.id === last ? ' last' : ''}" data-id="${f.id}"><div class="t">${esc(fName(f))}</div><div class="s">${esc(fDate(f.date))} · ${countTxt(f)}</div></button>`;
@@ -801,12 +801,15 @@ function hymnPicker(f) {
   const obs = new MutationObserver(() => { if (!$('sheet')) { obs.disconnect(); if (location.hash === '#/f/' + f.id) vForsa(f.id); } });
   obs.observe(document.body, { childList: true });
 }
+// two different hymns with the same name: the shared text adds the first line, so «افتحها هنا» picks the right one
+const firstLine = n => { const t = KE.norm(H[n - 1].title); for (const sl of H[n - 1].slides) for (const l of sl.lines) if (KE.norm(l) && KE.norm(l) !== t) return l.trim(); return ''; };   // its first line that is not just the name
+function sameName(n) { const k = KE.norm(H[n - 1].title); return H.some((h, i) => i !== n - 1 && h && !h.x && KE.norm(h.title) === k); }
 async function shareForsa(f) {
   let txt = fName(f) + '\n' + fDate(f.date) + (f.place ? '\nالمكان: ' + f.place : '') + '\n';
   f.items.forEach((it, i) => {
     const k = it.t === 'h' && KY[it.n];   // the approved Key, when there is one
-    txt += '\n' + arD(i + 1) + '. ' + (it.t === 'h' ? 'ترنيمة: ' + (H[it.n - 1] ? hName(it.n) : '') + (k ? ' · Key: ' + k[0] + (k[1] ? ' ' + (k[1] > 0 ? '+' : '') + k[1] : '') : '') : refTxt(it) + '\n' + verseText(it));
-    if (it.note) txt += '\n   ملاحظة: ' + it.note;
+    txt += '\n' + arD(i + 1) + '. ' + (it.t === 'h' ? 'ترنيمة: ' + (H[it.n - 1] ? hName(it.n) + (sameName(it.n) ? ' — «' + firstLine(it.n) + '»' : '') : '') + (k ? ' · Key: ' + k[0] + (k[1] ? ' ' + (k[1] > 0 ? '+' : '') + k[1] : '') : '') : refTxt(it) + '\n' + verseText(it));
+    if (it.note) txt += '\n   ملاحظة: ' + it.note.replace(/\n/g, '\n      ');   // a note of many lines stays indented, so «افتحها هنا» gets it back whole
   });
   if (f.note) txt += '\n\nملاحظات:\n' + f.note;
   try { if (navigator.share) { await navigator.share({ title: fName(f), text: txt }); return; } } catch (e) { return; }
@@ -814,10 +817,10 @@ async function shareForsa(f) {
 }
 // «استورد فرصة»: someone sent a فرصة on WhatsApp («شارك» text from this app) → paste it here → it becomes a NEW فرصة on this phone
 function importSheet() {
-  openSheet(`<div class="ht" style="margin:0 0 8px"><span class="hl">استورد فرصة</span></div>
-    <div class="s" style="color:var(--mut);font-weight:600;margin-bottom:8px">انسخ رسالة الفرصة اللي اتبعتتلك (اللي اتعملت بزرار «شارك» في البرنامج) والزقها هنا.</div>
+  openSheet(`<div class="ht" style="margin:0 0 8px"><span class="hl">افتح فرصة اتبعتتلك</span></div>
+    <div class="s" style="color:var(--mut);font-weight:600;margin-bottom:8px">انسخ رسالة الفرصة اللي اتبعتتلك على الواتساب والزقها هنا.</div>
     <textarea id="imT" class="imt" placeholder="الزق رسالة الفرصة هنا" dir="rtl"></textarea>
-    <div class="imb"><button id="imP" class="golyr">الصق</button><button id="imGo" class="newf" style="margin:0;flex:1">استورد</button></div>
+    <div class="imb"><button id="imP" class="golyr">الصق</button><button id="imGo" class="newf" style="margin:0;flex:1">افتحها</button></div>
     <div id="imR"></div>
     <button id="imF" class="linkb">أو اختار ملف فرصة (.json)</button><input type="file" id="imFile" accept=".json,application/json,text/plain" hidden>`);
   $('imP').onclick = async () => { try { const t = await navigator.clipboard.readText(); if (t) $('imT').value = t; else toast('مفيش حاجة منسوخة'); } catch (e) { toast('دوس جوه الخانة واختار «لصق»'); $('imT').focus(); } };
@@ -826,7 +829,7 @@ function importSheet() {
   $('imGo').onclick = () => { const t = $('imT').value.trim(); if (!t) { toast('الزق رسالة الفرصة الأول'); return; } withBible(() => importPreview(t)); };
 }
 function parseForsaText(txt) {
-  const L = String(txt).replace(/\r/g, '').split('\n').map(x => x.replace(/\p{Cf}/gu, '').trim());
+  const RAW = String(txt).replace(/\r/g, '').split('\n').map(x => x.replace(/\p{Cf}/gu, '')), L = RAW.map(x => x.trim());
   while (L.length && !L[0]) L.shift();
   if (!L.length) return null;
   const f = { title: '', date: todayStr(), place: '', note: '', items: [] }, miss = [];
@@ -836,19 +839,23 @@ function parseForsaText(txt) {
   if (dm && MON.indexOf(dm[2]) >= 0) { f.date = dm[3] + '-' + String(MON.indexOf(dm[2]) + 1).padStart(2, '0') + '-' + String(+dm[1]).padStart(2, '0'); i = 2; }
   if (f.title === 'فرصة ' + fDate(f.date).split(' ').slice(1, 3).join(' ')) f.title = '';   // the automatic name: keep it automatic
   const byName = new Map(); H.forEach((h, k) => { if (h && !h.x) { const nn = KE.norm(h.title); if (!byName.has(nn)) byName.set(nn, k + 1); } });
-  let last = null, inNote = false, notes = [];
+  let last = null, inNote = false, notes = [], noteOn = false;
   for (; i < L.length; i++) {
-    const l = L[i]; if (inNote) { notes.push(L[i]); continue; }
-    if (!l) continue;
+    const l = L[i]; if (inNote) { notes.push(RAW[i].replace(/\s+$/, '')); continue; }
+    if (noteOn && last && /^\s{2,}/.test(RAW[i]) && !/^ملاحظة\s*:/.test(l)) { last.note += '\n' + l; continue; }   // the next line of a note (indented)
+    if (!l) { noteOn = false; continue; }
     if (/^المكان\s*:/.test(l)) { f.place = l.replace(/^المكان\s*:\s*/, '').slice(0, 60); continue; }
     if (/^ملاحظات\s*:?$/.test(l)) { inNote = true; continue; }
-    if (/^ملاحظة\s*:/.test(l)) { if (last) last.note = l.replace(/^ملاحظة\s*:\s*/, ''); continue; }
+    if (/^ملاحظة\s*:/.test(l)) { if (last) { last.note = l.replace(/^ملاحظة\s*:\s*/, ''); noteOn = true; } continue; }
     const m = latinDigits(l).match(/^(\d+)\s*[.\-)]\s*(.+)$/);
+    noteOn = false;
     if (!m) continue;   // the words of a verse (they come from the Bible here, not from the message)
     const rest = l.replace(/^[^.\-)]*[.\-)]\s*/, '');
     if (/^ترنيمة\s*:/.test(rest)) {
-      const name = rest.replace(/^ترنيمة\s*:\s*/, '').replace(/\s*·\s*Key\s*:.*$/i, '').trim();
-      const n = byName.get(KE.norm(name));
+      let name = rest.replace(/^ترنيمة\s*:\s*/, '').replace(/\s*·\s*Key\s*:.*$/i, '').trim(), fl = '';
+      const q = name.match(/^(.*?)\s+—\s+«(.*)»$/); if (q) { name = q[1].trim(); fl = KE.norm(q[2]); }
+      let n = byName.get(KE.norm(name));
+      if (n && fl) { const k = KE.norm(name), hit = H.findIndex((h, i) => h && !h.x && KE.norm(h.title) === k && KE.norm(firstLine(i + 1)) === fl); if (hit >= 0) n = hit + 1; }
       if (n) { last = { t: 'h', n, note: '' }; f.items.push(last); } else { miss.push(name); last = null; }
     } else {
       const p = parseRefRange(rest);
@@ -867,7 +874,7 @@ function importPreview(txt) {
     + (f.items.length ? '<button id="imOk" class="newf" style="margin-top:10px">ضيفها لفرصي</button>' : '') + '</div>';
   if ($('imOk')) $('imOk').onclick = () => {
     const nf = Object.assign({ id: Date.now().toString(36) }, f);
-    FR.unshift(nf); saveFR(); try { localStorage.setItem('sswb_flast', nf.id); } catch (e) {}
+    FR.unshift(nf); saveFR(); try { localStorage.setItem('ssw_flast', nf.id); } catch (e) {}
     closeSheet(); location.hash = '#/f/' + nf.id; toast('الفرصة اتضافت لفرصك');
   };
 }
@@ -972,10 +979,10 @@ async function checkUpdates() {
 // ---------- first open: name + meeting (same Google Form as the download page; sent later if offline) ----------
 const FORM = 'https://docs.google.com/forms/d/e/1FAIpQLSeOKyMpyAyBKAhD9_Fheqym-wyP91tAttS_a4M0oACJL7mzXg/formResponse';
 async function sendReg() {
-  let r; try { r = JSON.parse(localStorage.getItem('sswb_reg_wait') || 'null'); } catch (e) {}
+  let r; try { r = JSON.parse(localStorage.getItem('ssw_reg_wait') || 'null'); } catch (e) {}
   if (!r || !navigator.onLine) return;
   const fd = new FormData(); fd.append('entry.1735689864', r.n); fd.append('entry.520013336', r.m + ' (موبايل)');
-  try { await fetch(FORM, { method: 'POST', mode: 'no-cors', body: fd }); localStorage.removeItem('sswb_reg_wait'); } catch (e) {}
+  try { await fetch(FORM, { method: 'POST', mode: 'no-cors', body: fd }); localStorage.removeItem('ssw_reg_wait'); } catch (e) {}
 }
 // ---------- once a day (online): who uses the app — name from the first open + a random phone id + Home Screen or browser ----------
 const USAGE = 'https://docs.google.com/forms/d/e/1FAIpQLSdbtl3-F05oj4u-UVteKihXa5Wc7rbFNQ1gLYWIYFqyJd7mUA/formResponse';
@@ -984,20 +991,20 @@ async function sendPing() {
     if (!navigator.onLine) return;
     const day = new Date().toLocaleDateString('en-CA'), K = 'sswb_ping';
     if (localStorage.getItem(K) === day) return;
-    let id = localStorage.getItem('sswb_uid');
-    if (!id) { id = Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4); localStorage.setItem('sswb_uid', id); }
+    let id = localStorage.getItem('ssw_uid');
+    if (!id) { id = Math.random().toString(36).slice(2, 10) + Date.now().toString(36).slice(-4); localStorage.setItem('ssw_uid', id); }
     const home = matchMedia('(display-mode: standalone)').matches || navigator.standalone;
     const fd = new FormData();
-    fd.append('entry.1735689864', localStorage.getItem('sswb_name') || '');
+    fd.append('entry.1735689864', localStorage.getItem('ssw_name') || '');
     fd.append('entry.983565199', id);
     fd.append('entry.523498647', (home ? 'home screen' : 'browser') + ' (beta)');
-    fd.append('entry.520013336', localStorage.getItem('sswb_meet') || '');
+    fd.append('entry.520013336', localStorage.getItem('ssw_meet') || '');
     await fetch(USAGE, { method: 'POST', mode: 'no-cors', body: fd });
     localStorage.setItem(K, day);
   } catch (e) {}
 }
 function askReg() {
-  if (localStorage.getItem('sswb_reg') === '1' || localStorage.getItem('bssp_reg') === '1') return;
+  if (localStorage.getItem('ssw_reg') === '1' || localStorage.getItem('bssp_reg') === '1') return;
   $('welcome').style.display = '';
   // a new phone: everything it has now is not «new» for it
   try { localStorage.setItem('sswb_seen', H.length); localStorage.setItem('sswb_notes_seen', localStorage.getItem('sswb_dv') || DATA_VERSION); localStorage.setItem('sswb_appv', APPV); } catch (e) {}
@@ -1007,7 +1014,7 @@ function askReg() {
     const n = $('wN').value.trim(), m = $('wM').value.trim();
     if (n.length < 2) { $('wE').textContent = 'اكتب اسمك'; $('wN').focus(); return; }
     if (m.length < 2) { $('wE').textContent = 'اكتب اسم الاجتماع أو الكنيسة'; $('wM').focus(); return; }
-    try { localStorage.setItem('sswb_reg_wait', JSON.stringify({ n, m })); localStorage.setItem('sswb_reg', '1'); localStorage.setItem('sswb_name', n); localStorage.setItem('sswb_meet', m); localStorage.setItem('sswb_appv', APPV); } catch (x) {}
+    try { localStorage.setItem('ssw_reg_wait', JSON.stringify({ n, m })); localStorage.setItem('ssw_reg', '1'); localStorage.setItem('ssw_name', n); localStorage.setItem('ssw_meet', m); localStorage.setItem('sswb_appv', APPV); } catch (x) {}
     $('welcome').remove(); sendReg(); sendPing(); toast('أهلًا بيك يا ' + n.split(' ')[0]); setTimeout(showNews, 1500);
   });
 }
@@ -1033,7 +1040,7 @@ async function syncBundled() {
     localStorage.setItem('sswb_dv', DATA_VERSION);
     if (have && (notes.length || hist)) saveNotes(DATA_VERSION, notes, hist, have);
     if (have) dataArrived(DATA_VERSION);
-    else { const n = (got['hymns.js'].match(/"num":/g) || []).length; if (n && n !== H.length && !sessionStorage.getItem('sswb_rl')) { sessionStorage.setItem('sswb_rl', '1'); location.reload(); } }
+    else { const n = (got['hymns.js'].match(/"num":/g) || []).length; if (n && n !== H.length && !sessionStorage.getItem('ssw_rl')) { sessionStorage.setItem('ssw_rl', '1'); location.reload(); } }
   } catch (e) {}
 }
 
