@@ -223,7 +223,7 @@ function vHymns() {
   if (q.length > 1) { clearTimeout(vHymns.rt); vHymns.rt = setTimeout(() => recentAdd(q), 1500); }
   if (!q) {
     m.innerHTML = recentHTML() + `<div class="hint"><b>رجاء محبة:</b> استخدم البرنامج للمساعدة بس، لأنه مش بديل إنك تاخد وقت قدّام الرب وتطلب إرشاده قبل فرصة الترانيم.</div>`
-      + (isApp() || !isPhone() ? '' : `<button class="mkapp" id="mkapp"><b>خلّيه برنامج على موبايلك</b><span>‹</span></button>`)
+      + (isApp() || !isPhone() ? '' : `<button class="mkapp" id="mkapp"><div><b>خلّيه برنامج على موبايلك</b><small>بيفتح أسرع، وبيشتغل من غير نت، ومن غير شريط المتصفح.</small></div><span>‹</span></button>`)
       + alphaHTML(HV.map(h => h.num));
     recentBind(); if ($('mkapp')) $('mkapp').onclick = mkAppSheet;
     return;
@@ -953,12 +953,13 @@ addEventListener('hashchange', () => { const v = $('vsel'); if (v) v.remove(); c
 
 // ---------- router ----------
 let lastHash = '';
+['touchstart', 'wheel', 'keydown'].forEach(t => addEventListener(t, () => { route.moved = 1; }, { once: true, passive: true }));
 function route() {
   const h = location.hash || '#/', p = h.slice(2).split('/');
   document.querySelectorAll('#fbar,#kbar').forEach(x => x.remove()); document.body.classList.remove('hasfbar');
   if (lastHash && h !== lastHash) NAV.depth++;
   lastHash = h;
-  if (p[0] === '' ) { NAV.tab = 'hymns'; NAV.from = null; vHymns(); }
+  if (p[0] === '' ) { NAV.tab = 'hymns'; NAV.from = null; vHymns(); if (!route.once) { route.once = 1; scrollTo(0, 0); setTimeout(() => { if (scrollY > 0 && !route.moved) scrollTo(0, 0); }, 350); } }   // the app opens at the very top (the browser was bringing back the old place)
   else if (p[0] === 'h') { vHymn(+p[1]); }
   else if (p[0] === 'topics') { NAV.tab = 'topics'; vTopics(); scrollTo(0, 0); }   // topics always open at the top
   else if (p[0] === 't') { NAV.tab = 'topics'; vTopic(+p[1]); scrollTo(0, 0); }
