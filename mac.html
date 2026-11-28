@@ -123,9 +123,18 @@ bdi{font-weight:700}
  <div class="priv">البيانات دي بتوصل لخدمة مدارس الأحد بس، ومش بتتنشر.</div>
 </form></div>
 <script>
+// which Mac? the app tells us (#mac-arm64 / #mac-x64); Chrome / Edge tell us too. Not sure (e.g. Safari) = the universal copy, which works on every Mac.
+// An Apple Silicon copy is only given when we are SURE it is Apple Silicon (the Intel copy would still run there; the opposite would not).
+async function macArch() {
+  if (location.hash === '#mac-arm64') return 'AppleSilicon';
+  if (location.hash === '#mac-x64') return 'Intel';
+  try { if (navigator.userAgentData && navigator.userAgentData.getHighEntropyValues) { const v = await navigator.userAgentData.getHighEntropyValues(['architecture', 'bitness']); if (v.architecture === 'arm') return 'AppleSilicon'; if (v.architecture === 'x86') return 'Intel'; } } catch (e) {}
+  return '';
+}
 fetch('https://api.github.com/repos/brethrensundayschoolpresenter/brethren-sunday-school-presenter/releases/latest')
- .then(r => r.json()).then(r => {
-   const m = (r.assets || []).find(x => /-Mac-[\d.]+\.dmg$/.test(x.name));
+ .then(r => r.json()).then(async r => {
+   const A = r.assets || [], k = await macArch();
+   const m = (k && A.find(x => new RegExp('-Mac-' + k + '-[\\d.]+\\.dmg$').test(x.name))) || A.find(x => /-Mac-[\d.]+\.dmg$/.test(x.name));
    if (m) { document.getElementById('dlm').href = m.browser_download_url; document.getElementById('ver').innerHTML = 'النسخة <bdi dir="ltr">' + r.tag_name.replace(/^v/, '') + '</bdi> — حجمها حوالي ' + Math.round(m.size / 1048576) + ' ميجا'; }
  }).catch(() => {});
 const FORM = 'https://docs.google.com/forms/d/e/1FAIpQLSeOKyMpyAyBKAhD9_Fheqym-wyP91tAttS_a4M0oACJL7mzXg/formResponse';

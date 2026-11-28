@@ -509,7 +509,7 @@ code{unicode-bidi:isolate;background:#0e1622;border:1px solid #3d5570;border-rad
 </form></div>
 
 <script>
-if (location.hash === '#mac') location.replace('mac.html');   // the Mac app's «نسخة جديدة — نزّلها» opens /#mac
+if (/^#mac(-arm64|-x64)?$/.test(location.hash)) location.replace('mac.html' + location.hash);   // the Mac app's «نسخة جديدة — نزّلها» opens /#mac
 // ---- download buttons always point to the newest installers ----
 fetch('https://api.github.com/repos/brethrensundayschoolpresenter/brethren-sunday-school-presenter/releases/latest')
  .then(r => r.json()).then(r => {
