@@ -1,5 +1,5 @@
 // BETA (test link, only Shady): network-first for everything, own caches; never touches the live app's caches/data
-const SHELL = 'sswb-shell-v17';
+const SHELL = 'sswb-shell-v18';
 self.addEventListener('install', e => self.skipWaiting());
 self.addEventListener('activate', e => {
   e.waitUntil((async () => {

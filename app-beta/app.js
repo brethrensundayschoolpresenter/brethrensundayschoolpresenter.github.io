@@ -408,12 +408,13 @@ function vChapter(b, c, v1, v2) {
   });
 }
 // drag-to-reorder (favourites «رتّبهم»): hold the ≡ handle and drag the row; the other rows slide out of the way
-function dragSort(root, onDrop) {
-  root.querySelectorAll('.ordr .dh').forEach(h => h.addEventListener('pointerdown', e => {
+function dragSort(root, onDrop, sel = '.ordr') {   // rows can have different heights («فرصي»): the row lands where its middle is
+  root.querySelectorAll(sel + ' .dh').forEach(h => h.addEventListener('pointerdown', e => {
     if (e.button > 0) return;
     e.preventDefault();
-    const row = h.closest('.ordr'), rows = [...root.querySelectorAll('.ordr')], from = rows.indexOf(row);
+    const row = h.closest(sel), rows = [...root.querySelectorAll(sel)], from = rows.indexOf(row);
     const step = row.offsetHeight + parseFloat(getComputedStyle(row).marginBottom || 0);
+    const mid = rows.map(r => { const b = r.getBoundingClientRect(); return b.top + scrollY + b.height / 2; });
     let y0 = e.clientY, sy0 = scrollY, cy = e.clientY, to = from, raf = 0, done = false;
     try { h.setPointerCapture(e.pointerId); } catch (x) {}
     row.classList.add('drag'); buzz();
@@ -421,7 +422,8 @@ function dragSort(root, onDrop) {
     const place = () => {
       const dy = cy - y0 + scrollY - sy0;
       row.style.transform = 'translateY(' + dy + 'px)';
-      let t = Math.max(0, Math.min(rows.length - 1, from + Math.round(dy / step)));
+      const c = mid[from] + dy; let t = from;
+      for (let i = 0; i < rows.length; i++) { if (i < from && c < mid[i]) { t = i; break; } if (i > from && c > mid[i]) t = i; }
       if (t !== to) { to = t; buzz(); }
       rows.forEach((r, i) => { if (r === row) return; r.style.transform = from < i && i <= to ? 'translateY(' + -step + 'px)' : to <= i && i < from ? 'translateY(' + step + 'px)' : ''; });
     };
@@ -585,7 +587,7 @@ function vForsaList() {
   setTab('forsa'); homeBar('حضّر فرصتك: ترانيم وشواهد وملاحظات'); showSearch(false);
   const t = todayStr(), all = fSort(), up = all.filter(f => f.date >= t).reverse(), past = all.filter(f => f.date < t);
   const row = f => { const w = whenTxt(f.date); return swRow(`<a class="it fl" href="#/f/${f.id}"><div class="t">${esc(fName(f))}${w ? `<span class="badge">${w}</span>` : ''}</div><div class="s">${esc(fDate(f.date))}${f.place ? ' · ' + esc(f.place) : ''} · ${countTxt(f)}</div></a>`, [['dup', 'نسخة', f.id], ['del', 'امسح', f.id]]); };
-  $('main').innerHTML = `<button class="newf" id="nf">${ICF.plus.replace('<svg', '<svg style="width:22px;height:22px;stroke:#111;fill:none;stroke-width:2.6;stroke-linecap:round"')} فرصة جديدة</button><div class="impw"><b>حد بعتلك فرصة على الواتساب؟</b><button class="impf" id="imf">افتحها هنا</button><small>انسخ الرسالة ودوس هنا، وهتلاقيها في «فرصي» بالترانيم والشواهد بنفس الترتيب.</small></div>`
+  $('main').innerHTML = `<button class="newf" id="nf">${ICF.plus.replace('<svg', '<svg style="width:22px;height:22px;stroke:#111;fill:none;stroke-width:2.6;stroke-linecap:round"')} فرصة جديدة</button><div class="impw"><b>حد بعتلك فرصة على الواتساب؟</b><button class="impf" id="imf">افتحها هنا</button><small>لو حد بعتلك فرصة (رسالة أو ملف)، دوس هنا، وهتنزل عندك في «فرصي» بالترانيم والشواهد بنفس الترتيب.</small></div>`
     + (FR.length ? '' : `<div class="hint">اعمل فرصة، وضيف ليها الترانيم والشواهد اللي هتستخدمها، واكتب ملاحظاتك. الفرص كلها بتفضل متسجلة هنا بتاريخها.</div>`)
     + (up.length ? `<div class="sec">الفرص الجاية</div>${up.map(row).join('')}` : '')
     + (past.length ? `<div class="sec">الفرص اللي فاتت</div>${past.map(row).join('')}` : '')
@@ -654,7 +656,7 @@ function vForsa(id) {
     const main = it.t === 'h'
       ? `<div class="fi-main"><a href="#/h/${it.n}"><div class="k">ترنيمة</div><div class="t">${esc(H[it.n - 1] ? hName(it.n) : '—')}</div></a></div>`
       : `<a class="fi-main" href="#/b/${it.b}/${it.c}/${it.v}-${it.v2}"><div class="k">شاهد</div><div class="t">${esc(refTxt(it))}</div><div class="s">${esc(verseText(it))}</div></a>`;
-    return `<div class="fi" data-i="${i}"><div class="fi-top"><span class="fnum">${arD(i + 1)}</span>${main}<div class="fi-act"><button data-a="up" ${i ? '' : 'disabled'} aria-label="لفوق">${ICF.up}</button><button data-a="down" ${i < f.items.length - 1 ? '' : 'disabled'} aria-label="لتحت">${ICF.down}</button><button data-a="del" aria-label="شيل">${ICF.x}</button></div></div>`
+    return `<div class="fi" data-i="${i}"><div class="fi-top"><span class="fnum">${arD(i + 1)}</span>${main}<div class="fi-act">${f.items.length > 1 ? `<button class="dh" aria-label="اسحب عشان ترتّب">${ICF.grip}</button>` : ''}<button data-a="del" aria-label="شيل">${ICF.x}</button></div></div>`
       + (it.t === 'h' && HD[it.n] && !f.hideSug ? (it.sug ? hymnSug(it.n) + `<button class="sgb" data-a="sug">اخفي الآيات والقصة</button>` : `<button class="sgb" data-a="sug">اظهر الآيات والقصة ‹</button>`) : '')
       + (it.note ? `<textarea class="fnote" rows="1" placeholder="ملاحظة…">${esc(it.note)}</textarea>` : `<button class="addnote" data-a="note">+ ملاحظة ${it.t === 'h' ? 'على الترنيمة دي' : 'على الشاهد ده'}</button>`) + '</div>';
   }).join('');
@@ -683,10 +685,9 @@ function vForsa(id) {
       if (a === 'note') { b.outerHTML = `<textarea class="fnote" rows="1" placeholder="ملاحظة…"></textarea>`; const t = el.querySelector('.fnote'); t.oninput = () => { grow(t); f.items[i].note = t.value; later(); }; t.focus(); return; }
       if (a === 'sug') { f.items[i].sug = !f.items[i].sug; save(); const y = scrollY; vForsa(id); scrollTo(0, y); return; }
       if (a === 'del') { const [gone] = f.items.splice(i, 1); save(); vForsa(id); undoToast('اتشالت', () => { f.items.splice(i, 0, gone); save(); vForsa(id); }); return; }
-      const j = a === 'up' ? i - 1 : i + 1; if (j < 0 || j >= f.items.length) return;
-      [f.items[i], f.items[j]] = [f.items[j], f.items[i]]; save(); const y = scrollY; vForsa(id); scrollTo(0, y);
     });
   });
+  dragSort($('main'), (from, to) => { const [x] = f.items.splice(from, 1); f.items.splice(to, 0, x); save(); const y = scrollY; vForsa(id); scrollTo(0, y); }, '.fi');   // hold ≡ and drag, like «المفضلة»
   if ($('sugT')) $('sugT').onclick = () => { f.hideSug = !f.hideSug; save(); const y = scrollY; vForsa(id); scrollTo(0, y); };
   $('aH').onclick = () => hymnPicker(f);
   $('aV').onclick = () => { $('fR').classList.toggle('on'); if ($('fR').classList.contains('on')) $('fRi').focus(); };
@@ -818,7 +819,7 @@ async function shareForsa(f) {
 // «استورد فرصة»: someone sent a فرصة on WhatsApp («شارك» text from this app) → paste it here → it becomes a NEW فرصة on this phone
 function importSheet() {
   openSheet(`<div class="ht" style="margin:0 0 8px"><span class="hl">افتح فرصة اتبعتتلك</span></div>
-    <div class="s" style="color:var(--mut);font-weight:600;margin-bottom:8px">انسخ رسالة الفرصة اللي اتبعتتلك على الواتساب والزقها هنا. ولو اللي اتبعتلك ملف، دوس «اختار الملف» تحت.</div>
+    <div class="imhow"><div><b>١.</b> لو اتبعتلك <b>رسالة</b> فيها الترانيم: اعمل نسخ للرسالة كلها، والزقها في الخانة دي، ودوس «افتحها».</div><div><b>٢.</b> لو اتبعتلك <b>ملف</b>: دوس «اتبعتلك ملف؟ اختار الملف» تحت، واختاره.</div></div>
     <textarea id="imT" class="imt" placeholder="الزق رسالة الفرصة هنا" dir="rtl"></textarea>
     <div class="imb"><button id="imP" class="golyr">الصق</button><button id="imGo" class="newf" style="margin:0;flex:1">افتحها</button></div>
     <div id="imR"></div>
